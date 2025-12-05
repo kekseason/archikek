@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
 
 // ============================================================
 // ANALYSIS THEMES (12 TEMA)
@@ -166,6 +168,9 @@ type SelectionData = {
 }
 
 export default function CreatePage() {
+  const { user, profile, loading: authLoading, signOut, refreshProfile } = useAuth()
+  const router = useRouter()
+  
   const [location, setLocation] = useState('')
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('point')
   const [selection, setSelection] = useState<SelectionData | null>(null)
@@ -439,11 +444,46 @@ export default function CreatePage() {
       setError('Please select an area on the map')
       return
     }
+
+    // Check if user is logged in
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
+    // Check credits (unless pro)
+    const isPro = profile?.is_pro && profile?.pro_expires_at && new Date(profile.pro_expires_at) > new Date()
+    
+    if (!isPro && (!profile?.credits || profile.credits <= 0)) {
+      setError('No credits remaining. Please purchase more credits.')
+      return
+    }
     
     setGenerating(true)
     setError('')
     
     try {
+      // Use credit first
+      const creditResponse = await fetch('/api/use-credit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          theme: selectedTheme.id,
+          location: location,
+          size: selection.size || size
+        })
+      })
+
+      const creditData = await creditResponse.json()
+
+      if (!creditResponse.ok) {
+        setError(creditData.error || 'Failed to use credit')
+        setGenerating(false)
+        return
+      }
+
+      // Generate the map
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
       const colors = useCustomColors ? customColors : selectedTheme.colors
       
@@ -483,6 +523,9 @@ export default function CreatePage() {
       document.body.removeChild(a)
       window.URL.revokeObjectURL(url)
       
+      // Refresh profile to get updated credits
+      await refreshProfile()
+      
       setGenerated(true)
     } catch (err) {
       console.error('Generate error:', err)
@@ -513,18 +556,56 @@ export default function CreatePage() {
             </div>
           </Link>
           
-          <button 
-            onClick={generateMap} 
-            disabled={generating || !selection}
-            className={`hidden md:flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all ${
-              selection 
-                ? 'bg-amber-500 text-black hover:bg-amber-400' 
-                : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            {generating ? <LoaderIcon /> : <DownloadIcon />}
-            {generating ? 'Generating...' : 'Generate SVG'}
-          </button>
+          <div className="flex items-center gap-4">
+            {/* Credits display */}
+            {user && profile && (
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#111] border border-[#222] rounded-lg">
+                {profile.is_pro && profile.pro_expires_at && new Date(profile.pro_expires_at) > new Date() ? (
+                  <span className="text-amber-500 text-sm font-medium">✨ Pro</span>
+                ) : (
+                  <>
+                    <span className="text-amber-500 text-sm font-medium">{profile.credits}</span>
+                    <span className="text-gray-500 text-sm">credits</span>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* User menu */}
+            {user ? (
+              <div className="flex items-center gap-3">
+                <Link href="/pricing" className="hidden md:block text-gray-400 hover:text-white text-sm transition-colors">
+                  Buy Credits
+                </Link>
+                <button 
+                  onClick={signOut}
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link 
+                href="/login"
+                className="px-4 py-2 bg-amber-500 text-black rounded-lg text-sm font-medium hover:bg-amber-400 transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
+
+            <button 
+              onClick={generateMap} 
+              disabled={generating || !selection}
+              className={`hidden md:flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all ${
+                selection 
+                  ? 'bg-amber-500 text-black hover:bg-amber-400' 
+                  : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {generating ? <LoaderIcon /> : <DownloadIcon />}
+              {generating ? 'Generating...' : 'Generate SVG'}
+            </button>
+          </div>
         </div>
       </header>
 

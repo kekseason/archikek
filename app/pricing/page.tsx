@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
 
 const CheckIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -26,8 +28,16 @@ const LoaderIcon = () => (
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const { user } = useAuth()
+  const router = useRouter()
 
   const handlePurchase = async (variantId: string | undefined, planType: string) => {
+    // Check if user is logged in
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
     if (!variantId) {
       setError('Product configuration error. Please try again later.')
       return

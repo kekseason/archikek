@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/lib/auth-context'
 
 // Icons
 const ArrowRightIcon = () => (
@@ -86,6 +87,7 @@ const TrainIcon = () => (
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false)
+  const { user, profile, signOut } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50)
@@ -140,12 +142,40 @@ export default function Home() {
             <a href="#features" className="text-gray-400 hover:text-white text-sm transition-colors">Features</a>
             <a href="#themes" className="text-gray-400 hover:text-white text-sm transition-colors">Themes</a>
             <a href="#pricing" className="text-gray-400 hover:text-white text-sm transition-colors">Pricing</a>
-            <Link 
-              href="/create" 
-              className="px-5 py-2.5 bg-amber-500 text-black font-medium rounded-lg hover:bg-amber-400 transition-all hover:-translate-y-0.5"
-            >
-              Create Map
-            </Link>
+            
+            {user ? (
+              <>
+                {profile && (
+                  <span className="text-gray-400 text-sm">
+                    {profile.is_pro ? '✨ Pro' : `${profile.credits} credits`}
+                  </span>
+                )}
+                <button 
+                  onClick={signOut}
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Sign Out
+                </button>
+                <Link 
+                  href="/create" 
+                  className="px-5 py-2.5 bg-amber-500 text-black font-medium rounded-lg hover:bg-amber-400 transition-all hover:-translate-y-0.5"
+                >
+                  Create Map
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-gray-400 hover:text-white text-sm transition-colors">
+                  Sign In
+                </Link>
+                <Link 
+                  href="/create" 
+                  className="px-5 py-2.5 bg-amber-500 text-black font-medium rounded-lg hover:bg-amber-400 transition-all hover:-translate-y-0.5"
+                >
+                  Create Map
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
