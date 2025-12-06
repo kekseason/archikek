@@ -25,18 +25,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (userId: string) => {
     console.log('Fetching profile for:', userId)
     
-    // Force fresh data - no cache
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    
-    if (data && !error) {
-      console.log('Profile fetched:', data)
-      setProfile(data)
-    } else {
-      console.error('Profile fetch error:', error)
+    try {
+      // Force fresh data - no cache
+      const { data, error, status } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      console.log('Profile response:', { data, error, status })
+      
+      if (error) {
+        console.error('Profile fetch error:', error.message, error.code, error.details)
+        // If profile doesn't exist, it might be a new user
+        if (error.code === 'PGRST116') {
+          console.log('Profile not found, user might be new')
+        }
+        return
+      }
+      
+      if (data) {
+        console.log('Profile fetched successfully:', data)
+        setProfile(data)
+      }
+    } catch (e) {
+      console.error('Profile fetch exception:', e)
     }
   }, [])
 
@@ -145,9 +158,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut()
+    } catch (e) {
+      console.error('SignOut error:', e)
+    }
+    
+    // Clear all state
     setUser(null)
     setProfile(null)
+    
+    // Clear localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('archikek-auth')
+      // Clear any other supabase keys
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-') || key.includes('supabase')) {
+          localStorage.removeItem(key)
+        }
+      })
+    }
+    
+    // Force full page reload
     window.location.href = '/'
   }
 

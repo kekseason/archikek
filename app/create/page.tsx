@@ -466,7 +466,7 @@ export default function CreatePage() {
     }
 
     // Check credits (unless pro)
-    const isPro = profile?.is_pro && profile?.pro_expires_at && new Date(profile.pro_expires_at) > new Date()
+    const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
     
     if (!isPro && (!profile?.credits || profile.credits <= 0)) {
       setError('No credits remaining. Please purchase more credits.')
@@ -581,7 +581,7 @@ export default function CreatePage() {
             {/* Credits display */}
             {user && profile && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#111] border border-[#222] rounded-lg">
-                {profile.is_pro && profile.pro_expires_at && new Date(profile.pro_expires_at) > new Date() ? (
+                {profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
                   <span className="text-amber-500 text-sm font-medium">✨ Pro</span>
                 ) : (
                   <>
