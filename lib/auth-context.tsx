@@ -21,33 +21,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [mounted, setMounted] = useState(false)
+  const [initialized, setInitialized] = useState(false)
 
   const fetchProfile = useCallback(async (userId: string) => {
-    if (typeof window === 'undefined') return
-    
-    console.log('Fetching profile for:', userId)
-    
     try {
-      const { data, error, status } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single()
       
-      console.log('Profile response:', { data, error, status })
-      
-      if (error) {
-        console.error('Profile fetch error:', error.message, error.code)
-        return
-      }
-      
-      if (data) {
-        console.log('Profile fetched successfully:', data)
+      if (data && !error) {
         setProfile(data)
       }
     } catch (e) {
-      console.error('Profile fetch exception:', e)
+      console.error('Profile fetch error:', e)
     }
   }, [])
 
@@ -57,50 +45,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchProfile])
 
-  // Set mounted on client
+  // Initialize auth - wait for Supabase to be ready
   useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Initialize auth only after mounting (client-side only)
-  useEffect(() => {
-    if (!mounted) return
+    if (typeof window === 'undefined') return
     
-    console.log('Initializing auth...')
+    let mounted = true
     
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log('Initial session:', session?.user?.email, error)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id)
+    const initAuth = async () => {
+      try {
+        // Small delay to ensure localStorage is accessible
+        await new Promise(resolve => setTimeout(resolve, 50))
+        
+        // Get session
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!mounted) return
+        
+        if (session?.user) {
+          setUser(session.user)
+          await fetchProfile(session.user.id)
+        }
+        
+        setLoading(false)
+        setInitialized(true)
+      } catch (e) {
+        console.error('Auth init error:', e)
+        setLoading(false)
+        setInitialized(true)
       }
-      setLoading(false)
-    })
-
+    }
+    
+    initAuth()
+    
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email)
+        if (!mounted) return
+        
         setUser(session?.user ?? null)
+        
         if (session?.user) {
           await fetchProfile(session.user.id)
         } else {
           setProfile(null)
         }
+        
         setLoading(false)
       }
     )
 
-    return () => subscription.unsubscribe()
-  }, [mounted, fetchProfile])
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [fetchProfile])
 
   // Realtime subscription for profile changes
   useEffect(() => {
-    if (!mounted || !user) return
+    if (!initialized || !user) return
 
-    console.log('Setting up realtime subscription for profile:', user.id)
-    
     const channel = supabase
       .channel('profile-changes')
       .on(
@@ -112,7 +115,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           filter: `id=eq.${user.id}`
         },
         (payload) => {
-          console.log('Profile changed via realtime:', payload)
           if (payload.new) {
             setProfile(payload.new as Profile)
           }
@@ -123,22 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [mounted, user])
-
-  // Refresh profile on window focus
-  useEffect(() => {
-    if (!mounted) return
-    
-    const handleFocus = () => {
-      if (user) {
-        console.log('Window focused, refreshing profile')
-        fetchProfile(user.id)
-      }
-    }
-
-    window.addEventListener('focus', handleFocus)
-    return () => window.removeEventListener('focus', handleFocus)
-  }, [mounted, user, fetchProfile])
+  }, [initialized, user])
 
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
@@ -150,10 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     return { error: error?.message ?? null }
   }
 
@@ -161,33 +145,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`
-      }
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` }
     })
     return { error: error?.message ?? null }
   }
 
   const signOut = async () => {
-    console.log('Signing out...')
     try {
       await supabase.auth.signOut()
-    } catch (e) {
-      console.error('SignOut error:', e)
-    }
+    } catch (e) {}
     
     setUser(null)
     setProfile(null)
     
-    // Clear localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('archikek-auth')
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('sb-') || key.includes('supabase')) {
-          localStorage.removeItem(key)
-        }
-      })
-    }
+    // Clear all auth data
+    localStorage.removeItem('archikek-auth')
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('sb-')) localStorage.removeItem(key)
+    })
     
     window.location.href = '/'
   }
