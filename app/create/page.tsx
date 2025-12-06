@@ -528,7 +528,11 @@ export default function CreatePage() {
         body: JSON.stringify(requestBody)
       })
       
-      if (!response.ok) throw new Error('API error')
+      if (!response.ok) {
+        const errorData = await response.text()
+        console.error('API Error:', response.status, errorData)
+        throw new Error(errorData || 'API error')
+      }
       
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
@@ -544,9 +548,9 @@ export default function CreatePage() {
       await refreshProfile()
       
       setGenerated(true)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Generate error:', err)
-      setError('Failed to generate map. Please try again.')
+      setError(err.message || 'Failed to generate map. Please try again.')
     }
     
     setGenerating(false)
