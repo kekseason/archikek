@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react'
 import { supabase, Profile } from './supabase'
 import { User, Session } from '@supabase/supabase-js'
 
@@ -22,7 +22,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
+    console.log('Fetching profile for:', userId)
+    
+    // Force fresh data - no cache
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -30,15 +33,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .single()
     
     if (data && !error) {
+      console.log('Profile fetched:', data)
       setProfile(data)
+    } else {
+      console.error('Profile fetch error:', error)
     }
-  }
+  }, [])
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (user) {
       await fetchProfile(user.id)
     }
-  }
+  }, [user, fetchProfile])
 
   useEffect(() => {
     // Get initial session
@@ -53,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event)
         setUser(session?.user ?? null)
         if (session?.user) {
           await fetchProfile(session.user.id)
@@ -64,7 +71,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     )
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [fetchProfile])
+
+  // Realtime subscription for profile changes
+  useEffect(() => {
+    if (!user) return
+
+    console.log('Setting up realtime subscription for profile:', user.id)
+    
+    const channel = supabase
+      .channel('profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Profile changed via realtime:', payload)
+          if (payload.new) {
+            setProfile(payload.new as Profile)
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user])
+
+  // Also refresh profile on window focus (when user comes back to tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (user) {
+        console.log('Window focused, refreshing profile')
+        fetchProfile(user.id)
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [user, fetchProfile])
 
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
@@ -98,7 +148,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
-    // Force reload to clear all state
     window.location.href = '/'
   }
 
