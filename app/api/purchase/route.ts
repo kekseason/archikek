@@ -1,8 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { rateLimiters, getIP } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
-    const { variantId } = await request.json()
+    // Rate limiting check
+    const ip = getIP(request);
+    const { success: rateLimitOk } = await rateLimiters.purchase.limit(ip);
+    
+    if (!rateLimitOk) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait a moment.' },
+        { status: 429 }
+      );
+    }
+
+    const { variantId } = await request.json();
 
     if (!variantId) {
       return NextResponse.json({ error: 'Variant ID required' }, { status: 400 })
