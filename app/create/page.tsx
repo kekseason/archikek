@@ -143,6 +143,17 @@ const ANALYSIS_THEMES = [
       Yol_Yaya: '#cfd8dc', Yol_Bisiklet: '#66bb6a', Metro: '#e53935', Tram: '#1e88e5', Bus: '#fdd835', Ferry: '#00acc1', Metin: '#263238'
     }
   },
+  {
+    id: 'topographic',
+    name: 'Topographic',
+    description: 'Elevation contour focused',
+    category: 'Environment',
+    colors: {
+      Zemin: '#faf8f5', Binalar: '#8b4513', Bina_Stroke: '#6b3510', Su: '#4a90a4', Yesil: '#6b8e23',
+      Yol_Otoyol: '#d32f2f', Yol_Birincil: '#f57c00', Yol_Ikincil: '#fbc02d', Yol_Konut: '#bdbdbd',
+      Yol_Yaya: '#9e9e9e', Yol_Bisiklet: '#388e3c', Metro: '#d32f2f', Tram: '#1976d2', Bus: '#fbc02d', Ferry: '#0288d1', Metin: '#3e2723'
+    }
+  },
 ]
 
 const THEME_CATEGORIES = ['Urban Form', 'Mobility', 'Environment', 'Planning', 'Documentation']
@@ -187,6 +198,8 @@ export default function CreatePage() {
   const [showScale, setShowScale] = useState(true)
   const [transparent, setTransparent] = useState(false)
   const [showShadow, setShowShadow] = useState(true)
+  const [showContours, setShowContours] = useState(true)  // NEW: Topography
+  const [contourInterval, setContourInterval] = useState(5)  // NEW: Contour interval in meters
   
   // UI State
   const [generating, setGenerating] = useState(false)
@@ -491,6 +504,8 @@ export default function CreatePage() {
         theme: selectedTheme.id,
         show_transit: showTransit,
         show_scale: showScale,
+        show_contours: showContours,
+        contour_interval: contourInterval,
         transparent: transparent,
         shadow: showShadow,
         custom_colors: colors,
@@ -859,6 +874,7 @@ export default function CreatePage() {
               <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Options</h3>
               <div className="space-y-2">
                 {[
+                  { checked: showContours, onChange: setShowContours, label: 'Topography contours' },
                   { checked: showTransit, onChange: setShowTransit, label: 'Transit stops' },
                   { checked: showScale, onChange: setShowScale, label: 'Scale bar & north arrow' },
                   { checked: showShadow, onChange: setShowShadow, label: 'Building shadows' },
@@ -875,6 +891,29 @@ export default function CreatePage() {
                   </label>
                 ))}
               </div>
+              
+              {/* Contour Interval - shown only when contours enabled */}
+              {showContours && (
+                <div className="mt-3 p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg">
+                  <div className="flex justify-between text-xs mb-2">
+                    <span className="text-gray-400">Contour Interval</span>
+                    <span className="text-amber-500 font-medium">{contourInterval}m</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min={1} 
+                    max={20} 
+                    step={1} 
+                    value={contourInterval} 
+                    onChange={(e) => setContourInterval(Number(e.target.value))} 
+                    className="w-full accent-amber-500" 
+                  />
+                  <div className="flex justify-between text-xs text-gray-600 mt-1">
+                    <span>1m</span>
+                    <span>20m</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Error */}

@@ -96,9 +96,9 @@ export default function Home() {
 
   const features = [
     { icon: <LayersIcon />, title: 'Layered SVG Export', desc: 'Every element on its own layer. Buildings, roads, water — all separately editable in Illustrator.' },
-    { icon: <PaletteIcon />, title: '12 Analysis Themes', desc: 'Figure Ground, Nolli, Street Hierarchy, Transit Analysis, Green Space, and more.' },
+    { icon: <PaletteIcon />, title: '13 Analysis Themes', desc: 'Figure Ground, Nolli, Street Hierarchy, Transit, Topographic, and more.' },
     { icon: <ZapIcon />, title: 'Ready in 30 Seconds', desc: 'No more hours in QGIS or CAD. Select area, pick theme, download. Done.' },
-    { icon: <GlobeIcon />, title: 'Global Coverage', desc: 'Powered by OpenStreetMap. Generate maps for any location worldwide.' },
+    { icon: <GlobeIcon />, title: 'Topography Contours', desc: 'Elevation contour lines with customizable intervals. Real terrain data for site analysis.' },
     { icon: <TrainIcon />, title: 'Transit & POI Icons', desc: 'Metro, tram, bus, ferry stops automatically marked with professional symbols.' },
     { icon: <MapPinIcon />, title: 'Scale Bar & North', desc: 'Professional cartographic elements included. Scale bar auto-calculated.' },
   ]
@@ -106,7 +106,7 @@ export default function Home() {
   const themes = [
     { name: 'Figure Ground', bg: '#ffffff', fg: '#1a1a1a', accent: '#d64045' },
     { name: 'Nolli Map', bg: '#0d0d0d', fg: '#ffffff', accent: '#ff6b6b' },
-    { name: 'Blueprint', bg: '#0a2342', fg: '#4a9eff', accent: '#4a7faa' },
+    { name: 'Topographic', bg: '#faf8f5', fg: '#8b4513', accent: '#d32f2f' },
     { name: 'Street Hierarchy', bg: '#1a1a2e', fg: '#ff6600', accent: '#ffcc00' },
     { name: 'Green Space', bg: '#f5f9f5', fg: '#2d8a2d', accent: '#4caf50' },
     { name: 'Historical', bg: '#f4efe4', fg: '#5d4037', accent: '#8d6e63' },
@@ -238,7 +238,7 @@ export default function Home() {
               {/* Stats */}
               <div className="flex gap-8 md:gap-12 pt-8 border-t border-white/10">
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold text-amber-500">12</div>
+                  <div className="text-3xl md:text-4xl font-bold text-amber-500">13</div>
                   <div className="text-white/40 text-sm mt-1">Analysis Themes</div>
                 </div>
                 <div>
@@ -386,7 +386,7 @@ export default function Home() {
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="inline-block text-amber-500 text-sm font-semibold uppercase tracking-[0.2em] mb-4">Themes</span>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-              12 professional themes
+              13 professional themes
             </h2>
             <p className="text-white/50 text-lg">
               From classic Figure Ground to modern Transit Analysis. Each carefully designed for presentations.
@@ -424,7 +424,7 @@ export default function Home() {
           </div>
 
           <p className="text-center text-white/30 text-sm mt-8">
-            + 6 more themes including Density Study, Pedestrian Flow, Land Use, and Presentation
+            + 7 more themes including Blueprint, Density Study, Pedestrian Flow, Land Use, and Presentation
           </p>
         </div>
       </section>
