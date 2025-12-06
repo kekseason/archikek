@@ -200,7 +200,7 @@ export default function CreatePage() {
   const [showShadow, setShowShadow] = useState(true)
   const [showContours, setShowContours] = useState(true)  // NEW: Topography
   const [contourInterval, setContourInterval] = useState(5)  // NEW: Contour interval in meters
-  const [exportFormat, setExportFormat] = useState<'svg' | 'pdf' | 'dxf'>('svg')  // NEW: Export format
+  const [exportFormat, setExportFormat] = useState<'svg' | 'dxf'>('svg')  // Export format
   
   // UI State
   const [generating, setGenerating] = useState(false)
@@ -921,15 +921,14 @@ export default function CreatePage() {
             {/* Export Format */}
             <div>
               <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Export Format</h3>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: 'svg', label: 'SVG', desc: 'Vector graphics' },
-                  { id: 'pdf', label: 'PDF', desc: 'Print ready' },
                   { id: 'dxf', label: 'DXF', desc: 'CAD software' }
                 ].map(({ id, label, desc }) => (
                   <button
                     key={id}
-                    onClick={() => setExportFormat(id as 'svg' | 'pdf' | 'dxf')}
+                    onClick={() => setExportFormat(id as 'svg' | 'dxf')}
                     className={`p-3 rounded-lg border transition-all text-center ${
                       exportFormat === id
                         ? 'bg-amber-500/10 border-amber-500 text-amber-500'
@@ -941,6 +940,7 @@ export default function CreatePage() {
                   </button>
                 ))}
               </div>
+              <p className="text-xs text-gray-600 mt-2">💡 For PDF, export SVG then use Illustrator</p>
             </div>
 
             {/* Error */}
