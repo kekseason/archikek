@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react'
 import { supabase, Profile } from './supabase'
-import { User, Session } from '@supabase/supabase-js'
+import { User } from '@supabase/supabase-js'
 
 type AuthContextType = {
   user: User | null
@@ -21,12 +21,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
   const fetchProfile = useCallback(async (userId: string) => {
+    if (typeof window === 'undefined') return
+    
     console.log('Fetching profile for:', userId)
     
     try {
-      // Force fresh data - no cache
       const { data, error, status } = await supabase
         .from('profiles')
         .select('*')
@@ -36,11 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('Profile response:', { data, error, status })
       
       if (error) {
-        console.error('Profile fetch error:', error.message, error.code, error.details)
-        // If profile doesn't exist, it might be a new user
-        if (error.code === 'PGRST116') {
-          console.log('Profile not found, user might be new')
-        }
+        console.error('Profile fetch error:', error.message, error.code)
         return
       }
       
@@ -59,9 +57,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchProfile])
 
+  // Set mounted on client
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Initialize auth only after mounting (client-side only)
+  useEffect(() => {
+    if (!mounted) return
+    
+    console.log('Initializing auth...')
+    
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('Initial session:', session?.user?.email, error)
       setUser(session?.user ?? null)
       if (session?.user) {
         fetchProfile(session.user.id)
@@ -72,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event)
+        console.log('Auth state changed:', event, session?.user?.email)
         setUser(session?.user ?? null)
         if (session?.user) {
           await fetchProfile(session.user.id)
@@ -84,11 +93,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     )
 
     return () => subscription.unsubscribe()
-  }, [fetchProfile])
+  }, [mounted, fetchProfile])
 
   // Realtime subscription for profile changes
   useEffect(() => {
-    if (!user) return
+    if (!mounted || !user) return
 
     console.log('Setting up realtime subscription for profile:', user.id)
     
@@ -114,10 +123,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [user])
+  }, [mounted, user])
 
-  // Also refresh profile on window focus (when user comes back to tab)
+  // Refresh profile on window focus
   useEffect(() => {
+    if (!mounted) return
+    
     const handleFocus = () => {
       if (user) {
         console.log('Window focused, refreshing profile')
@@ -127,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
-  }, [user, fetchProfile])
+  }, [mounted, user, fetchProfile])
 
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
@@ -158,20 +169,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async () => {
+    console.log('Signing out...')
     try {
       await supabase.auth.signOut()
     } catch (e) {
       console.error('SignOut error:', e)
     }
     
-    // Clear all state
     setUser(null)
     setProfile(null)
     
     // Clear localStorage
     if (typeof window !== 'undefined') {
       localStorage.removeItem('archikek-auth')
-      // Clear any other supabase keys
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('sb-') || key.includes('supabase')) {
           localStorage.removeItem(key)
@@ -179,7 +189,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
     }
     
-    // Force full page reload
     window.location.href = '/'
   }
 
