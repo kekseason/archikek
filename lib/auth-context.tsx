@@ -94,13 +94,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null }
   }
 
-  const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    setProfile(null)
-    // Force reload to clear all state
-    window.location.href = '/'
-  }
+const signOut = async () => {
+  await supabase.auth.signOut()
+  setUser(null)
+  setProfile(null)
+  // Force reload to clear all state
+  window.location.href = '/'
+}
 
   return (
     <AuthContext.Provider value={{
