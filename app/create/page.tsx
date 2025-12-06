@@ -200,6 +200,7 @@ export default function CreatePage() {
   const [showShadow, setShowShadow] = useState(true)
   const [showContours, setShowContours] = useState(true)  // NEW: Topography
   const [contourInterval, setContourInterval] = useState(5)  // NEW: Contour interval in meters
+  const [exportFormat, setExportFormat] = useState<'svg' | 'pdf' | 'dxf'>('svg')  // NEW: Export format
   
   // UI State
   const [generating, setGenerating] = useState(false)
@@ -502,6 +503,7 @@ export default function CreatePage() {
       
       const requestBody: any = {
         theme: selectedTheme.id,
+        format: exportFormat,  // NEW: Export format
         show_transit: showTransit,
         show_scale: showScale,
         show_contours: showContours,
@@ -532,7 +534,7 @@ export default function CreatePage() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `archikek_${selectedTheme.id}_${requestBody.size}m.svg`
+      a.download = `archikek_${selectedTheme.id}_${requestBody.size}m.${exportFormat}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -618,7 +620,7 @@ export default function CreatePage() {
               }`}
             >
               {generating ? <LoaderIcon /> : <DownloadIcon />}
-              {generating ? 'Generating...' : 'Generate SVG'}
+              {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
             </button>
           </div>
         </div>
@@ -916,6 +918,31 @@ export default function CreatePage() {
               )}
             </div>
 
+            {/* Export Format */}
+            <div>
+              <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Export Format</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'svg', label: 'SVG', desc: 'Vector graphics' },
+                  { id: 'pdf', label: 'PDF', desc: 'Print ready' },
+                  { id: 'dxf', label: 'DXF', desc: 'CAD software' }
+                ].map(({ id, label, desc }) => (
+                  <button
+                    key={id}
+                    onClick={() => setExportFormat(id as 'svg' | 'pdf' | 'dxf')}
+                    className={`p-3 rounded-lg border transition-all text-center ${
+                      exportFormat === id
+                        ? 'bg-amber-500/10 border-amber-500 text-amber-500'
+                        : 'bg-[#111] border-[#222] text-gray-400 hover:border-[#333]'
+                    }`}
+                  >
+                    <div className="text-sm font-semibold">{label}</div>
+                    <div className="text-xs opacity-60 mt-0.5">{desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Error */}
             {error && (
               <div className="px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg">
@@ -934,7 +961,7 @@ export default function CreatePage() {
               }`}
             >
               {generating ? <LoaderIcon /> : <DownloadIcon />}
-              {generating ? 'Generating...' : 'Generate SVG'}
+              {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
             </button>
           </div>
         </aside>
