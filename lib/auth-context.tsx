@@ -98,6 +98,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
+    // Force reload to clear all state
+    window.location.href = '/'
   }
 
   return (
