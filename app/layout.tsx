@@ -5,19 +5,50 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata: Metadata = {
-  title: 'ArchiKEK - Site Analysis Maps in Seconds',
-  description: 'Generate professional, Illustrator-ready site analysis maps for architecture projects. 13 themes, SVG export, global coverage.',
-  keywords: 'site analysis, architecture, urban planning, map generator, SVG, DXF, Illustrator, AutoCAD, figure ground, nolli map, topography',
+  title: {
+    default: 'ArchiKEK - Site Analysis Maps in Seconds',
+    template: '%s | ArchiKEK'
+  },
+  description: 'Generate professional figure ground, nolli, and site analysis maps instantly. Export to SVG with organized layers for Illustrator. No GIS skills needed. Free for architecture students.',
+  keywords: [
+    'site analysis', 'figure ground map', 'nolli map', 'architecture', 'urban planning',
+    'map generator', 'SVG export', 'DXF export', 'Illustrator', 'AutoCAD',
+    'architecture student', 'site plan', 'urban analysis', 'QGIS alternative',
+    'topography map', 'building footprint', 'city map generator'
+  ],
+  authors: [{ name: 'ArchiKEK' }],
+  creator: 'ArchiKEK',
+  publisher: 'ArchiKEK',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
     title: 'ArchiKEK - Site Analysis Maps in Seconds',
-    description: 'Generate professional site analysis maps for architecture projects.',
+    description: 'Generate professional figure ground and nolli maps for architecture projects. Free SVG export with organized layers.',
     type: 'website',
     url: 'https://archikek.com',
+    siteName: 'ArchiKEK',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'ArchiKEK - Site Analysis Maps in Seconds',
     description: 'Generate professional site analysis maps for architecture projects.',
+    creator: '@archikek',
+  },
+  alternates: {
+    canonical: 'https://archikek.com',
+  },
+  verification: {
+    google: 'your-google-verification-code', // Google Search Console'dan al
   },
 }
 

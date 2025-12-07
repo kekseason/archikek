@@ -139,6 +139,7 @@ export default function Home() {
             <a href="#features" className="text-white/60 hover:text-white text-sm font-medium transition-colors">Features</a>
             <a href="#themes" className="text-white/60 hover:text-white text-sm font-medium transition-colors">Themes</a>
             <a href="#pricing" className="text-white/60 hover:text-white text-sm font-medium transition-colors">Pricing</a>
+            <Link href="/blog" className="text-white/60 hover:text-white text-sm font-medium transition-colors">Blog</Link>
             
             {user ? (
               <div className="flex items-center gap-4">
@@ -547,6 +548,7 @@ export default function Home() {
               <span className="text-white/40 text-sm">© 2024 ArchiKEK. All rights reserved.</span>
             </div>
             <div className="flex gap-8">
+              <Link href="/blog" className="text-white/40 hover:text-white text-sm transition-colors">Blog</Link>
               <a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Terms</a>
               <a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Privacy</a>
               <a href="mailto:support@archikek.com" className="text-white/40 hover:text-white text-sm transition-colors">Contact</a>
