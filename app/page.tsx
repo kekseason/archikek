@@ -95,12 +95,12 @@ export default function Home() {
   }, [])
 
   const features = [
-    { icon: <LayersIcon />, title: 'Layered SVG Export', desc: 'Every element on its own layer. Buildings, roads, water — all separately editable in Illustrator.' },
-    { icon: <PaletteIcon />, title: '13 Analysis Themes', desc: 'Figure Ground, Nolli, Street Hierarchy, Transit, Topographic, and more.' },
-    { icon: <ZapIcon />, title: 'Ready in 30 Seconds', desc: 'No more hours in QGIS or CAD. Select area, pick theme, download. Done.' },
-    { icon: <GlobeIcon />, title: 'Topography Contours', desc: 'Elevation contour lines with customizable intervals. Real terrain data for site analysis.' },
-    { icon: <TrainIcon />, title: 'Transit & POI Icons', desc: 'Metro, tram, bus, ferry stops automatically marked with professional symbols.' },
-    { icon: <MapPinIcon />, title: 'Scale Bar & North', desc: 'Professional cartographic elements included. Scale bar auto-calculated.' },
+    { icon: <LayersIcon />, title: 'Layered SVG & DXF', desc: 'Export to SVG for Illustrator or DXF for AutoCAD, Rhino, SketchUp. Every element on its own layer.' },
+    { icon: <PaletteIcon />, title: '13 Analysis Themes', desc: 'Figure Ground, Nolli, Street Hierarchy, Transit, Topographic, and more with height shading.' },
+    { icon: <ZapIcon />, title: 'Ready in 30 Seconds', desc: 'No more hours in QGIS or CAD. Select area, pick theme, download. Optimized file sizes.' },
+    { icon: <GlobeIcon />, title: 'Topography Contours', desc: 'Smooth elevation contour lines with customizable intervals. Real terrain data for site analysis.' },
+    { icon: <TrainIcon />, title: 'Smart Transit Icons', desc: 'Metro, tram, bus stops auto-filtered by zoom level. Clean maps at any scale.' },
+    { icon: <MapPinIcon />, title: 'Landmark Labels', desc: 'Important buildings (hospitals, schools, mosques) automatically labeled. Scale bar & north arrow included.' },
   ]
 
   const themes = [

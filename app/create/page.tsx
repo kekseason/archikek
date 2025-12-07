@@ -198,9 +198,10 @@ export default function CreatePage() {
   const [showScale, setShowScale] = useState(true)
   const [transparent, setTransparent] = useState(false)
   const [showShadow, setShowShadow] = useState(true)
-  const [showContours, setShowContours] = useState(true)  // NEW: Topography
-  const [contourInterval, setContourInterval] = useState(5)  // NEW: Contour interval in meters
-  const [exportFormat, setExportFormat] = useState<'svg' | 'dxf'>('svg')  // Export format
+  const [showContours, setShowContours] = useState(true)
+  const [contourInterval, setContourInterval] = useState(5)
+  const [showLabels, setShowLabels] = useState(true)  // NEW v6: Building labels
+  const [exportFormat, setExportFormat] = useState<'svg' | 'dxf'>('svg')
   
   // UI State
   const [generating, setGenerating] = useState(false)
@@ -503,10 +504,11 @@ export default function CreatePage() {
       
       const requestBody: any = {
         theme: selectedTheme.id,
-        format: exportFormat,  // NEW: Export format
+        format: exportFormat,
         show_transit: showTransit,
         show_scale: showScale,
         show_contours: showContours,
+        show_labels: showLabels,  // NEW v6
         contour_interval: contourInterval,
         transparent: transparent,
         shadow: showShadow,
@@ -893,6 +895,7 @@ export default function CreatePage() {
               <div className="space-y-2">
                 {[
                   { checked: showContours, onChange: setShowContours, label: 'Topography contours' },
+                  { checked: showLabels, onChange: setShowLabels, label: 'Landmark labels' },
                   { checked: showTransit, onChange: setShowTransit, label: 'Transit stops' },
                   { checked: showScale, onChange: setShowScale, label: 'Scale bar & north arrow' },
                   { checked: showShadow, onChange: setShowShadow, label: 'Building shadows' },
