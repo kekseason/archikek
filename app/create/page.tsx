@@ -200,8 +200,10 @@ export default function CreatePage() {
   const [showShadow, setShowShadow] = useState(true)
   const [showContours, setShowContours] = useState(true)
   const [contourInterval, setContourInterval] = useState(5)
-  const [showLabels, setShowLabels] = useState(true)  // NEW v6: Building labels
+  const [showLabels, setShowLabels] = useState(true)
   const [exportFormat, setExportFormat] = useState<'svg' | 'dxf'>('svg')
+  const [resolution, setResolution] = useState(1200)  // NEW: SVG resolution
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)  // NEW: Preview
   
   // UI State
   const [generating, setGenerating] = useState(false)
@@ -505,10 +507,11 @@ export default function CreatePage() {
       const requestBody: any = {
         theme: selectedTheme.id,
         format: exportFormat,
+        resolution: resolution,
         show_transit: showTransit,
         show_scale: showScale,
         show_contours: showContours,
-        show_labels: showLabels,  // NEW v6
+        show_labels: showLabels,
         contour_interval: contourInterval,
         transparent: transparent,
         shadow: showShadow,
@@ -538,13 +541,19 @@ export default function CreatePage() {
       
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
+      
+      // Show preview if SVG
+      if (exportFormat === 'svg') {
+        setPreviewUrl(url)
+      }
+      
+      // Auto download
       const a = document.createElement('a')
       a.href = url
       a.download = `archikek_${selectedTheme.id}_${requestBody.size}m.${exportFormat}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
       
       // Refresh profile to get updated credits
       await refreshProfile()
@@ -960,7 +969,67 @@ export default function CreatePage() {
                 ))}
               </div>
               <p className="text-xs text-gray-600 mt-2">💡 For PDF, export SVG then use Illustrator</p>
+              
+              {/* Resolution (only for SVG) */}
+              {exportFormat === 'svg' && (
+                <div className="mt-3 p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg">
+                  <div className="flex justify-between text-xs mb-2">
+                    <span className="text-gray-400">Resolution</span>
+                    <span className="text-amber-500 font-medium">{resolution}px</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { val: 1200, label: 'Standard' },
+                      { val: 2400, label: 'High' },
+                      { val: 4800, label: 'Ultra' }
+                    ].map(({ val, label }) => (
+                      <button
+                        key={val}
+                        onClick={() => setResolution(val)}
+                        className={`py-2 px-3 rounded text-xs transition-all ${
+                          resolution === val
+                            ? 'bg-amber-500/20 border border-amber-500 text-amber-400'
+                            : 'bg-[#1a1a1a] border border-[#222] text-gray-500 hover:border-[#333]'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Preview */}
+            {previewUrl && (
+              <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-gray-400">Preview</span>
+                  <button 
+                    onClick={() => setPreviewUrl(null)}
+                    className="text-xs text-gray-500 hover:text-white"
+                  >
+                    ✕ Close
+                  </button>
+                </div>
+                <img 
+                  src={previewUrl} 
+                  alt="Map Preview" 
+                  className="w-full rounded border border-[#222]"
+                />
+                <button
+                  onClick={() => {
+                    const a = document.createElement('a')
+                    a.href = previewUrl
+                    a.download = `archikek_${selectedTheme.id}_${size}m.svg`
+                    a.click()
+                  }}
+                  className="w-full mt-2 py-2 bg-amber-500/10 border border-amber-500/50 text-amber-500 rounded text-sm hover:bg-amber-500/20 transition-colors"
+                >
+                  Download Again
+                </button>
+              </div>
+            )}
 
             {/* Error */}
             {error && (
