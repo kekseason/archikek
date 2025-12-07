@@ -202,8 +202,9 @@ export default function CreatePage() {
   const [contourInterval, setContourInterval] = useState(5)
   const [showLabels, setShowLabels] = useState(true)
   const [exportFormat, setExportFormat] = useState<'svg' | 'dxf'>('svg')
-  const [resolution, setResolution] = useState(1200)  // NEW: SVG resolution
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)  // NEW: Preview
+  const [resolution, setResolution] = useState(1200)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
   
   // UI State
   const [generating, setGenerating] = useState(false)
@@ -542,18 +543,14 @@ export default function CreatePage() {
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       
-      // Show preview if SVG
-      if (exportFormat === 'svg') {
-        setPreviewUrl(url)
-      }
-      
-      // Auto download
+      // Download the file
       const a = document.createElement('a')
       a.href = url
       a.download = `archikek_${selectedTheme.id}_${requestBody.size}m.${exportFormat}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
       
       // Refresh profile to get updated credits
       await refreshProfile()
@@ -565,6 +562,64 @@ export default function CreatePage() {
     }
     
     setGenerating(false)
+  }
+
+  // Preview function - no credit, low resolution
+  const previewMap = async () => {
+    if (!selection) {
+      setError('Please select a location first')
+      return
+    }
+
+    setPreviewLoading(true)
+    setError('')
+    setPreviewUrl(null)
+
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
+      const colors = useCustomColors ? customColors : selectedTheme.colors
+
+      const requestBody = {
+        theme: selectedTheme.id,
+        format: 'svg',
+        resolution: 600,  // Low res for preview
+        show_transit: showTransit,
+        show_scale: showScale,
+        show_contours: showContours,
+        show_labels: showLabels,
+        contour_interval: contourInterval,
+        transparent: transparent,
+        shadow: showShadow,
+        custom_colors: colors,
+        stroke_highway: strokeWidths.highway,
+        stroke_primary: strokeWidths.primary,
+        stroke_secondary: strokeWidths.secondary,
+        stroke_residential: strokeWidths.residential,
+        stroke_pedestrian: strokeWidths.pedestrian,
+        stroke_building: strokeWidths.building,
+        lat: selection.center!.lat,
+        lng: selection.center!.lng,
+        size: selection.size || size
+      }
+
+      const response = await fetch(`${API_URL}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+
+      if (!response.ok) {
+        throw new Error('Preview failed')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      setPreviewUrl(url)
+    } catch (err: any) {
+      setError('Preview failed. Try again.')
+    }
+
+    setPreviewLoading(false)
   }
 
   const updateColor = (key: string, value: string) => {
@@ -775,7 +830,7 @@ export default function CreatePage() {
                 {ANALYSIS_THEMES.filter(t => t.category === activeCategory).map((theme) => (
                   <button 
                     key={theme.id} 
-                    onClick={() => { setSelectedTheme(theme); setUseCustomColors(false) }} 
+                    onClick={() => { setSelectedTheme(theme); setUseCustomColors(false); setPreviewUrl(null) }} 
                     className={`aspect-square rounded-lg border-2 transition-all relative group overflow-hidden ${
                       selectedTheme.id === theme.id 
                         ? 'border-amber-500 scale-105 shadow-lg shadow-amber-500/10' 
@@ -1000,34 +1055,50 @@ export default function CreatePage() {
               )}
             </div>
 
-            {/* Preview */}
+            {/* Preview Button */}
+            {selection && exportFormat === 'svg' && (
+              <button
+                onClick={previewMap}
+                disabled={previewLoading}
+                className="w-full py-3 bg-[#1a1a1a] border border-[#333] text-gray-300 rounded-xl font-medium hover:bg-[#222] hover:border-amber-500/50 transition-all flex items-center justify-center gap-2"
+              >
+                {previewLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                    Creating preview...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Preview (Free)
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Preview Display */}
             {previewUrl && (
-              <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg">
+              <div className="p-3 bg-[#0f0f0f] border border-amber-500/30 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-gray-400">Preview</span>
+                  <span className="text-xs text-amber-500 font-medium">✓ Preview Ready</span>
                   <button 
-                    onClick={() => setPreviewUrl(null)}
+                    onClick={() => { setPreviewUrl(null); window.URL.revokeObjectURL(previewUrl) }}
                     className="text-xs text-gray-500 hover:text-white"
                   >
-                    ✕ Close
+                    ✕
                   </button>
                 </div>
                 <img 
                   src={previewUrl} 
                   alt="Map Preview" 
-                  className="w-full rounded border border-[#222]"
+                  className="w-full rounded border border-[#333]"
                 />
-                <button
-                  onClick={() => {
-                    const a = document.createElement('a')
-                    a.href = previewUrl
-                    a.download = `archikek_${selectedTheme.id}_${size}m.svg`
-                    a.click()
-                  }}
-                  className="w-full mt-2 py-2 bg-amber-500/10 border border-amber-500/50 text-amber-500 rounded text-sm hover:bg-amber-500/20 transition-colors"
-                >
-                  Download Again
-                </button>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  {selectedTheme.name} • {selection?.size || size}m
+                </p>
               </div>
             )}
 
