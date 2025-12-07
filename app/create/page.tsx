@@ -17,9 +17,9 @@ const ANALYSIS_THEMES = [
     description: 'Classic building-void relationship',
     category: 'Urban Form',
     colors: {
-      Zemin: '#ffffff', Binalar: '#1a1a1a', Bina_Stroke: '#1a1a1a', Su: '#e8e8e8', Yesil: '#f0f0f0',
-      Yol_Otoyol: '#d64045', Yol_Birincil: '#cccccc', Yol_Ikincil: '#dddddd', Yol_Konut: '#eeeeee',
-      Yol_Yaya: '#f5f5f5', Yol_Bisiklet: '#aaaaaa', Metro: '#e63946', Tram: '#2a9d8f', Bus: '#e9c46a', Ferry: '#264653', Metin: '#333333'
+      Zemin: '#ffffff', Binalar: '#1a1a1a', Bina_Stroke: '#1a1a1a', Su: '#ffffff', Yesil: '#ffffff',
+      Yol_Otoyol: '#1a1a1a', Yol_Birincil: '#ffffff', Yol_Ikincil: '#ffffff', Yol_Konut: '#ffffff',
+      Yol_Yaya: '#ffffff', Yol_Bisiklet: '#ffffff', Metro: '#e63946', Tram: '#2a9d8f', Bus: '#e9c46a', Ferry: '#264653', Metin: '#333333'
     }
   },
   {
@@ -201,6 +201,8 @@ export default function CreatePage() {
   const [showContours, setShowContours] = useState(true)
   const [contourInterval, setContourInterval] = useState(5)
   const [showLabels, setShowLabels] = useState(true)
+  const [showFrame, setShowFrame] = useState(false)
+  const [locationName, setLocationName] = useState('')
   const [exportFormat, setExportFormat] = useState<'svg' | 'dxf'>('svg')
   const [resolution, setResolution] = useState(1200)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -513,6 +515,8 @@ export default function CreatePage() {
         show_scale: showScale,
         show_contours: showContours,
         show_labels: showLabels,
+        show_frame: showFrame,
+        location_name: locationName,
         contour_interval: contourInterval,
         transparent: transparent,
         shadow: showShadow,
@@ -587,6 +591,8 @@ export default function CreatePage() {
         show_scale: showScale,
         show_contours: showContours,
         show_labels: showLabels,
+        show_frame: showFrame,
+        location_name: locationName,
         contour_interval: contourInterval,
         transparent: transparent,
         shadow: showShadow,
@@ -966,7 +972,8 @@ export default function CreatePage() {
                   { checked: showTransit, onChange: setShowTransit, label: 'Transit stops' },
                   { checked: showScale, onChange: setShowScale, label: 'Scale bar & north arrow' },
                   { checked: showShadow, onChange: setShowShadow, label: 'Building shadows' },
-                  { checked: transparent, onChange: setTransparent, label: 'Transparent background' }
+                  { checked: transparent, onChange: setTransparent, label: 'Transparent background' },
+                  { checked: showFrame, onChange: setShowFrame, label: 'Frame with legend' }
                 ].map(({ checked, onChange, label }) => (
                   <label key={label} className="flex items-center gap-3 cursor-pointer">
                     <input 
@@ -979,6 +986,21 @@ export default function CreatePage() {
                   </label>
                 ))}
               </div>
+              
+              {/* Location Name - shown only when frame enabled */}
+              {showFrame && (
+                <div className="mt-3 p-3 bg-[#0f0f0f] border border-amber-500/30 rounded-lg">
+                  <label className="text-xs text-gray-400 block mb-2">Title (optional)</label>
+                  <input 
+                    type="text" 
+                    value={locationName}
+                    onChange={(e) => setLocationName(e.target.value)}
+                    placeholder="e.g., Istanbul, Kadıköy"
+                    className="w-full bg-[#1a1a1a] border border-[#333] rounded px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+                  />
+                  <p className="text-xs text-gray-600 mt-2">Leave empty for default title</p>
+                </div>
+              )}
               
               {/* Contour Interval - shown only when contours enabled */}
               {showContours && (
