@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { AuthProvider } from '@/lib/auth-context'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata: Metadata = {
   title: 'ArchiKEK - Site Analysis Maps in Seconds',
-  description: 'Generate professional, Illustrator-ready site analysis maps for architecture projects. 12 themes, SVG export, global coverage.',
-  keywords: 'site analysis, architecture, urban planning, map generator, SVG, Illustrator, figure ground, nolli map',
+  description: 'Generate professional, Illustrator-ready site analysis maps for architecture projects. 13 themes, SVG export, global coverage.',
+  keywords: 'site analysis, architecture, urban planning, map generator, SVG, DXF, Illustrator, AutoCAD, figure ground, nolli map, topography',
   openGraph: {
     title: 'ArchiKEK - Site Analysis Maps in Seconds',
     description: 'Generate professional site analysis maps for architecture projects.',
@@ -36,6 +38,8 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
