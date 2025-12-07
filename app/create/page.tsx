@@ -582,7 +582,7 @@ export default function CreatePage() {
       const requestBody = {
         theme: selectedTheme.id,
         format: 'svg',
-        resolution: 600,  // Low res for preview
+        resolution: 800,  // Min allowed for preview
         show_transit: showTransit,
         show_scale: showScale,
         show_contours: showContours,
@@ -609,14 +609,17 @@ export default function CreatePage() {
       })
 
       if (!response.ok) {
-        throw new Error('Preview failed')
+        const errorText = await response.text()
+        console.error('Preview error:', response.status, errorText)
+        throw new Error(errorText || 'Preview failed')
       }
 
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       setPreviewUrl(url)
     } catch (err: any) {
-      setError('Preview failed. Try again.')
+      console.error('Preview catch:', err)
+      setError(err.message || 'Preview failed. Try again.')
     }
 
     setPreviewLoading(false)
