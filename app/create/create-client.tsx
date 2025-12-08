@@ -253,6 +253,64 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     if (!useCustomColors) setCustomColors(selectedTheme.colors)
   }, [selectedTheme, useCustomColors])
 
+  // Auto-refresh preview when settings change (debounced)
+  useEffect(() => {
+    // Only auto-refresh if preview already exists and we have a selection
+    if (!previewUrl || !selection) return
+    
+    const timeoutId = setTimeout(async () => {
+      setPreviewLoading(true)
+      try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
+        const colors = useCustomColors ? customColors : selectedTheme.colors
+
+        const requestBody = {
+          theme: selectedTheme.id,
+          format: 'svg',
+          resolution: 800,
+          show_transit: showTransit,
+          show_scale: showScale,
+          show_contours: showContours,
+          show_labels: showLabels,
+          show_frame: showFrame,
+          location_name: locationName,
+          contour_interval: contourInterval,
+          transparent: transparent,
+          shadow: showShadow,
+          custom_colors: colors,
+          stroke_highway: strokeWidths.highway,
+          stroke_primary: strokeWidths.primary,
+          stroke_secondary: strokeWidths.secondary,
+          stroke_residential: strokeWidths.residential,
+          stroke_pedestrian: strokeWidths.pedestrian,
+          stroke_building: strokeWidths.building,
+          lat: selection.center!.lat,
+          lng: selection.center!.lng,
+          size: selection.size || size
+        }
+
+        const response = await fetch(`${API_URL}/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        })
+
+        if (response.ok) {
+          // Revoke old URL before setting new one
+          if (previewUrl) window.URL.revokeObjectURL(previewUrl)
+          const blob = await response.blob()
+          const url = window.URL.createObjectURL(blob)
+          setPreviewUrl(url)
+        }
+      } catch (err) {
+        console.error('Auto-preview error:', err)
+      }
+      setPreviewLoading(false)
+    }, 800) // 800ms debounce
+
+    return () => clearTimeout(timeoutId)
+  }, [selectedTheme.id, showTransit, showScale, showContours, showLabels, showFrame, showShadow, transparent, contourInterval])
+
   // =========================================
   // MAP INITIALIZATION (Native Mapbox - NO Draw plugin)
   // =========================================
@@ -915,7 +973,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 {ANALYSIS_THEMES.filter(t => t.category === activeCategory).map((theme) => (
                   <button 
                     key={theme.id} 
-                    onClick={() => { setSelectedTheme(theme); setUseCustomColors(false); setPreviewUrl(null) }} 
+                    onClick={() => { setSelectedTheme(theme); setUseCustomColors(false) }} 
                     className={`aspect-square rounded-lg border-2 transition-all relative group overflow-hidden ${
                       selectedTheme.id === theme.id 
                         ? 'border-amber-500 scale-105 shadow-lg shadow-amber-500/10' 
@@ -1184,7 +1242,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {previewUrl && (
               <div className="p-3 bg-[#0f0f0f] border border-amber-500/30 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-amber-500 font-medium">✓ Preview Ready</span>
+                  <span className="text-xs text-amber-500 font-medium">
+                    {previewLoading ? '⟳ Updating...' : '✓ Preview Ready'}
+                  </span>
                   <button 
                     onClick={() => { setPreviewUrl(null); window.URL.revokeObjectURL(previewUrl) }}
                     className="text-xs text-gray-500 hover:text-white"
@@ -1195,7 +1255,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 <img 
                   src={previewUrl} 
                   alt="Map Preview" 
-                  className="w-full rounded border border-[#333]"
+                  className={`w-full rounded border border-[#333] ${previewLoading ? 'opacity-50' : ''}`}
                 />
                 <p className="text-xs text-gray-500 mt-2 text-center">
                   {selectedTheme.name} • {selection?.size || size}m
