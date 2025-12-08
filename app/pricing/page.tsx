@@ -12,5 +12,5 @@ export default function PricingPage() {
   const country = headersList.get('x-vercel-ip-country') || ''
   const discount = getDiscountForCountry(country)
 
-  return <PricingClient discount={discount} />
+  return <PricingClient discount={discount} country={country} />
 }
