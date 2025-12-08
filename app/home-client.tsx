@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 
 interface HomeClientProps {
-  discount: { percent: number; name: string } | null
+  discount: { percent: number; name: string; code: string } | null
   country: string
 }
 

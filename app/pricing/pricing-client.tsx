@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 
 interface PricingClientProps {
-  discount: { percent: number; name: string } | null
+  discount: { percent: number; name: string; code: string } | null
   country: string
 }
 
