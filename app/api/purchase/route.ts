@@ -1,6 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiters, getIP } from '@/lib/rate-limit';
 
+// Regional discount codes - must match Lemon Squeezy exactly!
+const REGIONAL_DISCOUNTS: Record<string, string> = {
+  'TR': 'TR60',    // Turkey - 60% off
+  'IN': 'IN50',    // India - 50% off
+  'BR': 'BR50',    // Brazil - 50% off
+  'PK': 'PK50',    // Pakistan - 50% off
+  'EG': 'EG50',    // Egypt - 50% off
+  'ID': 'ID50',    // Indonesia - 50% off
+  'PH': 'PH50',    // Philippines - 50% off
+  'NG': 'NG60',    // Nigeria - 60% off
+  'MX': 'MX30',    // Mexico - 30% off
+  'BD': 'BD50',    // Bangladesh - 50% off
+  'PL': 'PL30',    // Poland - 30% off
+  'AZ': 'AZ50',    // Azerbaijan - 50% off
+  'ZA': 'ZA50',    // South Africa - 50% off
+};
+
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting check
@@ -28,6 +45,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
 
+    // Get country from Vercel header
+    const country = request.headers.get('x-vercel-ip-country') || '';
+    const discountCode = REGIONAL_DISCOUNTS[country] || null;
+
     // Create checkout session with Lemon Squeezy
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
       method: 'POST',
@@ -41,8 +62,9 @@ export async function POST(request: NextRequest) {
           type: 'checkouts',
           attributes: {
             checkout_data: {
+              discount_code: discountCode,
               custom: {
-                // Add user_id here later for tracking
+                country: country,
               }
             },
             product_options: {
