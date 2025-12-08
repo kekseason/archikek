@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
+import { trackInitiateCheckout } from '@/lib/tiktok'
 
 interface PricingClientProps {
   discount: { percent: number; name: string; code: string } | null
@@ -53,6 +54,11 @@ export default function PricingClient({ discount, country }: PricingClientProps)
       return
     }
 
+    // Track TikTok InitiateCheckout event
+    const basePrice = planType === 'credits' ? 14.99 : 18.99
+    const finalPrice = discount ? basePrice * (1 - discount.percent / 100) : basePrice
+    trackInitiateCheckout(finalPrice, 'USD')
+
     setLoading(planType)
     setError('')
 
@@ -60,7 +66,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
       const response = await fetch('/api/purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variantId }),
+        body: JSON.stringify({ variantId, planType }),
       })
 
       const data = await response.json()

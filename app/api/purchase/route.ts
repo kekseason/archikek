@@ -3,11 +3,15 @@ import { REGIONAL_DISCOUNTS } from '@/lib/regional-discounts'
 
 export async function POST(request: NextRequest) {
   try {
-    const { variantId, userId, userEmail } = await request.json()
+    const { variantId, userId, userEmail, planType } = await request.json()
     
     // Get country from Vercel's geo header
     const country = request.headers.get('x-vercel-ip-country') || ''
     const discount = REGIONAL_DISCOUNTS[country]
+    
+    // Calculate price for success page tracking
+    const basePrice = planType === 'subscription' ? 18.99 : 14.99
+    const finalPrice = discount ? (basePrice * (1 - discount.percent / 100)).toFixed(2) : basePrice.toFixed(2)
     
     const checkoutData: any = {
       email: userEmail,
@@ -21,6 +25,9 @@ export async function POST(request: NextRequest) {
       checkoutData.discount_code = discount.code
     }
     
+    // Success redirect URL with tracking params
+    const successUrl = `https://archikek.com/success?plan=${planType || 'credits'}&price=${finalPrice}`
+    
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
       method: 'POST',
       headers: {
@@ -32,7 +39,10 @@ export async function POST(request: NextRequest) {
         data: {
           type: 'checkouts',
           attributes: {
-            checkout_data: checkoutData
+            checkout_data: checkoutData,
+            product_options: {
+              redirect_url: successUrl
+            }
           },
           relationships: {
             store: {

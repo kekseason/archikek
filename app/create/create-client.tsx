@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
+import { trackViewContent } from '@/lib/tiktok'
 
 // ============================================================
 // PROPS
@@ -241,6 +242,11 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   // Drawing state refs
   const isDrawingRef = useRef(false)
   const drawStartRef = useRef<{lng: number, lat: number} | null>(null)
+
+  // Track TikTok ViewContent event
+  useEffect(() => {
+    trackViewContent('Map Creator')
+  }, [])
 
   // Sync colors with theme
   useEffect(() => {
