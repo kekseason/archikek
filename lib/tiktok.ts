@@ -15,6 +15,7 @@ declare global {
 export function trackViewContent(contentName?: string) {
   if (typeof window !== 'undefined' && window.ttq) {
     window.ttq.track('ViewContent', {
+      content_id: 'map_creator',
       content_name: contentName || 'Map Creator',
       content_type: 'product'
     })
@@ -22,9 +23,11 @@ export function trackViewContent(contentName?: string) {
 }
 
 // Track InitiateCheckout - when user clicks checkout button
-export function trackInitiateCheckout(value: number, currency: string = 'USD') {
+export function trackInitiateCheckout(value: number, currency: string = 'USD', planType?: string) {
   if (typeof window !== 'undefined' && window.ttq) {
     window.ttq.track('InitiateCheckout', {
+      content_id: planType === 'subscription' ? 'pro_plan' : 'credits_pack',
+      content_name: planType === 'subscription' ? 'ArchiKEK Pro' : 'ArchiKEK Credits',
       value: value,
       currency: currency
     })
@@ -35,9 +38,11 @@ export function trackInitiateCheckout(value: number, currency: string = 'USD') {
 export function trackCompletePayment(value: number, currency: string = 'USD', contentName?: string) {
   if (typeof window !== 'undefined' && window.ttq) {
     window.ttq.track('CompletePayment', {
+      content_id: contentName === 'ArchiKEK Pro' ? 'pro_plan' : 'credits_pack',
+      content_name: contentName || 'ArchiKEK Credits',
+      content_type: 'product',
       value: value,
-      currency: currency,
-      content_name: contentName || 'ArchiKEK Credits'
+      currency: currency
     })
   }
 }

@@ -55,9 +55,9 @@ export default function PricingClient({ discount, country }: PricingClientProps)
     }
 
     // Track TikTok InitiateCheckout event
-    const basePrice = planType === 'credits' ? 14.99 : 18.99
+    const basePrice = planType === 'subscription' ? 18.99 : 14.99
     const finalPrice = discount ? basePrice * (1 - discount.percent / 100) : basePrice
-    trackInitiateCheckout(finalPrice, 'USD')
+    trackInitiateCheckout(finalPrice, 'USD', planType)
 
     setLoading(planType)
     setError('')
