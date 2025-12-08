@@ -21,152 +21,279 @@ interface CreateClientProps {
 // ============================================================
 
 const ANALYSIS_THEMES = [
+  // ============ CLASSIC ============
   {
     id: 'figure_ground',
     name: 'Figure Ground',
-    description: 'Classic building-void relationship',
-    category: 'Urban Form',
+    description: 'Classic black buildings on white',
+    category: 'Classic',
     colors: {
-      Zemin: '#ffffff', Binalar: '#1a1a1a', Bina_Stroke: '#1a1a1a', Su: '#ffffff', Yesil: '#ffffff',
-      Yol_Otoyol: '#1a1a1a', Yol_Birincil: '#ffffff', Yol_Ikincil: '#ffffff', Yol_Konut: '#ffffff',
-      Yol_Yaya: '#ffffff', Yol_Bisiklet: '#ffffff', Metro: '#e63946', Tram: '#2a9d8f', Bus: '#e9c46a', Ferry: '#264653', Metin: '#333333'
+      Zemin: '#ffffff', Binalar: '#1a1a1a', Bina_Stroke: '#1a1a1a', Su: '#7eb8da', Yesil: '#8fc08f',
+      Yol_Otoyol: '#1a1a1a', Yol_Birincil: '#888888', Yol_Ikincil: '#aaaaaa', Yol_Konut: '#c0c0c0',
+      Yol_Yaya: '#b0b0b0', Yol_Bisiklet: '#909090', Metro: '#e63946', Tram: '#2a9d8f', Bus: '#e9c46a', Ferry: '#264653', Metin: '#333333'
     }
   },
   {
     id: 'nolli',
     name: 'Nolli Map',
-    description: 'Public vs private space',
-    category: 'Urban Form',
+    description: 'White buildings on black',
+    category: 'Classic',
     colors: {
-      Zemin: '#0d0d0d', Binalar: '#ffffff', Bina_Stroke: '#ffffff', Su: '#2c2c2c', Yesil: '#1a1a1a',
-      Yol_Otoyol: '#ff6b6b', Yol_Birincil: '#333333', Yol_Ikincil: '#222222', Yol_Konut: '#1a1a1a',
-      Yol_Yaya: '#444444', Yol_Bisiklet: '#4ecdc4', Metro: '#ff6b6b', Tram: '#4ecdc4', Bus: '#ffe66d', Ferry: '#95e1d3', Metin: '#ffffff'
+      Zemin: '#0a0a0a', Binalar: '#ffffff', Bina_Stroke: '#ffffff', Su: '#2a5a9f', Yesil: '#2a6a2a',
+      Yol_Otoyol: '#ff5555', Yol_Birincil: '#666666', Yol_Ikincil: '#555555', Yol_Konut: '#444444',
+      Yol_Yaya: '#777777', Yol_Bisiklet: '#4ecdc4', Metro: '#ff5555', Tram: '#4ecdc4', Bus: '#ffe66d', Ferry: '#95e1d3', Metin: '#ffffff'
     }
   },
+  {
+    id: 'schwarzplan',
+    name: 'Schwarzplan',
+    description: 'German-style site plan',
+    category: 'Classic',
+    colors: {
+      Zemin: '#ffffff', Binalar: '#000000', Bina_Stroke: '#000000', Su: '#6699cc', Yesil: '#66aa66',
+      Yol_Otoyol: '#000000', Yol_Birincil: '#777777', Yol_Ikincil: '#999999', Yol_Konut: '#bbbbbb',
+      Yol_Yaya: '#888888', Yol_Bisiklet: '#555555', Metro: '#cc0000', Tram: '#0066cc', Bus: '#cc9900', Ferry: '#006666', Metin: '#000000'
+    }
+  },
+  // ============ MINIMAL ============
+  {
+    id: 'minimal_light',
+    name: 'Minimal Light',
+    description: 'Clean white aesthetic',
+    category: 'Minimal',
+    colors: {
+      Zemin: '#fafafa', Binalar: '#808080', Bina_Stroke: '#606060', Su: '#5c9fd4', Yesil: '#6ab06a',
+      Yol_Otoyol: '#505050', Yol_Birincil: '#707070', Yol_Ikincil: '#909090', Yol_Konut: '#b0b0b0',
+      Yol_Yaya: '#a0a0a0', Yol_Bisiklet: '#5a9a5a', Metro: '#666666', Tram: '#666666', Bus: '#666666', Ferry: '#666666', Metin: '#333333'
+    }
+  },
+  {
+    id: 'minimal_dark',
+    name: 'Minimal Dark',
+    description: 'Sleek dark aesthetic',
+    category: 'Minimal',
+    colors: {
+      Zemin: '#121212', Binalar: '#505050', Bina_Stroke: '#606060', Su: '#2a5a9a', Yesil: '#2a6a2a',
+      Yol_Otoyol: '#808080', Yol_Birincil: '#606060', Yol_Ikincil: '#505050', Yol_Konut: '#404040',
+      Yol_Yaya: '#505050', Yol_Bisiklet: '#407040', Metro: '#888888', Tram: '#888888', Bus: '#888888', Ferry: '#888888', Metin: '#c0c0c0'
+    }
+  },
+  {
+    id: 'monochrome',
+    name: 'Monochrome',
+    description: 'Single color grayscale',
+    category: 'Minimal',
+    colors: {
+      Zemin: '#f8f8f8', Binalar: '#505050', Bina_Stroke: '#404040', Su: '#7090b0', Yesil: '#70a070',
+      Yol_Otoyol: '#303030', Yol_Birincil: '#606060', Yol_Ikincil: '#808080', Yol_Konut: '#a0a0a0',
+      Yol_Yaya: '#909090', Yol_Bisiklet: '#707070', Metro: '#404040', Tram: '#505050', Bus: '#606060', Ferry: '#404040', Metin: '#303030'
+    }
+  },
+  // ============ ANALYSIS ============
   {
     id: 'street_hierarchy',
     name: 'Street Hierarchy',
     description: 'Road network analysis',
-    category: 'Mobility',
+    category: 'Analysis',
     colors: {
-      Zemin: '#1a1a2e', Binalar: '#252540', Bina_Stroke: '#252540', Su: '#1e3a5f', Yesil: '#1e3326',
+      Zemin: '#1a1a2e', Binalar: '#4a4a6a', Bina_Stroke: '#5a5a7a', Su: '#3a6aaf', Yesil: '#3a6a4a',
       Yol_Otoyol: '#ff0000', Yol_Birincil: '#ff6600', Yol_Ikincil: '#ffcc00', Yol_Konut: '#88cc88',
       Yol_Yaya: '#66aaff', Yol_Bisiklet: '#ff66ff', Metro: '#ff0000', Tram: '#00ccff', Bus: '#ffcc00', Ferry: '#00ffcc', Metin: '#ffffff'
     }
   },
   {
-    id: 'transit_analysis',
-    name: 'Transit Analysis',
-    description: 'Public transportation',
-    category: 'Mobility',
+    id: 'transit',
+    name: 'Transit Network',
+    description: 'Public transportation focus',
+    category: 'Analysis',
     colors: {
-      Zemin: '#0f0f1a', Binalar: '#1a1a2e', Bina_Stroke: '#252540', Su: '#1e3a5f', Yesil: '#1a2e1a',
-      Yol_Otoyol: '#333344', Yol_Birincil: '#2a2a3a', Yol_Ikincil: '#222233', Yol_Konut: '#1a1a2a',
-      Yol_Yaya: '#333344', Yol_Bisiklet: '#00ff88', Metro: '#ff0055', Tram: '#00ccff', Bus: '#ffcc00', Ferry: '#00ffcc', Metin: '#ffffff'
+      Zemin: '#0f0f1a', Binalar: '#4a4a6e', Bina_Stroke: '#5a5a7e', Su: '#3a6aaf', Yesil: '#3a6e3a',
+      Yol_Otoyol: '#5a5a7a', Yol_Birincil: '#4a4a6a', Yol_Ikincil: '#3a3a5a', Yol_Konut: '#2a2a4a',
+      Yol_Yaya: '#4a4a6a', Yol_Bisiklet: '#00ff88', Metro: '#ff0055', Tram: '#00ccff', Bus: '#ffcc00', Ferry: '#00ffcc', Metin: '#ffffff'
     }
   },
+  {
+    id: 'pedestrian',
+    name: 'Pedestrian Flow',
+    description: 'Walkability analysis',
+    category: 'Analysis',
+    colors: {
+      Zemin: '#1a1a1a', Binalar: '#555555', Bina_Stroke: '#666666', Su: '#3a6a9f', Yesil: '#3a6a3a',
+      Yol_Otoyol: '#606060', Yol_Birincil: '#707070', Yol_Ikincil: '#808080', Yol_Konut: '#909090',
+      Yol_Yaya: '#ff9800', Yol_Bisiklet: '#8bc34a', Metro: '#f44336', Tram: '#2196f3', Bus: '#ffeb3b', Ferry: '#00bcd4', Metin: '#ffffff'
+    }
+  },
+  {
+    id: 'density',
+    name: 'Density Study',
+    description: 'Building mass analysis',
+    category: 'Analysis',
+    colors: {
+      Zemin: '#fafafa', Binalar: '#c62828', Bina_Stroke: '#b71c1c', Su: '#5090d0', Yesil: '#60a060',
+      Yol_Otoyol: '#1a1a1a', Yol_Birincil: '#808080', Yol_Ikincil: '#a0a0a0', Yol_Konut: '#b8b8b8',
+      Yol_Yaya: '#909090', Yol_Bisiklet: '#4caf50', Metro: '#1a1a1a', Tram: '#c62828', Bus: '#e9724c', Ferry: '#255f85', Metin: '#333333'
+    }
+  },
+  // ============ ENVIRONMENT ============
   {
     id: 'green_space',
     name: 'Green Space',
     description: 'Parks and vegetation',
     category: 'Environment',
     colors: {
-      Zemin: '#f5f9f5', Binalar: '#d4d4d4', Bina_Stroke: '#c4c4c4', Su: '#7fcdff', Yesil: '#2d8a2d',
-      Yol_Otoyol: '#888888', Yol_Birincil: '#aaaaaa', Yol_Ikincil: '#cccccc', Yol_Konut: '#dddddd',
-      Yol_Yaya: '#90c090', Yol_Bisiklet: '#4caf50', Metro: '#666666', Tram: '#666666', Bus: '#666666', Ferry: '#4a90a4', Metin: '#333333'
+      Zemin: '#f5f9f5', Binalar: '#707070', Bina_Stroke: '#505050', Su: '#2196f3', Yesil: '#2e7d32',
+      Yol_Otoyol: '#505050', Yol_Birincil: '#707070', Yol_Ikincil: '#909090', Yol_Konut: '#b0b0b0',
+      Yol_Yaya: '#4caf50', Yol_Bisiklet: '#388e3c', Metro: '#505050', Tram: '#505050', Bus: '#505050', Ferry: '#1565c0', Metin: '#333333'
     }
   },
   {
     id: 'blue_green',
-    name: 'Blue-Green Network',
+    name: 'Blue-Green',
     description: 'Water and green corridors',
     category: 'Environment',
     colors: {
-      Zemin: '#f0f4f8', Binalar: '#c8d4dc', Bina_Stroke: '#b8c4cc', Su: '#2196f3', Yesil: '#4caf50',
-      Yol_Otoyol: '#78909c', Yol_Birincil: '#90a4ae', Yol_Ikincil: '#b0bec5', Yol_Konut: '#cfd8dc',
-      Yol_Yaya: '#81c784', Yol_Bisiklet: '#66bb6a', Metro: '#455a64', Tram: '#1976d2', Bus: '#ffa726', Ferry: '#0288d1', Metin: '#263238'
+      Zemin: '#eceff1', Binalar: '#546e7a', Bina_Stroke: '#455a64', Su: '#1565c0', Yesil: '#2e7d32',
+      Yol_Otoyol: '#37474f', Yol_Birincil: '#546e7a', Yol_Ikincil: '#607d8b', Yol_Konut: '#78909c',
+      Yol_Yaya: '#43a047', Yol_Bisiklet: '#2e7d32', Metro: '#37474f', Tram: '#1565c0', Bus: '#e65100', Ferry: '#0277bd', Metin: '#263238'
     }
   },
   {
-    id: 'density_study',
-    name: 'Density Study',
-    description: 'Building mass analysis',
-    category: 'Urban Form',
+    id: 'topographic',
+    name: 'Topographic',
+    description: 'Elevation contours',
+    category: 'Environment',
     colors: {
-      Zemin: '#fafafa', Binalar: '#8b2635', Bina_Stroke: '#6b1625', Su: '#e8e8e8', Yesil: '#f0f0f0',
-      Yol_Otoyol: '#1a1a1a', Yol_Birincil: '#c4c4c4', Yol_Ikincil: '#dedede', Yol_Konut: '#ebebeb',
-      Yol_Yaya: '#d0d0d0', Yol_Bisiklet: '#4caf50', Metro: '#1a1a1a', Tram: '#8b2635', Bus: '#e9724c', Ferry: '#255f85', Metin: '#333333'
+      Zemin: '#faf8f5', Binalar: '#5d4037', Bina_Stroke: '#4e342e', Su: '#1565c0', Yesil: '#2e7d32',
+      Yol_Otoyol: '#c62828', Yol_Birincil: '#e65100', Yol_Ikincil: '#f9a825', Yol_Konut: '#9e9e9e',
+      Yol_Yaya: '#757575', Yol_Bisiklet: '#1b5e20', Metro: '#b71c1c', Tram: '#0d47a1', Bus: '#e65100', Ferry: '#01579b', Metin: '#3e2723'
+    }
+  },
+  // ============ AESTHETIC ============
+  {
+    id: 'midnight',
+    name: 'Midnight',
+    description: 'Deep blue night style',
+    category: 'Aesthetic',
+    colors: {
+      Zemin: '#0d1b2a', Binalar: '#4a5a6a', Bina_Stroke: '#5a6a7a', Su: '#2a4a7a', Yesil: '#2a5a3a',
+      Yol_Otoyol: '#8899aa', Yol_Birincil: '#6a7a8a', Yol_Ikincil: '#5a6a7a', Yol_Konut: '#4a5a6a',
+      Yol_Yaya: '#5a6a7a', Yol_Bisiklet: '#27ae60', Metro: '#e74c3c', Tram: '#3498db', Bus: '#f39c12', Ferry: '#1abc9c', Metin: '#e0e1dd'
     }
   },
   {
-    id: 'pedestrian_flow',
-    name: 'Pedestrian Flow',
-    description: 'Walkability analysis',
-    category: 'Mobility',
+    id: 'sepia',
+    name: 'Sepia',
+    description: 'Vintage warm tone',
+    category: 'Aesthetic',
     colors: {
-      Zemin: '#1a1a1a', Binalar: '#2d2d2d', Bina_Stroke: '#3d3d3d', Su: '#1e3a5f', Yesil: '#1a3a1a',
-      Yol_Otoyol: '#333333', Yol_Birincil: '#444444', Yol_Ikincil: '#555555', Yol_Konut: '#666666',
-      Yol_Yaya: '#ff9800', Yol_Bisiklet: '#8bc34a', Metro: '#f44336', Tram: '#2196f3', Bus: '#ffeb3b', Ferry: '#00bcd4', Metin: '#ffffff'
-    }
-  },
-  {
-    id: 'land_use',
-    name: 'Land Use',
-    description: 'Zoning classification',
-    category: 'Planning',
-    colors: {
-      Zemin: '#f5f5f5', Binalar: '#ff8a65', Bina_Stroke: '#e57350', Su: '#4fc3f7', Yesil: '#81c784',
-      Yol_Otoyol: '#5d4037', Yol_Birincil: '#795548', Yol_Ikincil: '#8d6e63', Yol_Konut: '#a1887f',
-      Yol_Yaya: '#bcaaa4', Yol_Bisiklet: '#66bb6a', Metro: '#c62828', Tram: '#1565c0', Bus: '#f9a825', Ferry: '#00838f', Metin: '#333333'
-    }
-  },
-  {
-    id: 'historical',
-    name: 'Historical Layer',
-    description: 'Heritage documentation',
-    category: 'Documentation',
-    colors: {
-      Zemin: '#f4efe4', Binalar: '#5d4037', Bina_Stroke: '#4e342e', Su: '#d7ccc8', Yesil: '#a1887f',
+      Zemin: '#f5f0e6', Binalar: '#5d4037', Bina_Stroke: '#4e342e', Su: '#8d6e63', Yesil: '#6d4c41',
       Yol_Otoyol: '#3e2723', Yol_Birincil: '#5d4037', Yol_Ikincil: '#6d4c41', Yol_Konut: '#8d6e63',
-      Yol_Yaya: '#a1887f', Yol_Bisiklet: '#5d4037', Metro: '#5d4037', Tram: '#3e2723', Bus: '#8d6e63', Ferry: '#4e342e', Metin: '#3e2723'
+      Yol_Yaya: '#a1887f', Yol_Bisiklet: '#5d4037', Metro: '#4e342e', Tram: '#3e2723', Bus: '#6d4c41', Ferry: '#4e342e', Metin: '#3e2723'
     }
   },
+  {
+    id: 'neon',
+    name: 'Neon City',
+    description: 'Cyberpunk neon glow',
+    category: 'Aesthetic',
+    colors: {
+      Zemin: '#0a0a0f', Binalar: '#3a3a5a', Bina_Stroke: '#4a4a6a', Su: '#0044aa', Yesil: '#006600',
+      Yol_Otoyol: '#ff00ff', Yol_Birincil: '#00ffff', Yol_Ikincil: '#ff00aa', Yol_Konut: '#7700ff',
+      Yol_Yaya: '#00ff88', Yol_Bisiklet: '#ffff00', Metro: '#ff0055', Tram: '#00ffff', Bus: '#ffff00', Ferry: '#00ff88', Metin: '#ffffff'
+    }
+  },
+  {
+    id: 'sunset',
+    name: 'Warm Sunset',
+    description: 'Warm orange tones',
+    category: 'Aesthetic',
+    colors: {
+      Zemin: '#fff8e7', Binalar: '#d84315', Bina_Stroke: '#bf360c', Su: '#e57350', Yesil: '#d84315',
+      Yol_Otoyol: '#bf360c', Yol_Birincil: '#d84315', Yol_Ikincil: '#e65100', Yol_Konut: '#ff8a65',
+      Yol_Yaya: '#ffab91', Yol_Bisiklet: '#bf360c', Metro: '#b71c1c', Tram: '#bf360c', Bus: '#e65100', Ferry: '#d84315', Metin: '#4e342e'
+    }
+  },
+  {
+    id: 'arctic',
+    name: 'Arctic',
+    description: 'Cool icy blue tones',
+    category: 'Aesthetic',
+    colors: {
+      Zemin: '#e3f2fd', Binalar: '#1565c0', Bina_Stroke: '#0d47a1', Su: '#1976d2', Yesil: '#43a047',
+      Yol_Otoyol: '#0d47a1', Yol_Birincil: '#1565c0', Yol_Ikincil: '#1976d2', Yol_Konut: '#42a5f5',
+      Yol_Yaya: '#64b5f6', Yol_Bisiklet: '#2e7d32', Metro: '#0d47a1', Tram: '#1565c0', Bus: '#1976d2', Ferry: '#01579b', Metin: '#0d47a1'
+    }
+  },
+  {
+    id: 'gold',
+    name: 'Gold Edition',
+    description: 'Luxury black and gold',
+    category: 'Aesthetic',
+    colors: {
+      Zemin: '#0a0a0a', Binalar: '#3a3a30', Bina_Stroke: '#d4af37', Su: '#2a2a4a', Yesil: '#2a3a2a',
+      Yol_Otoyol: '#d4af37', Yol_Birincil: '#b8960c', Yol_Ikincil: '#8b7355', Yol_Konut: '#5a5a4a',
+      Yol_Yaya: '#6b6b5a', Yol_Bisiklet: '#9a8a4a', Metro: '#d4af37', Tram: '#c9a227', Bus: '#b8960c', Ferry: '#d4af37', Metin: '#d4af37'
+    }
+  },
+  {
+    id: 'pastel',
+    name: 'Pastel',
+    description: 'Soft pastel colors',
+    category: 'Aesthetic',
+    colors: {
+      Zemin: '#fef6f9', Binalar: '#d47fa1', Bina_Stroke: '#c46a91', Su: '#42a5f5', Yesil: '#66bb6a',
+      Yol_Otoyol: '#ab47bc', Yol_Birincil: '#7e57c2', Yol_Ikincil: '#42a5f5', Yol_Konut: '#26c6da',
+      Yol_Yaya: '#66bb6a', Yol_Bisiklet: '#43a047', Metro: '#ec407a', Tram: '#26a69a', Bus: '#ffca28', Ferry: '#26c6da', Metin: '#4e342e'
+    }
+  },
+  // ============ PROFESSIONAL ============
   {
     id: 'blueprint',
     name: 'Blueprint',
     description: 'Technical drawing style',
-    category: 'Documentation',
+    category: 'Professional',
     colors: {
-      Zemin: '#0a2342', Binalar: '#ffffff', Bina_Stroke: '#ffffff', Su: '#153a5c', Yesil: '#1a4468',
-      Yol_Otoyol: '#ffffff', Yol_Birincil: '#4a7faa', Yol_Ikincil: '#3a6a96', Yol_Konut: '#2a5580',
-      Yol_Yaya: '#5a8fba', Yol_Bisiklet: '#7ec8ac', Metro: '#ff6b6b', Tram: '#4ecdc4', Bus: '#ffe66d', Ferry: '#f8b500', Metin: '#ffffff'
+      Zemin: '#0a2342', Binalar: '#ffffff', Bina_Stroke: '#ffffff', Su: '#2a5a8a', Yesil: '#2a6a7a',
+      Yol_Otoyol: '#ffffff', Yol_Birincil: '#8ab4d4', Yol_Ikincil: '#6a94b4', Yol_Konut: '#4a7494',
+      Yol_Yaya: '#7aa4c4', Yol_Bisiklet: '#7ec8ac', Metro: '#ff6b6b', Tram: '#4ecdc4', Bus: '#ffe66d', Ferry: '#f8b500', Metin: '#ffffff'
     }
   },
   {
     id: 'presentation',
     name: 'Presentation',
     description: 'Clean professional style',
-    category: 'Documentation',
+    category: 'Professional',
     colors: {
-      Zemin: '#ffffff', Binalar: '#37474f', Bina_Stroke: '#263238', Su: '#81d4fa', Yesil: '#a5d6a7',
-      Yol_Otoyol: '#ef5350', Yol_Birincil: '#78909c', Yol_Ikincil: '#90a4ae', Yol_Konut: '#b0bec5',
-      Yol_Yaya: '#cfd8dc', Yol_Bisiklet: '#66bb6a', Metro: '#e53935', Tram: '#1e88e5', Bus: '#fdd835', Ferry: '#00acc1', Metin: '#263238'
+      Zemin: '#ffffff', Binalar: '#37474f', Bina_Stroke: '#263238', Su: '#1976d2', Yesil: '#43a047',
+      Yol_Otoyol: '#e53935', Yol_Birincil: '#546e7a', Yol_Ikincil: '#607d8b', Yol_Konut: '#78909c',
+      Yol_Yaya: '#90a4ae', Yol_Bisiklet: '#388e3c', Metro: '#d32f2f', Tram: '#1565c0', Bus: '#f57c00', Ferry: '#0097a7', Metin: '#263238'
     }
   },
   {
-    id: 'topographic',
-    name: 'Topographic',
-    description: 'Elevation contour focused',
-    category: 'Environment',
+    id: 'technical',
+    name: 'Technical',
+    description: 'High contrast B&W',
+    category: 'Professional',
     colors: {
-      Zemin: '#faf8f5', Binalar: '#8b4513', Bina_Stroke: '#6b3510', Su: '#4a90a4', Yesil: '#6b8e23',
-      Yol_Otoyol: '#d32f2f', Yol_Birincil: '#f57c00', Yol_Ikincil: '#fbc02d', Yol_Konut: '#bdbdbd',
-      Yol_Yaya: '#9e9e9e', Yol_Bisiklet: '#388e3c', Metro: '#d32f2f', Tram: '#1976d2', Bus: '#fbc02d', Ferry: '#0288d1', Metin: '#3e2723'
+      Zemin: '#ffffff', Binalar: '#212121', Bina_Stroke: '#000000', Su: '#5090d0', Yesil: '#60a060',
+      Yol_Otoyol: '#000000', Yol_Birincil: '#424242', Yol_Ikincil: '#616161', Yol_Konut: '#9e9e9e',
+      Yol_Yaya: '#757575', Yol_Bisiklet: '#616161', Metro: '#000000', Tram: '#424242', Bus: '#616161', Ferry: '#424242', Metin: '#000000'
+    }
+  },
+  {
+    id: 'cad',
+    name: 'CAD Style',
+    description: 'AutoCAD-like appearance',
+    category: 'Professional',
+    colors: {
+      Zemin: '#000000', Binalar: '#00ff00', Bina_Stroke: '#00ff00', Su: '#0066ff', Yesil: '#00cc00',
+      Yol_Otoyol: '#ffffff', Yol_Birincil: '#ffff00', Yol_Ikincil: '#ff00ff', Yol_Konut: '#00ffff',
+      Yol_Yaya: '#ff8800', Yol_Bisiklet: '#88ff00', Metro: '#ff0000', Tram: '#00ffff', Bus: '#ffff00', Ferry: '#0088ff', Metin: '#ffffff'
     }
   },
 ]
 
-const THEME_CATEGORIES = ['Urban Form', 'Mobility', 'Environment', 'Planning', 'Documentation']
+const THEME_CATEGORIES = ['Classic', 'Minimal', 'Analysis', 'Environment', 'Aesthetic', 'Professional']
 
 // --- ICONS ---
 const ArrowLeftIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
