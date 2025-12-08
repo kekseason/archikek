@@ -7,5 +7,5 @@ export default function Home() {
   const country = headersList.get('x-vercel-ip-country') || ''
   const discount = getDiscountForCountry(country)
 
-  return <HomeClient discount={discount} />
+  return <HomeClient discount={discount} country={country} />
 }
