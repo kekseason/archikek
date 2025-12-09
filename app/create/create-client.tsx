@@ -1140,30 +1140,45 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               
               {/* Preview Button - When no preview */}
               {!previewUrl && (
-                <button
-                  onClick={previewMap}
-                  disabled={previewLoading || !selection}
-                  className={`w-full py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-all ${
-                    selection 
-                      ? 'bg-amber-500 text-black hover:bg-amber-400' 
-                      : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  {previewLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                      Creating preview...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      {selection ? 'Preview (Free)' : 'Select location first'}
-                    </>
-                  )}
-                </button>
+                <>
+                  <button
+                    onClick={previewMap}
+                    disabled={previewLoading || !selection}
+                    className={`w-full py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-all ${
+                      selection 
+                        ? 'bg-amber-500 text-black hover:bg-amber-400' 
+                        : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    {previewLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                        Creating preview...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        {selection ? 'Preview (Free)' : 'Select location first'}
+                      </>
+                    )}
+                  </button>
+                  
+                  {/* Quick info when no preview */}
+                  <div className="text-center text-[10px] text-gray-500">
+                    {!user ? (
+                      <span>🎉 First map free • No credit card needed</span>
+                    ) : profile?.is_pro ? (
+                      <span className="text-amber-400">✨ Unlimited Pro</span>
+                    ) : profile?.credits && profile.credits > 0 ? (
+                      <span><span className="text-amber-400">{profile.credits}</span> credits available</span>
+                    ) : (
+                      <span className="text-red-400">No credits • <Link href="/pricing" className="text-amber-400 hover:underline">Buy more</Link></span>
+                    )}
+                  </div>
+                </>
               )}
 
               {/* Mini Preview + Generate - When preview exists */}
@@ -1199,6 +1214,67 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     {generating ? <LoaderIcon /> : <DownloadIcon />}
                     {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
                   </button>
+                  
+                  {/* Pricing Info - Context Aware */}
+                  <div className="p-3 bg-[#0f0f0f] border border-[#222] rounded-lg text-center space-y-2">
+                    {!user ? (
+                      // Not logged in
+                      <>
+                        <p className="text-xs text-green-400 font-medium">🎉 First map is FREE!</p>
+                        <p className="text-[10px] text-gray-400">No credit card required</p>
+                        <div className="border-t border-[#222] pt-2 mt-2">
+                          <p className="text-[10px] text-gray-500">
+                            Then: 5 maps for {discount ? (
+                              <><span className="line-through">${baseCreditsPrice}</span> <span className="text-amber-400">${creditsPrice}</span></>
+                            ) : (
+                              <span className="text-white">${baseCreditsPrice}</span>
+                            )}
+                          </p>
+                        </div>
+                      </>
+                    ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
+                      // Pro user
+                      <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
+                    ) : profile?.credits && profile.credits > 0 ? (
+                      // Has credits
+                      <>
+                        <p className="text-xs text-white">
+                          <span className="text-amber-400 font-bold text-lg">{profile.credits}</span> credits remaining
+                        </p>
+                        <p className="text-[10px] text-gray-500">Each download uses 1 credit</p>
+                      </>
+                    ) : (
+                      // No credits
+                      <>
+                        <p className="text-xs text-red-400 font-medium">⚠️ No credits remaining</p>
+                        <p className="text-[10px] text-gray-400">
+                          Get 5 maps for {discount ? (
+                            <><span className="line-through text-gray-600">${baseCreditsPrice}</span> <span className="text-amber-400 font-medium">${creditsPrice}</span></>
+                          ) : (
+                            <span className="text-white font-medium">${baseCreditsPrice}</span>
+                          )}
+                        </p>
+                        {discount && (
+                          <p className="text-[10px] text-green-400">
+                            🎉 {discount.percent}% {discount.name} discount!
+                          </p>
+                        )}
+                        <Link 
+                          href="/pricing" 
+                          className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
+                        >
+                          Buy Credits →
+                        </Link>
+                      </>
+                    )}
+                    
+                    {/* Show pricing link if not showing buy button */}
+                    {(!user || (profile?.credits && profile.credits > 0) || profile?.is_pro) && (
+                      <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
+                        View all plans →
+                      </Link>
+                    )}
+                  </div>
                   
                   {/* New Preview */}
                   <button
@@ -1236,23 +1312,50 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   
                   {showColorPanel && (
                     <div className="mt-2 p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          { key: 'Zemin', label: 'Background' },
-                          { key: 'Binalar', label: 'Buildings' },
-                          { key: 'Su', label: 'Water' },
-                          { key: 'Yesil', label: 'Green' }
-                        ].map(({ key, label }) => (
-                          <div key={key} className="flex items-center gap-2">
-                            <input 
-                              type="color" 
-                              value={customColors[key as keyof typeof customColors] || '#000000'} 
-                              onChange={(e) => updateColor(key, e.target.value)} 
-                              className="w-8 h-8 rounded border border-[#333] cursor-pointer bg-transparent" 
-                            />
-                            <span className="text-xs text-gray-400">{label}</span>
-                          </div>
-                        ))}
+                      {/* Area Colors */}
+                      <div>
+                        <p className="text-xs text-gray-500 mb-2">Area Colors</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            { key: 'Zemin', label: 'Background' },
+                            { key: 'Binalar', label: 'Buildings' },
+                            { key: 'Su', label: 'Water' },
+                            { key: 'Yesil', label: 'Green' }
+                          ].map(({ key, label }) => (
+                            <div key={key} className="flex items-center gap-2">
+                              <input 
+                                type="color" 
+                                value={customColors[key as keyof typeof customColors] || '#000000'} 
+                                onChange={(e) => updateColor(key, e.target.value)} 
+                                className="w-6 h-6 rounded border border-[#333] cursor-pointer bg-transparent" 
+                              />
+                              <span className="text-xs text-gray-400">{label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Road Colors */}
+                      <div className="border-t border-[#222] pt-2">
+                        <p className="text-xs text-gray-500 mb-2">Road Colors</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            { key: 'Yol_Otoyol', label: 'Highway' },
+                            { key: 'Yol_Birincil', label: 'Primary' },
+                            { key: 'Yol_Ikincil', label: 'Secondary' },
+                            { key: 'Yol_Konut', label: 'Residential' }
+                          ].map(({ key, label }) => (
+                            <div key={key} className="flex items-center gap-2">
+                              <input 
+                                type="color" 
+                                value={customColors[key as keyof typeof customColors] || '#000000'} 
+                                onChange={(e) => updateColor(key, e.target.value)} 
+                                className="w-6 h-6 rounded border border-[#333] cursor-pointer bg-transparent" 
+                              />
+                              <span className="text-xs text-gray-500">{label}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                       
                       {useCustomColors && (
@@ -1263,6 +1366,45 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                           Reset to theme colors
                         </button>
                       )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Stroke Widths */}
+                <div>
+                  <button 
+                    onClick={() => setShowStrokePanel(!showStrokePanel)} 
+                    className="w-full flex items-center justify-between px-3 py-2 bg-[#111] border border-[#222] rounded-lg text-sm text-gray-300 hover:border-[#333] transition-colors"
+                  >
+                    <span className="flex items-center gap-2"><SlidersIcon /> Line Weights</span>
+                    <ChevronDownIcon />
+                  </button>
+                  
+                  {showStrokePanel && (
+                    <div className="mt-2 p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg space-y-2">
+                      {[
+                        { key: 'highway', label: 'Highway', min: 2, max: 12 },
+                        { key: 'primary', label: 'Primary', min: 1, max: 8 },
+                        { key: 'secondary', label: 'Secondary', min: 0.5, max: 6 },
+                        { key: 'residential', label: 'Residential', min: 0.5, max: 4 },
+                        { key: 'building', label: 'Building outline', min: 0, max: 2 }
+                      ].map(({ key, label, min, max }) => (
+                        <div key={key}>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-400">{label}</span>
+                            <span className="text-gray-500">{strokeWidths[key as keyof typeof strokeWidths]}px</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min={min} 
+                            max={max} 
+                            step={0.1} 
+                            value={strokeWidths[key as keyof typeof strokeWidths]} 
+                            onChange={(e) => setStrokeWidths(prev => ({ ...prev, [key]: Number(e.target.value) }))} 
+                            className="w-full accent-amber-500 h-1" 
+                          />
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -1307,14 +1449,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 </div>
               </div>
             </details>
-
-            {/* Pricing Link */}
-            <Link 
-              href="/pricing"
-              className="flex items-center justify-center gap-2 p-2 text-xs text-gray-500 hover:text-amber-400 transition-colors"
-            >
-              ✨ {discount ? `${discount.percent}% OFF - From $${creditsPrice}` : `5 Maps for $${baseCreditsPrice}`} →
-            </Link>
 
             {/* Error */}
             {error && (
@@ -1432,7 +1566,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/80 to-transparent"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="max-w-lg mx-auto flex flex-col items-center gap-4">
+            <div className="max-w-lg mx-auto flex flex-col items-center gap-3">
               <p className="text-white/60 text-sm">
                 {selectedTheme.name} • {selection?.size || size}m • Scroll to zoom
               </p>
@@ -1445,6 +1579,61 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 {generating ? <LoaderIcon /> : <DownloadIcon />}
                 {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
               </button>
+              
+              {/* Pricing Info - Context Aware */}
+              <div className="flex items-center gap-2 text-xs flex-wrap justify-center">
+                {!user ? (
+                  // Not logged in
+                  <>
+                    <span className="text-green-400 font-medium">🎉 First map FREE</span>
+                    <span className="text-white/30">•</span>
+                    <span className="text-white/50">No credit card needed</span>
+                    <span className="text-white/30">•</span>
+                    <span className="text-white/50">
+                      Then {discount ? (
+                        <><span className="text-amber-400">${creditsPrice}</span> <span className="line-through text-white/30">${baseCreditsPrice}</span></>
+                      ) : (
+                        <span className="text-white">${baseCreditsPrice}</span>
+                      )} for 5 maps
+                    </span>
+                  </>
+                ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
+                  // Pro user
+                  <span className="text-amber-400 font-medium">✨ Unlimited Pro Access</span>
+                ) : profile?.credits && profile.credits > 0 ? (
+                  // Has credits
+                  <>
+                    <span className="text-white"><span className="text-amber-400 font-bold">{profile.credits}</span> credits remaining</span>
+                    <span className="text-white/30">•</span>
+                    <span className="text-white/50">1 credit per download</span>
+                  </>
+                ) : (
+                  // No credits
+                  <>
+                    <span className="text-red-400 font-medium">⚠️ No credits</span>
+                    <span className="text-white/30">•</span>
+                    <span className="text-white/50">
+                      Get 5 maps for {discount ? (
+                        <><span className="text-amber-400 font-medium">${creditsPrice}</span></>
+                      ) : (
+                        <span className="text-white">${baseCreditsPrice}</span>
+                      )}
+                    </span>
+                    {discount && (
+                      <>
+                        <span className="text-white/30">•</span>
+                        <span className="text-green-400">{discount.percent}% OFF!</span>
+                      </>
+                    )}
+                    <Link 
+                      href="/pricing" 
+                      className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors"
+                    >
+                      Buy Credits
+                    </Link>
+                  </>
+                )}
+              </div>
               
               <button 
                 onClick={() => setShowLightbox(false)}

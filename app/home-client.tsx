@@ -266,7 +266,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               {/* Stats */}
               <div className="flex gap-8 md:gap-12 pt-8 border-t border-white/10">
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold text-amber-500">13</div>
+                  <div className="text-3xl md:text-4xl font-bold text-amber-500">24</div>
                   <div className="text-white/40 text-sm mt-1">Analysis Themes</div>
                 </div>
                 <div>
@@ -280,87 +280,104 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               </div>
             </div>
 
-            {/* Right - Map Preview */}
+            {/* Right - Create Screen Mockup with Tutorial */}
             <div className="relative hidden lg:block">
               <div className="relative">
                 {/* Glow effect */}
                 <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/10 via-transparent to-amber-500/5 rounded-3xl blur-2xl" />
                 
-                {/* Map container */}
-                <div className="relative bg-[#111] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                {/* Create screen container */}
+                <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
                   {/* Window controls */}
                   <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border-b border-white/5">
                     <div className="w-3 h-3 rounded-full bg-red-500/70" />
                     <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
                     <div className="w-3 h-3 rounded-full bg-green-500/70" />
-                    <span className="ml-4 text-white/30 text-xs font-mono">ArchiKEK — Figure Ground</span>
+                    <span className="ml-4 text-white/30 text-xs font-mono">archikek.com/create</span>
                   </div>
                   
-                  {/* Map preview */}
-                  <div className="p-6 bg-white">
-                    <svg viewBox="0 0 400 280" className="w-full h-auto">
-                      {/* Background */}
-                      <rect fill="#ffffff" width="400" height="280"/>
+                  {/* Create screen mockup */}
+                  <div className="flex">
+                    {/* Sidebar mockup */}
+                    <div className="w-48 bg-[#0a0a0a] border-r border-white/10 p-3 space-y-3">
+                      {/* Search */}
+                      <div className="bg-[#111] border border-[#222] rounded-lg px-3 py-2 text-xs text-gray-500 flex items-center gap-2">
+                        <span>🔍</span> Search location...
+                      </div>
                       
-                      {/* Roads */}
-                      <path d="M0 110 Q100 105 200 115 T400 105" stroke="#e8e8e8" strokeWidth="14" fill="none" strokeLinecap="round"/>
-                      <path d="M0 190 Q150 185 250 195 T400 185" stroke="#e8e8e8" strokeWidth="10" fill="none" strokeLinecap="round"/>
-                      <path d="M110 0 Q105 70 115 140 T105 280" stroke="#eeeeee" strokeWidth="8" fill="none" strokeLinecap="round"/>
-                      <path d="M290 0 Q285 90 295 180 T285 280" stroke="#eeeeee" strokeWidth="8" fill="none" strokeLinecap="round"/>
+                      {/* Theme selector */}
+                      <div className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-2">
+                        <div className="flex gap-1 mb-2">
+                          <span className="px-1.5 py-0.5 bg-amber-500 text-black rounded text-[8px] font-medium">Analysis</span>
+                          <span className="px-1.5 py-0.5 bg-[#1a1a1a] text-gray-500 rounded text-[8px]">Classic</span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-1">
+                          {[
+                            { bg: '#fff', fg: '#1a1a1a' },
+                            { bg: '#0a0a0a', fg: '#d4af37' },
+                            { bg: '#fff8e7', fg: '#d84315' },
+                            { bg: '#0a1628', fg: '#4fc3f7' },
+                          ].map((t, i) => (
+                            <div 
+                              key={i} 
+                              className={`aspect-square rounded border ${i === 0 ? 'border-amber-500 ring-1 ring-amber-500/50' : 'border-[#333]'}`}
+                              style={{ background: t.bg }}
+                            >
+                              <div className="w-full h-full p-0.5 flex flex-col gap-px">
+                                <div className="flex-1 rounded-sm" style={{ background: t.fg }} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                       
-                      {/* Main road accent */}
-                      <path d="M0 110 Q100 105 200 115 T400 105" stroke="#d64045" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+                      {/* Preview button */}
+                      <div className="bg-amber-500 text-black text-xs font-medium py-2 rounded-lg text-center">
+                        Preview (Free)
+                      </div>
+                    </div>
+                    
+                    {/* Map area mockup */}
+                    <div className="w-64 h-56 bg-[#1a1a2e] relative">
+                      {/* Simple map representation */}
+                      <svg viewBox="0 0 256 224" className="w-full h-full">
+                        <rect fill="#1a1a2e" width="256" height="224"/>
+                        <path d="M0 80 L256 75" stroke="#333" strokeWidth="6"/>
+                        <path d="M0 150 L256 145" stroke="#333" strokeWidth="4"/>
+                        <path d="M80 0 L85 224" stroke="#333" strokeWidth="4"/>
+                        <path d="M180 0 L175 224" stroke="#333" strokeWidth="4"/>
+                        
+                        {/* Selection box */}
+                        <rect x="100" y="85" width="80" height="70" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,4">
+                          <animate attributeName="stroke-dashoffset" from="0" to="8" dur="1s" repeatCount="indefinite"/>
+                        </rect>
+                        
+                        {/* Center point */}
+                        <circle cx="140" cy="120" r="4" fill="#f59e0b"/>
+                      </svg>
                       
-                      {/* Buildings with shadow effect */}
-                      <g filter="url(#shadow)">
-                        <rect x="25" y="25" width="55" height="45" fill="#1a1a1a" rx="1"/>
-                        <rect x="35" y="140" width="50" height="65" fill="#1a1a1a" rx="1"/>
-                        <rect x="140" y="30" width="75" height="50" fill="#1a1a1a" rx="1"/>
-                        <rect x="135" y="145" width="40" height="35" fill="#1a1a1a" rx="1"/>
-                        <rect x="190" y="135" width="50" height="45" fill="#1a1a1a" rx="1"/>
-                        <rect x="310" y="28" width="60" height="55" fill="#1a1a1a" rx="1"/>
-                        <rect x="300" y="130" width="65" height="40" fill="#1a1a1a" rx="1"/>
-                        <rect x="25" y="220" width="50" height="40" fill="#1a1a1a" rx="1"/>
-                        <rect x="150" y="210" width="55" height="50" fill="#1a1a1a" rx="1"/>
-                        <rect x="310" y="205" width="60" height="55" fill="#1a1a1a" rx="1"/>
-                      </g>
-                      
-                      {/* Green space */}
-                      <ellipse cx="250" cy="235" rx="30" ry="22" fill="#e8f5e9"/>
-                      
-                      {/* Transit marker */}
-                      <circle cx="200" cy="115" r="7" fill="#d64045"/>
-                      <text x="200" y="118" textAnchor="middle" fontSize="8" fontWeight="bold" fill="white">M</text>
-                      
-                      {/* Scale bar */}
-                      <rect x="15" y="258" width="50" height="3" fill="#1a1a1a"/>
-                      <text x="40" y="253" textAnchor="middle" fontSize="7" fill="#666">100m</text>
-                      
-                      {/* North arrow */}
-                      <polygon points="378,18 373,32 378,27 383,32" fill="#1a1a1a"/>
-                      <text x="378" y="42" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#1a1a1a">N</text>
-                      
-                      {/* Shadow filter */}
-                      <defs>
-                        <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-                          <feDropShadow dx="1" dy="1" stdDeviation="1" floodColor="#000" floodOpacity="0.15"/>
-                        </filter>
-                      </defs>
-                    </svg>
+                      {/* Tutorial overlay */}
+                      <div className="absolute top-2 left-2 bg-black/80 backdrop-blur px-3 py-2 rounded-lg">
+                        <p className="text-white text-[10px]">🎯 Click to select area</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
-                {/* Floating theme pills */}
-                <div className="absolute -right-2 top-1/4 flex flex-col gap-2">
-                  {['Figure Ground', 'Nolli', 'Blueprint'].map((theme, i) => (
-                    <div 
-                      key={theme}
-                      className="px-3 py-1.5 bg-black/60 backdrop-blur-md border border-white/10 rounded-full text-xs text-white/80"
-                      style={{ transform: `translateX(${i * 8}px)` }}
-                    >
-                      {theme}
-                    </div>
-                  ))}
+                {/* Tutorial steps floating */}
+                <div className="absolute -right-4 top-4 flex flex-col gap-2 max-w-[140px]">
+                  <div className="bg-amber-500 text-black px-3 py-2 rounded-lg shadow-lg">
+                    <p className="text-[10px] font-bold">1. Search Location</p>
+                    <p className="text-[8px] opacity-80">Type any city or address</p>
+                  </div>
+                  <div className="bg-[#111] border border-white/20 text-white px-3 py-2 rounded-lg">
+                    <p className="text-[10px] font-medium">2. Pick Theme</p>
+                    <p className="text-[8px] opacity-60">24 professional styles</p>
+                  </div>
+                  <div className="bg-[#111] border border-white/20 text-white px-3 py-2 rounded-lg">
+                    <p className="text-[10px] font-medium">3. Download</p>
+                    <p className="text-[8px] opacity-60">SVG or DXF format</p>
+                  </div>
                 </div>
               </div>
             </div>
