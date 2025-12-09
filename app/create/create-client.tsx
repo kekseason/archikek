@@ -351,6 +351,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [showLightbox, setShowLightbox] = useState(false)
+  const [lightboxZoom, setLightboxZoom] = useState(1)
   const [showTutorial, setShowTutorial] = useState(true)
   const [tutorialStep, setTutorialStep] = useState(1)
   
@@ -363,7 +364,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showResults, setShowResults] = useState(false)
   const [showColorPanel, setShowColorPanel] = useState(false)
   const [showStrokePanel, setShowStrokePanel] = useState(false)
-  const [activeCategory, setActiveCategory] = useState('Urban Form')
+  const [activeCategory, setActiveCategory] = useState('Analysis')
   
   // Map refs
   const mapRef = useRef<HTMLDivElement>(null)
@@ -392,6 +393,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       setShowTutorial(false)
     }
   }, [previewUrl])
+
+  // ESC key to close lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showLightbox) {
+        setShowLightbox(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showLightbox])
 
   // Check if user has seen tutorial before
   useEffect(() => {
@@ -896,6 +908,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       setPreviewUrl(url)
+      setShowLightbox(true) // Auto-open lightbox
+      setLightboxZoom(1) // Reset zoom
     } catch (err: any) {
       console.error('Preview catch:', err)
       if (err.message === 'Failed to fetch') {
@@ -999,102 +1013,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         
         {/* Sidebar */}
         <aside className="w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] overflow-y-auto flex-shrink-0">
-          <div className="p-4 space-y-5">
+          <div className="p-4 space-y-4">
             
-            {/* PRICING BOX - NEW! */}
-            <div className="p-4 bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/30 rounded-xl">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-amber-500 text-lg">💰</span>
-                <span className="text-amber-500 font-semibold text-sm">Pricing</span>
-                {discount && (
-                  <span className="ml-auto text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
-                    {discount.percent}% OFF
-                  </span>
-                )}
-              </div>
-              
-              <div className="space-y-2 mb-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">5 Maps</span>
-                  <div className="text-right">
-                    {discount ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-500 text-xs line-through">${baseCreditsPrice}</span>
-                        <span className="text-white font-bold">${creditsPrice}</span>
-                      </div>
-                    ) : (
-                      <span className="text-white font-bold">${baseCreditsPrice}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 text-sm">Unlimited</span>
-                  <div className="text-right">
-                    {discount ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-500 text-xs line-through">${baseProPrice}/mo</span>
-                        <span className="text-white font-bold">${proPrice}/mo</span>
-                      </div>
-                    ) : (
-                      <span className="text-white font-bold">${baseProPrice}/mo</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              <Link 
-                href="/pricing"
-                className="block w-full py-2 bg-amber-500 text-black text-center rounded-lg text-sm font-semibold hover:bg-amber-400 transition-colors"
-              >
-                View Plans →
-              </Link>
-              
-              {discount && (
-                <p className="text-xs text-green-400/70 text-center mt-2">
-                  🎉 {discount.name} discount applied!
-                </p>
-              )}
-            </div>
-            
-            {/* Selection Tool */}
-            <div>
-              <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Selection Tool</h3>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setSelectionMode('point')} 
-                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${
-                    selectionMode === 'point' 
-                      ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' 
-                      : 'bg-[#111] border-[#222] text-gray-400 hover:border-[#333]'
-                  }`}
-                >
-                  <PointerIcon />
-                  <span className="text-sm">Point</span>
-                </button>
-                <button 
-                  onClick={() => setSelectionMode('rectangle')} 
-                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border transition-all ${
-                    selectionMode === 'rectangle' 
-                      ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' 
-                      : 'bg-[#111] border-[#222] text-gray-400 hover:border-[#333]'
-                  }`}
-                >
-                  <SquareIcon />
-                  <span className="text-sm">Rectangle</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Location Search */}
+            {/* Location Search - Compact */}
             <div className="relative">
-              <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Location</h3>
               <div className="relative">
                 <input 
                   type="text" 
                   value={location} 
                   onChange={(e) => { setLocation(e.target.value); setShowResults(false) }} 
                   onKeyDown={(e) => e.key === 'Enter' && searchLocation()} 
-                  placeholder="Search location..." 
+                  placeholder="🔍 Search location..." 
                   className="w-full px-4 py-2.5 bg-[#111] border border-[#222] rounded-lg text-white text-sm placeholder-gray-500 focus:border-amber-500/50 focus:outline-none transition-colors" 
                 />
                 <button onClick={searchLocation} className="absolute right-3 top-2.5 text-gray-500 hover:text-white transition-colors">
@@ -1117,364 +1046,275 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               )}
             </div>
 
-            {/* Selection Info */}
-            {selection && (
-              <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-amber-500 text-xs font-medium uppercase tracking-wider">Selected</span>
-                  <button onClick={clearSelection} className="text-gray-500 hover:text-red-400 transition-colors">
-                    <TrashIcon />
-                  </button>
-                </div>
-                <p className="text-amber-400/80 text-sm mt-1 truncate">{location}</p>
+            {/* Selection Info + Size - Compact Row */}
+            {selection ? (
+              <div className="flex items-center gap-2 p-2 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                <span className="text-amber-500 text-xs">✓</span>
+                <span className="text-amber-400/80 text-xs truncate flex-1">{location}</span>
+                {selectionMode === 'point' && (
+                  <select 
+                    value={size} 
+                    onChange={(e) => setSize(Number(e.target.value))}
+                    className="bg-[#111] border border-amber-500/30 rounded px-2 py-1 text-xs text-amber-400"
+                  >
+                    {[500, 750, 1000, 1500, 2000].map(s => (
+                      <option key={s} value={s}>{s}m</option>
+                    ))}
+                  </select>
+                )}
+                <button onClick={clearSelection} className="text-gray-500 hover:text-red-400 transition-colors p-1">
+                  <TrashIcon />
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setSelectionMode('point')} 
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border text-xs transition-all ${
+                    selectionMode === 'point' 
+                      ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' 
+                      : 'bg-[#111] border-[#222] text-gray-400'
+                  }`}
+                >
+                  <PointerIcon /> Point
+                </button>
+                <button 
+                  onClick={() => setSelectionMode('rectangle')} 
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border text-xs transition-all ${
+                    selectionMode === 'rectangle' 
+                      ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' 
+                      : 'bg-[#111] border-[#222] text-gray-400'
+                  }`}
+                >
+                  <SquareIcon /> Rectangle
+                </button>
               </div>
             )}
 
-            {/* Size Slider (Point mode only) */}
-            {selectionMode === 'point' && (
-              <div>
-                <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Area Size</h3>
-                <div className="flex items-center gap-3">
-                  <input 
-                    type="range" 
-                    min="200" 
-                    max="2000" 
-                    step="100" 
-                    value={size} 
-                    onChange={(e) => setSize(Number(e.target.value))} 
-                    className="flex-1 accent-amber-500" 
-                  />
-                  <span className="text-sm text-gray-400 w-14 text-right">{size}m</span>
-                </div>
-              </div>
-            )}
-            
-            {/* Analysis Themes */}
-            <div>
-              <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Analysis Theme</h3>
+            {/* ═══════════════════════════════════════════════════════ */}
+            {/* THEMES - PRIMARY SECTION (Always Visible) */}
+            {/* ═══════════════════════════════════════════════════════ */}
+            <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
               <div className="flex flex-wrap gap-1 mb-3">
                 {THEME_CATEGORIES.map(cat => (
                   <button 
                     key={cat} 
                     onClick={() => setActiveCategory(cat)} 
-                    className={`px-2.5 py-1 text-xs rounded-md transition-all ${
+                    className={`px-2 py-1 text-xs rounded-md transition-all ${
                       activeCategory === cat 
-                        ? 'bg-amber-500/20 text-amber-500' 
-                        : 'bg-[#111] text-gray-500 hover:text-gray-300'
+                        ? 'bg-amber-500 text-black font-medium' 
+                        : 'bg-[#1a1a1a] text-gray-500 hover:text-gray-300'
                     }`}
                   >
                     {cat}
                   </button>
                 ))}
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-1.5">
                 {ANALYSIS_THEMES.filter(t => t.category === activeCategory).map((theme) => (
                   <button 
                     key={theme.id} 
                     onClick={() => { setSelectedTheme(theme); setUseCustomColors(false) }} 
                     className={`aspect-square rounded-lg border-2 transition-all relative group overflow-hidden ${
                       selectedTheme.id === theme.id 
-                        ? 'border-amber-500 scale-105 shadow-lg shadow-amber-500/10' 
-                        : 'border-[#222] hover:border-[#444]'
+                        ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                        : 'border-[#333] hover:border-[#555]'
                     }`} 
                     style={{ background: theme.colors.Zemin }}
                     title={theme.name}
                   >
-                    <div className="w-full h-full p-1.5 flex flex-col gap-0.5">
+                    <div className="w-full h-full p-1 flex flex-col gap-0.5">
                       <div className="flex-1 rounded-sm" style={{ background: theme.colors.Binalar }} />
-                      <div className="h-1.5 rounded-sm" style={{ background: theme.colors.Yol_Otoyol }} />
+                      <div className="h-1 rounded-sm" style={{ background: theme.colors.Yol_Otoyol }} />
                     </div>
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-600 mt-2 text-center">{selectedTheme.name}</p>
+              <p className="text-xs text-center mt-2 text-amber-500 font-medium">{selectedTheme.name}</p>
             </div>
 
-            {/* Color Customization */}
-            <div>
-              <button 
-                onClick={() => setShowColorPanel(!showColorPanel)} 
-                className="w-full flex items-center justify-between px-3 py-2.5 bg-[#111] border border-[#222] rounded-lg text-sm text-gray-300 hover:border-[#333] transition-colors"
-              >
-                <span className="flex items-center gap-2"><PaletteIcon /> Customize Colors</span>
-                <ChevronDownIcon />
-              </button>
+            {/* ═══════════════════════════════════════════════════════ */}
+            {/* PREVIEW & GENERATE - PRIMARY SECTION */}
+            {/* ═══════════════════════════════════════════════════════ */}
+            <div className="p-3 bg-gradient-to-b from-amber-500/10 to-transparent border border-amber-500/30 rounded-xl">
               
-              {showColorPanel && (
-                <div className="mt-2 p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { key: 'Zemin', label: 'Background' },
-                      { key: 'Binalar', label: 'Buildings' },
-                      { key: 'Su', label: 'Water' },
-                      { key: 'Yesil', label: 'Green' }
-                    ].map(({ key, label }) => (
-                      <div key={key} className="flex items-center gap-2">
-                        <input 
-                          type="color" 
-                          value={customColors[key as keyof typeof customColors] || '#000000'} 
-                          onChange={(e) => updateColor(key, e.target.value)} 
-                          className="w-8 h-8 rounded border border-[#333] cursor-pointer bg-transparent" 
-                        />
-                        <span className="text-xs text-gray-400">{label}</span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="border-t border-[#222] pt-2">
-                    <p className="text-xs text-gray-500 mb-2">Road Colors</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { key: 'Yol_Otoyol', label: 'Highway' },
-                        { key: 'Yol_Birincil', label: 'Primary' },
-                        { key: 'Yol_Ikincil', label: 'Secondary' },
-                        { key: 'Yol_Konut', label: 'Residential' }
-                      ].map(({ key, label }) => (
-                        <div key={key} className="flex items-center gap-2">
-                          <input 
-                            type="color" 
-                            value={customColors[key as keyof typeof customColors] || '#000000'} 
-                            onChange={(e) => updateColor(key, e.target.value)} 
-                            className="w-6 h-6 rounded border border-[#333] cursor-pointer bg-transparent" 
-                          />
-                          <span className="text-xs text-gray-500">{label}</span>
-                        </div>
-                      ))}
+              {/* Preview Button - When no preview */}
+              {!previewUrl && (
+                <button
+                  onClick={previewMap}
+                  disabled={previewLoading || !selection}
+                  className={`w-full py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-all ${
+                    selection 
+                      ? 'bg-amber-500 text-black hover:bg-amber-400' 
+                      : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {previewLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                      Creating preview...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      {selection ? 'Preview (Free)' : 'Select location first'}
+                    </>
+                  )}
+                </button>
+              )}
+
+              {/* Mini Preview + Generate - When preview exists */}
+              {previewUrl && (
+                <div className="space-y-3">
+                  {/* Clickable Mini Preview */}
+                  <div 
+                    onClick={() => { setShowLightbox(true); setLightboxZoom(1); }}
+                    className="cursor-zoom-in group relative rounded-lg overflow-hidden border-2 border-amber-500/50 hover:border-amber-500 transition-colors"
+                  >
+                    <img 
+                      src={previewUrl} 
+                      alt="Preview" 
+                      className={`w-full ${previewLoading ? 'opacity-50' : ''}`}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
+                      <span className="bg-amber-500 text-black px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="11" cy="11" r="8" />
+                          <path d="m21 21-4.35-4.35M11 8v6M8 11h6" />
+                        </svg>
+                        Click to zoom
+                      </span>
                     </div>
                   </div>
                   
-                  {useCustomColors && (
-                    <button 
-                      onClick={() => { setUseCustomColors(false); setCustomColors(selectedTheme.colors) }} 
-                      className="w-full text-xs text-amber-500 hover:text-amber-400 transition-colors"
-                    >
-                      Reset to theme defaults
-                    </button>
+                  {/* Generate Button */}
+                  <button 
+                    onClick={generateMap} 
+                    disabled={generating}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition-all"
+                  >
+                    {generating ? <LoaderIcon /> : <DownloadIcon />}
+                    {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+                  </button>
+                  
+                  {/* New Preview */}
+                  <button
+                    onClick={previewMap}
+                    disabled={previewLoading}
+                    className="w-full py-2 text-xs text-gray-400 hover:text-amber-400 transition-colors flex items-center justify-center gap-1"
+                  >
+                    {previewLoading ? 'Updating...' : '↻ Update preview'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* ═══════════════════════════════════════════════════════ */}
+            {/* ADVANCED OPTIONS - Collapsible */}
+            {/* ═══════════════════════════════════════════════════════ */}
+            <details className="group">
+              <summary className="flex items-center justify-between px-3 py-2 bg-[#111] border border-[#222] rounded-lg cursor-pointer text-sm text-gray-400 hover:text-white transition-colors">
+                <span>⚙️ Advanced Options</span>
+                <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              
+              <div className="mt-3 space-y-4 pl-1">
+                {/* Color Customization */}
+                <div>
+                  <button 
+                    onClick={() => setShowColorPanel(!showColorPanel)} 
+                    className="w-full flex items-center justify-between px-3 py-2 bg-[#111] border border-[#222] rounded-lg text-sm text-gray-300 hover:border-[#333] transition-colors"
+                  >
+                    <span className="flex items-center gap-2"><PaletteIcon /> Customize Colors</span>
+                    <ChevronDownIcon />
+                  </button>
+                  
+                  {showColorPanel && (
+                    <div className="mt-2 p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { key: 'Zemin', label: 'Background' },
+                          { key: 'Binalar', label: 'Buildings' },
+                          { key: 'Su', label: 'Water' },
+                          { key: 'Yesil', label: 'Green' }
+                        ].map(({ key, label }) => (
+                          <div key={key} className="flex items-center gap-2">
+                            <input 
+                              type="color" 
+                              value={customColors[key as keyof typeof customColors] || '#000000'} 
+                              onChange={(e) => updateColor(key, e.target.value)} 
+                              className="w-8 h-8 rounded border border-[#333] cursor-pointer bg-transparent" 
+                            />
+                            <span className="text-xs text-gray-400">{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {useCustomColors && (
+                        <button 
+                          onClick={() => { setUseCustomColors(false); setCustomColors(selectedTheme.colors) }} 
+                          className="w-full text-xs text-amber-500 hover:text-amber-400 transition-colors"
+                        >
+                          Reset to theme colors
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-            
-            {/* Stroke Widths */}
-            <div>
-              <button 
-                onClick={() => setShowStrokePanel(!showStrokePanel)} 
-                className="w-full flex items-center justify-between px-3 py-2.5 bg-[#111] border border-[#222] rounded-lg text-sm text-gray-300 hover:border-[#333] transition-colors"
-              >
-                <span className="flex items-center gap-2"><SlidersIcon /> Line Weights</span>
-                <ChevronDownIcon />
-              </button>
-              
-              {showStrokePanel && (
-                <div className="mt-2 p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg space-y-3">
+
+                {/* Options Toggles */}
+                <div className="space-y-2">
                   {[
-                    { key: 'highway', label: 'Highway', min: 2, max: 12 },
-                    { key: 'primary', label: 'Primary', min: 1, max: 8 },
-                    { key: 'secondary', label: 'Secondary', min: 0.5, max: 6 },
-                    { key: 'residential', label: 'Residential', min: 0.5, max: 4 },
-                    { key: 'building', label: 'Building', min: 0, max: 2 }
-                  ].map(({ key, label, min, max }) => (
-                    <div key={key}>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-400">{label}</span>
-                        <span className="text-gray-500">{strokeWidths[key as keyof typeof strokeWidths]}px</span>
+                    { state: showTransit, setter: setShowTransit, label: 'Transit Stops' },
+                    { state: showContours, setter: setShowContours, label: 'Contours' },
+                    { state: showScale, setter: setShowScale, label: 'Scale Bar' },
+                    { state: showFrame, setter: setShowFrame, label: 'Frame + Legend' },
+                    { state: showShadow, setter: setShowShadow, label: 'Shadow Effect' },
+                  ].map(({ state, setter, label }) => (
+                    <label key={label} className="flex items-center justify-between px-3 py-2 bg-[#111] rounded-lg cursor-pointer hover:bg-[#161616] transition-colors">
+                      <span className="text-sm text-gray-300">{label}</span>
+                      <div className={`w-10 h-5 rounded-full transition-colors ${state ? 'bg-amber-500' : 'bg-[#333]'}`}>
+                        <div className={`w-4 h-4 bg-white rounded-full m-0.5 transition-transform ${state ? 'translate-x-5' : ''}`} />
                       </div>
-                      <input 
-                        type="range" 
-                        min={min} 
-                        max={max} 
-                        step={0.1} 
-                        value={strokeWidths[key as keyof typeof strokeWidths]} 
-                        onChange={(e) => setStrokeWidths(prev => ({ ...prev, [key]: Number(e.target.value) }))} 
-                        className="w-full accent-amber-500" 
-                      />
-                    </div>
+                      <input type="checkbox" checked={state} onChange={(e) => setter(e.target.checked)} className="hidden" />
+                    </label>
                   ))}
                 </div>
-              )}
-            </div>
 
-            {/* Options */}
-            <div>
-              <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Options</h3>
-              <div className="space-y-2">
-                {[
-                  { checked: showContours, onChange: setShowContours, label: 'Topography contours' },
-                  { checked: showLabels, onChange: setShowLabels, label: 'Landmark labels' },
-                  { checked: showTransit, onChange: setShowTransit, label: 'Transit stops' },
-                  { checked: showScale, onChange: setShowScale, label: 'Scale bar & north arrow' },
-                  { checked: showShadow, onChange: setShowShadow, label: 'Building shadows' },
-                  { checked: transparent, onChange: setTransparent, label: 'Transparent background' },
-                  { checked: showFrame, onChange: setShowFrame, label: 'Frame with legend' }
-                ].map(({ checked, onChange, label }) => (
-                  <label key={label} className="flex items-center gap-3 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={checked} 
-                      onChange={(e) => onChange(e.target.checked)} 
-                      className="w-4 h-4 accent-amber-500 rounded" 
-                    />
-                    <span className="text-sm text-gray-300">{label}</span>
-                  </label>
-                ))}
-              </div>
-              
-              {/* Location Name - shown only when frame enabled */}
-              {showFrame && (
-                <div className="mt-3 p-3 bg-[#0f0f0f] border border-amber-500/30 rounded-lg">
-                  <label className="text-xs text-gray-400 block mb-2">Title (optional)</label>
-                  <input 
-                    type="text" 
-                    value={locationName}
-                    onChange={(e) => setLocationName(e.target.value)}
-                    placeholder="e.g., Istanbul, Kadıköy"
-                    className="w-full bg-[#1a1a1a] border border-[#333] rounded px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-amber-500 focus:outline-none"
-                  />
-                  <p className="text-xs text-gray-600 mt-2">Leave empty for default title</p>
-                </div>
-              )}
-              
-              {/* Contour Interval - shown only when contours enabled */}
-              {showContours && (
-                <div className="mt-3 p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg">
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-gray-400">Contour Interval</span>
-                    <span className="text-amber-500 font-medium">{contourInterval}m</span>
-                  </div>
-                  <input 
-                    type="range" 
-                    min={1} 
-                    max={20} 
-                    step={1} 
-                    value={contourInterval} 
-                    onChange={(e) => setContourInterval(Number(e.target.value))} 
-                    className="w-full accent-amber-500" 
-                  />
-                  <div className="flex justify-between text-xs text-gray-600 mt-1">
-                    <span>1m</span>
-                    <span>20m</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Export Format */}
-            <div>
-              <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-medium">Export Format</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: 'svg', label: 'SVG', desc: 'Vector graphics' },
-                  { id: 'dxf', label: 'DXF', desc: 'CAD software' }
-                ].map(({ id, label, desc }) => (
-                  <button
-                    key={id}
-                    onClick={() => setExportFormat(id as 'svg' | 'dxf')}
-                    className={`p-3 rounded-lg border transition-all text-center ${
-                      exportFormat === id
-                        ? 'bg-amber-500/10 border-amber-500 text-amber-500'
-                        : 'bg-[#111] border-[#222] text-gray-400 hover:border-[#333]'
-                    }`}
-                  >
-                    <div className="text-sm font-semibold">{label}</div>
-                    <div className="text-xs opacity-60 mt-0.5">{desc}</div>
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-gray-600 mt-2">💡 For PDF, export SVG then use Illustrator</p>
-              
-              {/* Resolution (only for SVG) */}
-              {exportFormat === 'svg' && (
-                <div className="mt-3 p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg">
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-gray-400">Resolution</span>
-                    <span className="text-amber-500 font-medium">{resolution}px</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { val: 1200, label: 'Standard' },
-                      { val: 2400, label: 'High' },
-                      { val: 4800, label: 'Ultra' }
-                    ].map(({ val, label }) => (
+                {/* Export Format */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Export Format</p>
+                  <div className="flex gap-2">
+                    {['svg', 'dxf'].map(fmt => (
                       <button
-                        key={val}
-                        onClick={() => setResolution(val)}
-                        className={`py-2 px-3 rounded text-xs transition-all ${
-                          resolution === val
-                            ? 'bg-amber-500/20 border border-amber-500 text-amber-400'
-                            : 'bg-[#1a1a1a] border border-[#222] text-gray-500 hover:border-[#333]'
+                        key={fmt}
+                        onClick={() => setExportFormat(fmt as 'svg' | 'dxf')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                          exportFormat === fmt 
+                            ? 'bg-amber-500 text-black' 
+                            : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
                         }`}
                       >
-                        {label}
+                        {fmt.toUpperCase()}
                       </button>
                     ))}
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Preview Button */}
-            {selection && exportFormat === 'svg' && (
-              <button
-                onClick={previewMap}
-                disabled={previewLoading}
-                className="w-full py-3 bg-[#1a1a1a] border border-[#333] text-gray-300 rounded-xl font-medium hover:bg-[#222] hover:border-amber-500/50 transition-all flex items-center justify-center gap-2"
-              >
-                {previewLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                    Creating preview...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    Preview (Free)
-                  </>
-                )}
-              </button>
-            )}
-
-            {/* Preview Display */}
-            {previewUrl && (
-              <div className="p-3 bg-[#0f0f0f] border border-amber-500/30 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs text-amber-500 font-medium">
-                    {previewLoading ? '⟳ Updating...' : '✓ Preview Ready'}
-                  </span>
-                  <button 
-                    onClick={() => { setPreviewUrl(null); window.URL.revokeObjectURL(previewUrl) }}
-                    className="text-xs text-gray-500 hover:text-white"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div 
-                  onClick={() => setShowLightbox(true)}
-                  className="cursor-zoom-in group relative"
-                >
-                  <img 
-                    src={previewUrl} 
-                    alt="Map Preview" 
-                    className={`w-full rounded border border-[#333] ${previewLoading ? 'opacity-50' : ''} group-hover:border-amber-500/50 transition-colors`}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded">
-                    <span className="bg-black/70 px-3 py-1.5 rounded-full text-xs text-white flex items-center gap-1.5">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.35-4.35" />
-                        <path d="M11 8v6M8 11h6" />
-                      </svg>
-                      Click to enlarge
-                    </span>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2 text-center">
-                  {selectedTheme.name} • {selection?.size || size}m
-                </p>
               </div>
-            )}
+            </details>
+
+            {/* Pricing Link */}
+            <Link 
+              href="/pricing"
+              className="flex items-center justify-center gap-2 p-2 text-xs text-gray-500 hover:text-amber-400 transition-colors"
+            >
+              ✨ {discount ? `${discount.percent}% OFF - From $${creditsPrice}` : `5 Maps for $${baseCreditsPrice}`} →
+            </Link>
 
             {/* Error */}
             {error && (
@@ -1482,20 +1322,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 <p className="text-red-400 text-sm">{error}</p>
               </div>
             )}
-            
-            {/* Mobile Generate Button */}
-            <button 
-              onClick={generateMap} 
-              disabled={generating || !selection}
-              className={`w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-semibold transition-all md:hidden ${
-                selection 
-                  ? 'bg-amber-500 text-black hover:bg-amber-400' 
-                  : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              {generating ? <LoaderIcon /> : <DownloadIcon />}
-              {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
-            </button>
           </div>
         </aside>
 
@@ -1537,28 +1363,96 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         </main>
       </div>
 
-      {/* Preview Lightbox - Full Screen */}
+      {/* Preview Lightbox - Full Screen with Zoom */}
       {showLightbox && previewUrl && (
         <div 
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center cursor-zoom-out"
+          className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center"
           onClick={() => setShowLightbox(false)}
         >
+          {/* Close button */}
           <button 
             onClick={() => setShowLightbox(false)}
-            className="absolute top-4 right-4 text-white/60 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="absolute top-4 right-4 text-white/60 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
-          <img 
-            src={previewUrl} 
-            alt="Map Preview" 
-            className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
+          
+          {/* Zoom controls */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 px-4 py-2 rounded-full z-10">
+            <button 
+              onClick={(e) => { e.stopPropagation(); setLightboxZoom(Math.max(0.5, lightboxZoom - 0.25)); }}
+              className="text-white/70 hover:text-white p-1"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35M8 11h6" />
+              </svg>
+            </button>
+            <span className="text-white text-sm font-medium min-w-[60px] text-center">{Math.round(lightboxZoom * 100)}%</span>
+            <button 
+              onClick={(e) => { e.stopPropagation(); setLightboxZoom(Math.min(3, lightboxZoom + 0.25)); }}
+              className="text-white/70 hover:text-white p-1"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35M11 8v6M8 11h6" />
+              </svg>
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); setLightboxZoom(1); }}
+              className="text-white/50 hover:text-white text-xs ml-2"
+            >
+              Reset
+            </button>
+          </div>
+
+          {/* Zoomable Image Container */}
+          <div 
+            className="flex-1 w-full overflow-auto flex items-center justify-center p-8"
             onClick={(e) => e.stopPropagation()}
-          />
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 px-4 py-2 rounded-full text-sm text-white/80">
-            {selectedTheme.name} • {selection?.size || size}m • Click anywhere to close
+            onWheel={(e) => {
+              e.preventDefault();
+              const delta = e.deltaY > 0 ? -0.1 : 0.1;
+              setLightboxZoom(Math.max(0.5, Math.min(3, lightboxZoom + delta)));
+            }}
+          >
+            <img 
+              src={previewUrl} 
+              alt="Map Preview" 
+              className="rounded-lg shadow-2xl transition-transform duration-200"
+              style={{ transform: `scale(${lightboxZoom})`, transformOrigin: 'center' }}
+              draggable={false}
+            />
+          </div>
+
+          {/* Bottom bar with info and Generate button */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/80 to-transparent"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="max-w-lg mx-auto flex flex-col items-center gap-4">
+              <p className="text-white/60 text-sm">
+                {selectedTheme.name} • {selection?.size || size}m • Scroll to zoom
+              </p>
+              
+              <button 
+                onClick={generateMap} 
+                disabled={generating}
+                className="w-full max-w-xs flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
+              >
+                {generating ? <LoaderIcon /> : <DownloadIcon />}
+                {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+              </button>
+              
+              <button 
+                onClick={() => setShowLightbox(false)}
+                className="text-white/40 hover:text-white text-sm transition-colors"
+              >
+                Click anywhere or press ESC to close
+              </button>
+            </div>
           </div>
         </div>
       )}
