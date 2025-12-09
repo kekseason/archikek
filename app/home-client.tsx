@@ -168,6 +168,9 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                 <Link href="/login" className="text-white/60 hover:text-white text-sm transition-colors">
                   Sign In
                 </Link>
+                <Link href="/signup" className="text-amber-500 hover:text-amber-400 text-sm font-medium transition-colors">
+                  Sign Up
+                </Link>
                 <Link 
                   href="/create" 
                   className="px-5 py-2.5 bg-amber-500 text-black font-semibold rounded-full hover:bg-amber-400 transition-all hover:scale-105"

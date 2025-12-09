@@ -6,43 +6,48 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/lib/auth-context'
 
-export default function LoginPage() {
-  const [isSignUp, setIsSignUp] = useState(false)
+export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth()
+  const { signInWithGoogle, signUpWithEmail } = useAuth()
   const router = useRouter()
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignUp = async () => {
     setLoading(true)
     setError('')
     await signInWithGoogle()
   }
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
+  const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
     setMessage('')
 
-    if (isSignUp) {
-      const { error } = await signUpWithEmail(email, password)
-      if (error) {
-        setError(error)
-      } else {
-        setMessage('Check your email for the confirmation link!')
-      }
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      setLoading(false)
+      return
+    }
+
+    const { error } = await signUpWithEmail(email, password)
+    if (error) {
+      setError(error)
     } else {
-      const { error } = await signInWithEmail(email, password)
-      if (error) {
-        setError(error)
-      } else {
-        router.push('/create')
-      }
+      setMessage('Check your email for the confirmation link!')
     }
     
     setLoading(false)
@@ -68,15 +73,15 @@ export default function LoginPage() {
         {/* Card */}
         <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8">
           <h1 className="text-2xl font-semibold text-center mb-2">
-            {isSignUp ? 'Create Account' : 'Welcome Back'}
+            Create Your Account
           </h1>
           <p className="text-gray-400 text-center text-sm mb-8">
-            {isSignUp ? 'Start creating professional maps' : 'Sign in to continue'}
+            Start creating professional site analysis maps
           </p>
 
           {/* Google Button */}
           <button
-            onClick={handleGoogleSignIn}
+            onClick={handleGoogleSignUp}
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white text-black rounded-xl font-medium hover:bg-gray-100 transition-colors disabled:opacity-50"
           >
@@ -86,18 +91,18 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            Continue with Google
+            Sign up with Google
           </button>
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-6">
             <div className="flex-1 h-px bg-[#222]" />
-            <span className="text-gray-500 text-sm">or</span>
+            <span className="text-gray-500 text-sm">or sign up with email</span>
             <div className="flex-1 h-px bg-[#222]" />
           </div>
 
           {/* Email Form */}
-          <form onSubmit={handleEmailAuth} className="space-y-4">
+          <form onSubmit={handleEmailSignUp} className="space-y-4">
             <div>
               <input
                 type="email"
@@ -113,7 +118,18 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
+                placeholder="Password (min 6 characters)"
+                required
+                minLength={6}
+                className="w-full px-4 py-3.5 bg-[#111] border border-[#222] rounded-xl text-white placeholder-gray-500 focus:border-amber-500/50 focus:outline-none transition-colors"
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm password"
                 required
                 minLength={6}
                 className="w-full px-4 py-3.5 bg-[#111] border border-[#222] rounded-xl text-white placeholder-gray-500 focus:border-amber-500/50 focus:outline-none transition-colors"
@@ -127,8 +143,9 @@ export default function LoginPage() {
             )}
 
             {message && (
-              <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                <p className="text-green-400 text-sm">{message}</p>
+              <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <p className="text-green-400 text-sm font-medium">✓ {message}</p>
+                <p className="text-green-400/70 text-xs mt-1">Check your spam folder if you don't see it.</p>
               </div>
             )}
 
@@ -137,34 +154,32 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full py-3.5 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 disabled:opacity-50 transition-colors"
             >
-              {loading ? 'Loading...' : isSignUp ? 'Create Account' : 'Sign In'}
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
-
-            {!isSignUp && (
-              <div className="text-center">
-                <Link href="/forgot-password" className="text-gray-400 text-sm hover:text-amber-500 transition-colors">
-                  Forgot your password?
-                </Link>
-              </div>
-            )}
           </form>
 
-          {/* Toggle */}
+          {/* Terms */}
+          <p className="text-center text-gray-500 text-xs mt-6">
+            By signing up, you agree to our{' '}
+            <Link href="/terms" className="text-amber-500/70 hover:text-amber-500">Terms of Service</Link>
+            {' '}and{' '}
+            <Link href="/privacy" className="text-amber-500/70 hover:text-amber-500">Privacy Policy</Link>
+          </p>
+
+          {/* Login Link */}
           <p className="text-center text-gray-400 text-sm mt-6">
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-            <button
-              onClick={() => { setIsSignUp(!isSignUp); setError(''); setMessage('') }}
-              className="text-amber-500 hover:text-amber-400 font-medium"
-            >
-              {isSignUp ? 'Sign In' : 'Sign Up'}
-            </button>
+            Already have an account?{' '}
+            <Link href="/login" className="text-amber-500 hover:text-amber-400 font-medium">
+              Sign In
+            </Link>
           </p>
         </div>
 
         {/* Free credit notice */}
-        <p className="text-center text-gray-500 text-sm mt-6">
-          🎁 Get 1 free map credit when you sign up!
-        </p>
+        <div className="text-center mt-6 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
+          <p className="text-amber-500 font-medium">🎁 1 Free Map Credit</p>
+          <p className="text-gray-400 text-sm mt-1">Create your first map on us!</p>
+        </div>
       </div>
     </div>
   )
