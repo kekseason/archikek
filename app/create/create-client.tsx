@@ -351,6 +351,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [showLightbox, setShowLightbox] = useState(false)
+  const [showMobilePanel, setShowMobilePanel] = useState(false)
   const [lightboxZoom, setLightboxZoom] = useState(1)
   const [showTutorial, setShowTutorial] = useState(true)
   const [tutorialStep, setTutorialStep] = useState(1)
@@ -945,18 +946,29 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet" />
       
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-[#1a1a1a]">
-        <div className="flex items-center justify-between px-4 h-14">
-          <Link href="/" className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-[#1a1a1a]" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        <div className="flex items-center justify-between px-3 md:px-4 h-12 md:h-14">
+          <Link href="/" className="flex items-center gap-2 md:gap-3 text-gray-400 hover:text-white transition-colors">
             <ArrowLeftIcon />
-            <div className="flex items-center gap-2">
-              <Image src="/logo.png" alt="ArchiKEK" width={28} height={28} className="rounded-md" />
-              <span className="font-semibold text-amber-500">Archi<span className="text-white">KEK</span></span>
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <Image src="/logo.png" alt="ArchiKEK" width={24} height={24} className="rounded-md md:w-7 md:h-7" />
+              <span className="font-semibold text-amber-500 text-sm md:text-base">Archi<span className="text-white">KEK</span></span>
             </div>
           </Link>
           
-          <div className="flex items-center gap-4">
-            {/* Credits display */}
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Credits display - mobile */}
+            {user && profile && (
+              <div className="flex md:hidden items-center gap-1 px-2 py-1 bg-[#111] border border-[#222] rounded-lg">
+                {profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
+                  <span className="text-amber-500 text-xs font-medium">✨ Pro</span>
+                ) : (
+                  <span className="text-amber-500 text-xs font-medium">{profile.credits} ⚡</span>
+                )}
+              </div>
+            )}
+            
+            {/* Credits display - desktop */}
             {user && profile && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#111] border border-[#222] rounded-lg">
                 {profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
@@ -972,13 +984,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
             {/* User menu */}
             {user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <Link href="/pricing" className="hidden md:block text-gray-400 hover:text-white text-sm transition-colors">
                   Buy Credits
                 </Link>
                 <button 
                   onClick={signOut}
-                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                  className="text-gray-400 hover:text-white text-xs md:text-sm transition-colors"
                 >
                   Sign Out
                 </button>
@@ -1009,10 +1021,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       </header>
 
       {/* Main Content */}
-      <div className="flex flex-1 pt-14 h-screen overflow-hidden">
+      <div className="flex flex-1 pt-12 md:pt-14 h-screen overflow-hidden">
         
-        {/* Sidebar */}
-        <aside className="w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] overflow-y-auto flex-shrink-0">
+        {/* Sidebar - Hidden on mobile */}
+        <aside className="hidden md:block w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] overflow-y-auto flex-shrink-0">
           <div className="p-4 space-y-4">
             
             {/* Location Search - Compact */}
@@ -1459,21 +1471,265 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
           </div>
         </aside>
 
+        {/* Mobile Bottom Panel */}
+        <div 
+          className={`md:hidden fixed inset-x-0 bottom-0 z-40 transition-transform duration-300 ease-out shadow-[0_-4px_20px_rgba(0,0,0,0.5)] ${
+            showMobilePanel ? 'translate-y-0' : 'translate-y-[calc(100%-88px)]'
+          }`}
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        >
+          {/* Handle bar to drag/toggle */}
+          <div 
+            onClick={() => setShowMobilePanel(!showMobilePanel)}
+            className="bg-[#0a0a0a] border-t border-[#222] rounded-t-2xl cursor-pointer"
+          >
+            <div className="flex justify-center py-2">
+              <div className="w-12 h-1 bg-gray-600 rounded-full" />
+            </div>
+            
+            {/* Collapsed view - Quick actions */}
+            {!showMobilePanel && (
+              <div className="px-4 pb-4 flex items-center gap-2">
+                {/* Location indicator or search prompt */}
+                <div className="flex-1 bg-[#111] border border-[#222] rounded-lg px-3 py-2 text-sm">
+                  {selection ? (
+                    <span className="text-amber-400 truncate block">✓ {location || 'Location selected'}</span>
+                  ) : (
+                    <span className="text-gray-500">🔍 Tap to search location</span>
+                  )}
+                </div>
+                
+                {/* Quick preview/generate button */}
+                {selection && !previewUrl && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); previewMap(); }}
+                    disabled={previewLoading}
+                    className="px-4 py-2 bg-amber-500 text-black rounded-lg font-medium text-sm"
+                  >
+                    {previewLoading ? '...' : 'Preview'}
+                  </button>
+                )}
+                {previewUrl && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowLightbox(true); }}
+                    className="px-4 py-2 bg-amber-500 text-black rounded-lg font-medium text-sm"
+                  >
+                    View
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Expanded panel content */}
+          <div className="bg-[#0a0a0a] max-h-[70vh] overflow-y-auto pb-8">
+            <div className="p-4 space-y-4">
+              {/* Location Search */}
+              <div className="relative">
+                <input 
+                  type="text" 
+                  value={location} 
+                  onChange={(e) => { setLocation(e.target.value); setShowResults(false) }} 
+                  onKeyDown={(e) => e.key === 'Enter' && searchLocation()} 
+                  placeholder="🔍 Search location..." 
+                  className="w-full px-4 py-3 bg-[#111] border border-[#222] rounded-lg text-white text-sm placeholder-gray-500 focus:border-amber-500/50 focus:outline-none" 
+                />
+                <button onClick={searchLocation} className="absolute right-3 top-3 text-gray-500 hover:text-white">
+                  <SearchIcon />
+                </button>
+                
+                {showResults && searchResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-[#161616] border border-[#222] rounded-lg overflow-hidden z-50 shadow-xl">
+                    {searchResults.slice(0, 5).map((result, i) => (
+                      <button 
+                        key={i} 
+                        onClick={() => { selectResult(result); setShowMobilePanel(false); }} 
+                        className="w-full px-4 py-3 text-left text-sm text-gray-300 hover:bg-[#222] border-b border-[#222] last:border-0"
+                      >
+                        {result.place_name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Selection Info */}
+              {selection && (
+                <div className="flex items-center gap-2 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                  <span className="text-amber-500">✓</span>
+                  <span className="text-amber-400/80 text-sm truncate flex-1">{location}</span>
+                  {selectionMode === 'point' && (
+                    <select 
+                      value={size} 
+                      onChange={(e) => setSize(Number(e.target.value))}
+                      className="bg-[#111] border border-amber-500/30 rounded px-2 py-1 text-sm text-amber-400"
+                    >
+                      {[500, 750, 1000, 1500, 2000].map(s => (
+                        <option key={s} value={s}>{s}m</option>
+                      ))}
+                    </select>
+                  )}
+                  <button onClick={clearSelection} className="text-gray-500 hover:text-red-400 p-1">
+                    <TrashIcon />
+                  </button>
+                </div>
+              )}
+
+              {/* Themes - Horizontal scroll */}
+              <div>
+                <div className="flex gap-1 mb-2 overflow-x-auto pb-1">
+                  {THEME_CATEGORIES.map(cat => (
+                    <button 
+                      key={cat} 
+                      onClick={() => setActiveCategory(cat)} 
+                      className={`px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition-all ${
+                        activeCategory === cat 
+                          ? 'bg-amber-500 text-black font-medium' 
+                          : 'bg-[#1a1a1a] text-gray-500'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {ANALYSIS_THEMES.filter(t => t.category === activeCategory).map((theme) => (
+                    <button 
+                      key={theme.id} 
+                      onClick={() => { setSelectedTheme(theme); setUseCustomColors(false) }} 
+                      className={`w-14 h-14 flex-shrink-0 rounded-lg border-2 transition-all ${
+                        selectedTheme.id === theme.id 
+                          ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                          : 'border-[#333]'
+                      }`} 
+                      style={{ background: theme.colors.Zemin }}
+                    >
+                      <div className="w-full h-full p-1.5 flex flex-col gap-0.5">
+                        <div className="flex-1 rounded-sm" style={{ background: theme.colors.Binalar }} />
+                        <div className="h-1 rounded-sm" style={{ background: theme.colors.Yol_Otoyol }} />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-center text-amber-500">{selectedTheme.name}</p>
+              </div>
+
+              {/* Preview & Generate */}
+              <div className="space-y-3">
+                {!previewUrl ? (
+                  <button
+                    onClick={previewMap}
+                    disabled={previewLoading || !selection}
+                    className={`w-full py-3.5 rounded-lg font-medium flex items-center justify-center gap-2 ${
+                      selection 
+                        ? 'bg-amber-500 text-black' 
+                        : 'bg-[#1a1a1a] text-gray-500'
+                    }`}
+                  >
+                    {previewLoading ? 'Creating preview...' : selection ? 'Preview (Free)' : 'Select location first'}
+                  </button>
+                ) : (
+                  <>
+                    <div 
+                      onClick={() => { setShowLightbox(true); setLightboxZoom(1); }}
+                      className="cursor-pointer rounded-lg overflow-hidden border-2 border-amber-500/50"
+                    >
+                      <img src={previewUrl} alt="Preview" className="w-full" />
+                    </div>
+                    <button 
+                      onClick={generateMap} 
+                      disabled={generating}
+                      className="w-full py-3.5 bg-amber-500 text-black rounded-lg font-semibold flex items-center justify-center gap-2"
+                    >
+                      {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+                    </button>
+                  </>
+                )}
+                
+                {/* Pricing info */}
+                <div className="text-center text-xs text-gray-500">
+                  {!user ? (
+                    <span>🎉 First map free • No credit card needed</span>
+                  ) : profile?.credits && profile.credits > 0 ? (
+                    <span><span className="text-amber-400">{profile.credits}</span> credits available</span>
+                  ) : (
+                    <span className="text-red-400">No credits • <Link href="/pricing" className="text-amber-400">Buy more</Link></span>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Options */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { state: showTransit, setter: setShowTransit, label: 'Transit' },
+                  { state: showContours, setter: setShowContours, label: 'Contours' },
+                  { state: showScale, setter: setShowScale, label: 'Scale' },
+                  { state: showShadow, setter: setShowShadow, label: 'Shadow' },
+                ].map(({ state, setter, label }) => (
+                  <button
+                    key={label}
+                    onClick={() => setter(!state)}
+                    className={`px-3 py-1.5 text-xs rounded-full border transition-all ${
+                      state 
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-400' 
+                        : 'bg-[#111] border-[#333] text-gray-500'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Format selector */}
+              <div className="flex gap-2">
+                {['svg', 'dxf'].map(fmt => (
+                  <button
+                    key={fmt}
+                    onClick={() => setExportFormat(fmt as 'svg' | 'dxf')}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                      exportFormat === fmt 
+                        ? 'bg-amber-500 text-black' 
+                        : 'bg-[#1a1a1a] text-gray-400'
+                    }`}
+                  >
+                    {fmt.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+
+              {/* Error */}
+              {error && (
+                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="text-red-400 text-sm">{error}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile overlay when panel is open */}
+        {showMobilePanel && (
+          <div 
+            className="md:hidden fixed inset-0 bg-black/50 z-30"
+            onClick={() => setShowMobilePanel(false)}
+          />
+        )}
+
         {/* Map Area */}
         <main className="flex-1 relative bg-[#111]">
           <div ref={mapRef} className="w-full h-full" />
           
-          {/* Instructions overlay */}
-          <div className="absolute top-4 left-4 bg-[#161616]/95 backdrop-blur border border-[#222] rounded-xl px-4 py-3 z-10 pointer-events-none">
-            <p className="text-gray-300 text-sm">
+          {/* Instructions overlay - smaller on mobile */}
+          <div className="absolute top-4 left-4 right-4 md:right-auto bg-[#161616]/95 backdrop-blur border border-[#222] rounded-xl px-3 py-2 md:px-4 md:py-3 z-10 pointer-events-none">
+            <p className="text-gray-300 text-xs md:text-sm text-center md:text-left">
               {selectionMode === 'point' 
-                ? '🎯 Click on the map to select center point' 
-                : '📐 Click and drag to draw rectangle'}
+                ? '🎯 Tap on the map to select area' 
+                : '📐 Tap and drag to draw rectangle'}
             </p>
           </div>
           
-          {/* Theme preview widget */}
-          <div className="absolute bottom-4 left-4 bg-[#161616]/95 backdrop-blur border border-[#222] rounded-xl p-4 z-10">
+          {/* Theme preview widget - hidden on mobile */}
+          <div className="hidden md:block absolute bottom-4 left-4 bg-[#161616]/95 backdrop-blur border border-[#222] rounded-xl p-4 z-10">
             <p className="text-xs text-gray-500 mb-2 font-medium">Preview: {selectedTheme.name}</p>
             <div className="w-48 h-32 rounded-lg overflow-hidden" style={{ background: customColors.Zemin }}>
               <svg viewBox="0 0 200 130" className="w-full h-full">
@@ -1544,7 +1800,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           {/* Zoomable Image Container */}
           <div 
-            className="flex-1 w-full overflow-auto flex items-center justify-center p-8"
+            className="flex-1 w-full overflow-auto flex items-center justify-center p-4 md:p-8"
             onClick={(e) => e.stopPropagation()}
             onWheel={(e) => {
               e.preventDefault();
@@ -1555,7 +1811,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             <img 
               src={previewUrl} 
               alt="Map Preview" 
-              className="rounded-lg shadow-2xl transition-transform duration-200"
+              className="rounded-lg shadow-2xl transition-transform duration-200 max-w-full"
               style={{ transform: `scale(${lightboxZoom})`, transformOrigin: 'center' }}
               draggable={false}
             />
@@ -1563,12 +1819,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           {/* Bottom bar with info and Generate button */}
           <div 
-            className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/80 to-transparent"
+            className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black via-black/80 to-transparent"
+            style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="max-w-lg mx-auto flex flex-col items-center gap-3">
-              <p className="text-white/60 text-sm">
-                {selectedTheme.name} • {selection?.size || size}m • Scroll to zoom
+            <div className="max-w-lg mx-auto flex flex-col items-center gap-2 md:gap-3">
+              <p className="text-white/60 text-xs md:text-sm">
+                {selectedTheme.name} • {selection?.size || size}m • {typeof window !== 'undefined' && 'ontouchstart' in window ? 'Pinch to zoom' : 'Scroll to zoom'}
               </p>
               
               <button 
