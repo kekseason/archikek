@@ -350,6 +350,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [resolution, setResolution] = useState(1200)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
+  const [showLightbox, setShowLightbox] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(true)
+  const [tutorialStep, setTutorialStep] = useState(1)
   
   // UI State
   const [generating, setGenerating] = useState(false)
@@ -375,6 +378,34 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   useEffect(() => {
     trackViewContent('Map Creator')
   }, [])
+
+  // Auto-progress tutorial when user selects location
+  useEffect(() => {
+    if (selection && showTutorial) {
+      setTutorialStep(3) // Jump to "Preview" step
+    }
+  }, [selection])
+
+  // Hide tutorial when preview is generated
+  useEffect(() => {
+    if (previewUrl) {
+      setShowTutorial(false)
+    }
+  }, [previewUrl])
+
+  // Check if user has seen tutorial before
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('archikek_tutorial_seen')
+    if (hasSeenTutorial) {
+      setShowTutorial(false)
+    }
+  }, [])
+
+  // Save tutorial completion
+  const dismissTutorial = () => {
+    setShowTutorial(false)
+    localStorage.setItem('archikek_tutorial_seen', 'true')
+  }
 
   // Restore selection from localStorage after login
   useEffect(() => {
@@ -426,6 +457,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
         const colors = useCustomColors ? customColors : selectedTheme.colors
 
+        // Full quality with /generate
         const requestBody = {
           theme: selectedTheme.id,
           format: 'svg',
@@ -458,7 +490,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         })
 
         if (response.ok) {
-          // Revoke old URL before setting new one
           if (previewUrl) window.URL.revokeObjectURL(previewUrl)
           const blob = await response.blob()
           const url = window.URL.createObjectURL(blob)
@@ -468,7 +499,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         console.error('Auto-preview error:', err)
       }
       setPreviewLoading(false)
-    }, 500) // 500ms debounce - faster response
+    }, 500)
 
     return () => clearTimeout(timeoutId)
   }, [selectedTheme.id]) // ONLY theme change triggers auto-preview
@@ -824,10 +855,11 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
       const colors = useCustomColors ? customColors : selectedTheme.colors
 
+      // Full quality preview with /generate
       const requestBody = {
         theme: selectedTheme.id,
         format: 'svg',
-        resolution: 800,  // Min allowed for preview
+        resolution: 800,
         show_transit: showTransit,
         show_scale: showScale,
         show_contours: showContours,
@@ -1418,11 +1450,26 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     ✕
                   </button>
                 </div>
-                <img 
-                  src={previewUrl} 
-                  alt="Map Preview" 
-                  className={`w-full rounded border border-[#333] ${previewLoading ? 'opacity-50' : ''}`}
-                />
+                <div 
+                  onClick={() => setShowLightbox(true)}
+                  className="cursor-zoom-in group relative"
+                >
+                  <img 
+                    src={previewUrl} 
+                    alt="Map Preview" 
+                    className={`w-full rounded border border-[#333] ${previewLoading ? 'opacity-50' : ''} group-hover:border-amber-500/50 transition-colors`}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded">
+                    <span className="bg-black/70 px-3 py-1.5 rounded-full text-xs text-white flex items-center gap-1.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                        <path d="M11 8v6M8 11h6" />
+                      </svg>
+                      Click to enlarge
+                    </span>
+                  </div>
+                </div>
                 <p className="text-xs text-gray-500 mt-2 text-center">
                   {selectedTheme.name} • {selection?.size || size}m
                 </p>
@@ -1489,6 +1536,126 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
           </div>
         </main>
       </div>
+
+      {/* Preview Lightbox - Full Screen */}
+      {showLightbox && previewUrl && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center cursor-zoom-out"
+          onClick={() => setShowLightbox(false)}
+        >
+          <button 
+            onClick={() => setShowLightbox(false)}
+            className="absolute top-4 right-4 text-white/60 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+          <img 
+            src={previewUrl} 
+            alt="Map Preview" 
+            className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 px-4 py-2 rounded-full text-sm text-white/80">
+            {selectedTheme.name} • {selection?.size || size}m • Click anywhere to close
+          </div>
+        </div>
+      )}
+
+      {/* Tutorial Overlay - First Time Users */}
+      {showTutorial && !previewUrl && (
+        <div className="fixed inset-0 z-40 pointer-events-none">
+          {/* Step 1: Search Location */}
+          {tutorialStep === 1 && (
+            <div className="absolute top-20 left-4 md:left-auto md:right-[340px] pointer-events-auto animate-pulse">
+              <div className="bg-amber-500 text-black px-4 py-3 rounded-xl shadow-lg max-w-[280px]">
+                <div className="flex items-start gap-2">
+                  <span className="bg-black text-amber-500 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</span>
+                  <div>
+                    <p className="font-semibold text-sm">Search for a location</p>
+                    <p className="text-xs mt-1 opacity-80">Type a city name or address in the search bar</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center mt-3 pt-2 border-t border-black/20">
+                  <button 
+                    onClick={dismissTutorial}
+                    className="text-xs opacity-70 hover:opacity-100"
+                  >
+                    Skip tutorial
+                  </button>
+                  <button 
+                    onClick={() => setTutorialStep(2)}
+                    className="text-xs font-semibold bg-black/20 px-3 py-1 rounded-full hover:bg-black/30"
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+              <div className="w-4 h-4 bg-amber-500 rotate-45 -mt-2 ml-6 md:ml-auto md:mr-6"></div>
+            </div>
+          )}
+
+          {/* Step 2: Click on Map */}
+          {tutorialStep === 2 && (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
+              <div className="bg-amber-500 text-black px-4 py-3 rounded-xl shadow-lg max-w-[280px]">
+                <div className="flex items-start gap-2">
+                  <span className="bg-black text-amber-500 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</span>
+                  <div>
+                    <p className="font-semibold text-sm">Click on the map</p>
+                    <p className="text-xs mt-1 opacity-80">Click anywhere to select the center of your map area</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center mt-3 pt-2 border-t border-black/20">
+                  <button 
+                    onClick={() => setTutorialStep(1)}
+                    className="text-xs opacity-70 hover:opacity-100"
+                  >
+                    ← Back
+                  </button>
+                  <button 
+                    onClick={() => setTutorialStep(3)}
+                    className="text-xs font-semibold bg-black/20 px-3 py-1 rounded-full hover:bg-black/30"
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Preview */}
+          {tutorialStep === 3 && (
+            <div className="absolute bottom-32 right-4 md:right-[100px] pointer-events-auto">
+              <div className="bg-amber-500 text-black px-4 py-3 rounded-xl shadow-lg max-w-[280px]">
+                <div className="flex items-start gap-2">
+                  <span className="bg-black text-amber-500 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</span>
+                  <div>
+                    <p className="font-semibold text-sm">Click "Preview" button</p>
+                    <p className="text-xs mt-1 opacity-80">Generate a preview to see your map before downloading</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center mt-3 pt-2 border-t border-black/20">
+                  <button 
+                    onClick={() => setTutorialStep(2)}
+                    className="text-xs opacity-70 hover:opacity-100"
+                  >
+                    ← Back
+                  </button>
+                  <button 
+                    onClick={dismissTutorial}
+                    className="text-xs font-semibold bg-black/20 px-3 py-1 rounded-full hover:bg-black/30"
+                  >
+                    Got it! ✓
+                  </button>
+                </div>
+              </div>
+              <div className="w-4 h-4 bg-amber-500 rotate-45 -mt-2 ml-auto mr-10"></div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Login Modal - Conversion Optimized */}
       {showLoginModal && (

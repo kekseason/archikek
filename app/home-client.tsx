@@ -99,7 +99,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
 
   const features = [
     { icon: <LayersIcon />, title: 'Layered SVG & DXF', desc: 'Export to SVG for Illustrator or DXF for AutoCAD, Rhino, SketchUp. Every element on its own layer.' },
-    { icon: <PaletteIcon />, title: '13 Analysis Themes', desc: 'Figure Ground, Nolli, Street Hierarchy, Transit, Topographic, and more with height shading.' },
+    { icon: <PaletteIcon />, title: '24 Analysis Themes', desc: 'Figure Ground, Nolli, Street Hierarchy, Transit, Topographic, Sunset, Gold, and more.' },
     { icon: <ZapIcon />, title: 'Ready in 30 Seconds', desc: 'No more hours in QGIS or CAD. Select area, pick theme, download. Optimized file sizes.' },
     { icon: <GlobeIcon />, title: 'Topography Contours', desc: 'Smooth elevation contour lines with customizable intervals. Real terrain data for site analysis.' },
     { icon: <TrainIcon />, title: 'Smart Transit Icons', desc: 'Metro, tram, bus stops auto-filtered by zoom level. Clean maps at any scale.' },
@@ -107,12 +107,33 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
   ]
 
   const themes = [
-    { name: 'Figure Ground', bg: '#ffffff', fg: '#1a1a1a', accent: '#d64045' },
-    { name: 'Nolli Map', bg: '#0d0d0d', fg: '#ffffff', accent: '#ff6b6b' },
-    { name: 'Topographic', bg: '#faf8f5', fg: '#8b4513', accent: '#d32f2f' },
-    { name: 'Street Hierarchy', bg: '#1a1a2e', fg: '#ff6600', accent: '#ffcc00' },
-    { name: 'Green Space', bg: '#f5f9f5', fg: '#2d8a2d', accent: '#4caf50' },
-    { name: 'Historical', bg: '#f4efe4', fg: '#5d4037', accent: '#8d6e63' },
+    { name: 'Technical', bg: '#ffffff', fg: '#212121', accent: '#1976d2', desc: 'Clean B&W for analysis' },
+    { name: 'Warm Sunset', bg: '#fff8e7', fg: '#d84315', accent: '#ff7043', desc: 'Mediterranean warmth' },
+    { name: 'Gold Edition', bg: '#0a0a0a', fg: '#d4af37', accent: '#ffd700', desc: 'Luxury night aesthetic' },
+    { name: 'Blueprint', bg: '#0a1628', fg: '#4fc3f7', accent: '#29b6f6', desc: 'Classic engineering style' },
+    { name: 'Neon City', bg: '#0a0a0a', fg: '#ff00ff', accent: '#00ffff', desc: 'Cyberpunk vibes' },
+    { name: 'Arctic', bg: '#e3f2fd', fg: '#1565c0', accent: '#42a5f5', desc: 'Cool minimal tones' },
+  ]
+
+  const exampleMaps = [
+    { 
+      src: '/examples/technical.png', 
+      theme: 'Technical', 
+      city: 'Barcelona',
+      desc: 'High contrast B&W for presentations'
+    },
+    { 
+      src: '/examples/warm-sunset.png', 
+      theme: 'Warm Sunset', 
+      city: 'Barcelona',
+      desc: 'Mediterranean color palette'
+    },
+    { 
+      src: '/examples/barcelona.png', 
+      theme: 'Gold Edition', 
+      city: 'Barcelona',
+      desc: 'Luxury dark theme with gold accents'
+    },
   ]
 
   return (
@@ -393,7 +414,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="inline-block text-amber-500 text-sm font-semibold uppercase tracking-[0.2em] mb-4">Themes</span>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-              13 professional themes
+              24 professional themes
             </h2>
             <p className="text-white/50 text-lg">
               From classic Figure Ground to modern Transit Analysis. Each carefully designed for presentations.
@@ -415,13 +436,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                   <rect x="55" y="55" width="30" height="35" fill={theme.fg} opacity="0.9" rx="1"/>
                   <rect x="20" y="95" width="25" height="20" fill={theme.fg} opacity="0.9" rx="1"/>
                   <rect x="60" y="100" width="25" height="15" fill={theme.fg} opacity="0.9" rx="1"/>
-                  <path d="M0 45 L100 42" stroke={theme.accent} strokeWidth="2.5" opacity="0.8"/>
-                  <path d="M40 0 L42 130" stroke={theme.fg} strokeWidth="1.5" opacity="0.3"/>
+                  <path d={`M0 45 L100 42`} stroke={theme.accent} strokeWidth="2.5" opacity="0.8"/>
+                  <path d={`M40 0 L42 130`} stroke={theme.fg} strokeWidth="1.5" opacity="0.3"/>
                 </svg>
                 
                 {/* Theme name overlay */}
                 <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
                   <span className="text-white text-sm font-medium">{theme.name}</span>
+                  <p className="text-white/50 text-xs mt-0.5">{theme.desc}</p>
                 </div>
                 
                 {/* Hover effect */}
@@ -431,8 +453,61 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
           </div>
 
           <p className="text-center text-white/30 text-sm mt-8">
-            + 7 more themes including Blueprint, Density Study, Pedestrian Flow, Land Use, and Presentation
+            + 18 more themes including Nolli, Schwarzplan, Midnight, Sepia, Pastel, Blueprint, and more
           </p>
+        </div>
+      </section>
+
+      {/* Gallery Section - Real Examples */}
+      <section className="py-24 md:py-32 relative bg-gradient-to-b from-transparent via-amber-500/[0.02] to-transparent">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="inline-block text-amber-500 text-sm font-semibold uppercase tracking-[0.2em] mb-4">Gallery</span>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
+              Same city, different stories
+            </h2>
+            <p className="text-white/50 text-lg">
+              Barcelona's iconic Eixample grid rendered in three distinct styles. Each theme tells a different story.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {exampleMaps.map((map, i) => (
+              <div 
+                key={i}
+                className="group relative rounded-2xl overflow-hidden border border-white/10 hover:border-amber-500/30 transition-all"
+              >
+                <Image 
+                  src={map.src} 
+                  alt={`${map.city} - ${map.theme}`}
+                  width={600}
+                  height={800}
+                  className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-500"
+                />
+                <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
+                  <span className="text-amber-500 text-sm font-medium">{map.theme}</span>
+                  <h3 className="text-white text-xl font-semibold mt-1">{map.city}</h3>
+                  <p className="text-white/50 text-sm mt-1">{map.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Instagram CTA */}
+          <div className="mt-12 text-center">
+            <a 
+              href="https://instagram.com/archikekapp" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-full text-white font-medium hover:opacity-90 transition-opacity"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+              Follow @archikekapp for more
+            </a>
+            <p className="text-white/30 text-sm mt-4">Daily architecture maps & design inspiration</p>
+          </div>
         </div>
       </section>
 
@@ -479,7 +554,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               </div>
               
               <ul className="space-y-4 mb-8">
-                {['5 Map Downloads', 'All 12 Themes', 'Full Customization', 'SVG Export', 'Commercial License'].map((f, i) => (
+                {['5 Map Downloads', 'All 24 Themes', 'Full Customization', 'SVG Export', 'Commercial License'].map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-white/70">
                     <span className="text-green-500"><CheckIcon /></span>
                     {f}
@@ -576,11 +651,22 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               />
               <span className="text-white/40 text-sm">© 2024 ArchiKEK. All rights reserved.</span>
             </div>
-            <div className="flex gap-8">
+            <div className="flex items-center gap-8">
               <Link href="/blog" className="text-white/40 hover:text-white text-sm transition-colors">Blog</Link>
               <a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Terms</a>
               <a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Privacy</a>
               <a href="mailto:support@archikek.com" className="text-white/40 hover:text-white text-sm transition-colors">Contact</a>
+              <a 
+                href="https://instagram.com/archikekapp" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white/40 hover:text-pink-400 transition-colors"
+                title="Follow us on Instagram"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
