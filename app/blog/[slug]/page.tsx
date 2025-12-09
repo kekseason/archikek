@@ -428,7 +428,7 @@ Generate your first Illustrator-ready site analysis map.
     `
   },
   'best-themes-site-analysis': {
-    title: '13 Map Themes for Different Site Analysis Types',
+    title: '24 Map Themes for Different Site Analysis Types',
     description: 'Explore different map styles - from minimal figure ground to detailed blueprint - and when to use each one.',
     date: '2024-12-03',
     readTime: '5 min read',
@@ -438,7 +438,7 @@ Generate your first Illustrator-ready site analysis map.
 
 The right map theme can make your site analysis clearer and more impactful. Different themes suit different analysis types and presentation contexts.
 
-## ArchiKEK's 13 Themes Explained
+## ArchiKEK's 24 Themes Explained
 
 ### Urban Form Themes
 
@@ -608,7 +608,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
         elements.push(
           <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-2 text-gray-300 my-4 ml-4">
             {listItems.map((item, i) => (
-              <li key={i}>{item}</li>
+              <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
             ))}
           </ul>
         )
@@ -625,7 +625,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               <thead>
                 <tr className="border-b border-[#333]">
                   {tableRows[0].map((cell, i) => (
-                    <th key={i} className="text-left py-2 px-4 text-amber-500 font-medium">{cell}</th>
+                    <th key={i} className="text-left py-2 px-4 text-amber-500 font-medium" dangerouslySetInnerHTML={{ __html: cell }} />
                   ))}
                 </tr>
               </thead>
@@ -633,7 +633,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                 {tableRows.slice(2).map((row, i) => (
                   <tr key={i} className="border-b border-[#222]">
                     {row.map((cell, j) => (
-                      <td key={j} className="py-2 px-4">{cell}</td>
+                      <td key={j} className="py-2 px-4" dangerouslySetInnerHTML={{ __html: cell }} />
                     ))}
                   </tr>
                 ))}
