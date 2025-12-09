@@ -446,8 +446,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
           stroke_residential: strokeWidths.residential,
           stroke_pedestrian: strokeWidths.pedestrian,
           stroke_building: strokeWidths.building,
-          lat: selection.center.lat,
-          lng: selection.center.lng,
+          lat: selection.center?.lat || 0,
+          lng: selection.center?.lng || 0,
           size: selection.size || size
         }
 
