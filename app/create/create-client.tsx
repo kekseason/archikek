@@ -341,7 +341,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showScale, setShowScale] = useState(true)
   const [transparent, setTransparent] = useState(false)
   const [showShadow, setShowShadow] = useState(true)
-  const [showContours, setShowContours] = useState(true)
+  const [showContours, setShowContours] = useState(false)
   const [contourInterval, setContourInterval] = useState(5)
   const [showLabels, setShowLabels] = useState(true)
   const [showFrame, setShowFrame] = useState(false)
@@ -376,15 +376,49 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     trackViewContent('Map Creator')
   }, [])
 
+  // Restore selection from localStorage after login
+  useEffect(() => {
+    const savedState = localStorage.getItem('archikek_pending_map')
+    if (savedState && user) {
+      try {
+        const state = JSON.parse(savedState)
+        if (state.selection) setSelection(state.selection)
+        if (state.size) setSize(state.size)
+        if (state.theme) {
+          const theme = ANALYSIS_THEMES.find(t => t.id === state.theme)
+          if (theme) setSelectedTheme(theme)
+        }
+        if (state.locationName) setLocationName(state.locationName)
+        if (state.showTransit !== undefined) setShowTransit(state.showTransit)
+        if (state.showContours !== undefined) setShowContours(state.showContours)
+        if (state.showFrame !== undefined) setShowFrame(state.showFrame)
+        if (state.exportFormat) setExportFormat(state.exportFormat)
+        
+        // Clear saved state after restoring
+        localStorage.removeItem('archikek_pending_map')
+        
+        // Auto-trigger preview after restore
+        setTimeout(() => {
+          if (state.selection?.center) {
+            setPreviewLoading(true)
+          }
+        }, 500)
+      } catch (e) {
+        console.error('Failed to restore map state:', e)
+        localStorage.removeItem('archikek_pending_map')
+      }
+    }
+  }, [user])
+
   // Sync colors with theme
   useEffect(() => {
     if (!useCustomColors) setCustomColors(selectedTheme.colors)
   }, [selectedTheme, useCustomColors])
 
-  // Auto-refresh preview when settings change (debounced)
+  // Auto-refresh preview ONLY when theme changes (not other settings)
   useEffect(() => {
     // Only auto-refresh if preview already exists and we have a selection
-    if (!previewUrl || !selection) return
+    if (!previewUrl || !selection || !selection.center) return
     
     const timeoutId = setTimeout(async () => {
       setPreviewLoading(true)
@@ -412,8 +446,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
           stroke_residential: strokeWidths.residential,
           stroke_pedestrian: strokeWidths.pedestrian,
           stroke_building: strokeWidths.building,
-          lat: selection.center!.lat,
-          lng: selection.center!.lng,
+          lat: selection.center.lat,
+          lng: selection.center.lng,
           size: selection.size || size
         }
 
@@ -434,10 +468,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         console.error('Auto-preview error:', err)
       }
       setPreviewLoading(false)
-    }, 800) // 800ms debounce
+    }, 500) // 500ms debounce - faster response
 
     return () => clearTimeout(timeoutId)
-  }, [selectedTheme.id, showTransit, showScale, showContours, showLabels, showFrame, showShadow, transparent, contourInterval])
+  }, [selectedTheme.id]) // ONLY theme change triggers auto-preview
 
   // =========================================
   // MAP INITIALIZATION (Native Mapbox - NO Draw plugin)
@@ -1494,6 +1528,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {/* Google Button */}
             <button
               onClick={async () => {
+                // Save current map state before redirecting to Google
+                const stateToSave = {
+                  selection,
+                  size,
+                  theme: selectedTheme.id,
+                  locationName,
+                  showTransit,
+                  showContours,
+                  showFrame,
+                  exportFormat
+                }
+                localStorage.setItem('archikek_pending_map', JSON.stringify(stateToSave))
                 await signInWithGoogle()
               }}
               className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white text-black rounded-xl font-medium hover:bg-gray-100 transition-colors"
@@ -1517,6 +1563,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {/* Email option */}
             <button
               onClick={() => {
+                // Save current map state before redirecting
+                const stateToSave = {
+                  selection,
+                  size,
+                  theme: selectedTheme.id,
+                  locationName,
+                  showTransit,
+                  showContours,
+                  showFrame,
+                  exportFormat
+                }
+                localStorage.setItem('archikek_pending_map', JSON.stringify(stateToSave))
                 setShowLoginModal(false)
                 router.push('/signup')
               }}
@@ -1556,6 +1614,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               Already have an account?{' '}
               <button 
                 onClick={() => {
+                  // Save current map state before redirecting
+                  const stateToSave = {
+                    selection,
+                    size,
+                    theme: selectedTheme.id,
+                    locationName,
+                    showTransit,
+                    showContours,
+                    showFrame,
+                    exportFormat
+                  }
+                  localStorage.setItem('archikek_pending_map', JSON.stringify(stateToSave))
                   setShowLoginModal(false)
                   router.push('/login')
                 }}
