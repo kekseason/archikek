@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 interface Preview3DData {
+  terrain: { vertices: number[][], faces: number[][] }
   buildings: { vertices: number[][], faces: number[][] }
   roads: { vertices: number[][], faces: number[][] }
   water: { vertices: number[][], faces: number[][] }
@@ -25,16 +26,16 @@ interface ThreeViewerProps {
   onError?: (error: string) => void
 }
 
-// Layer colors
+// Layer colors - Updated with better terrain color
 const COLORS = {
-  buildings: 0x444444,
-  roads: 0x666666,
-  water: 0x4a90d9,
-  green: 0x5a8f5a,
-  ground: 0x1a1a1a,
+  terrain: 0x3d3d3d,    // Medium gray for terrain ground
+  buildings: 0x666666,  // Lighter gray for buildings (contrast with terrain)
+  roads: 0x888888,      // Even lighter for roads
+  water: 0x4a90d9,      // Blue
+  green: 0x5a8f5a,      // Green
   ambient: 0xffffff,
   directional: 0xffffff,
-  background: 0x0a0a0a
+  background: 0x1a1a1a  // Dark background
 }
 
 export default function ThreeViewer({ 
@@ -97,7 +98,7 @@ export default function ThreeViewer({
     controlsRef.current = controls
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(COLORS.ambient, 0.4)
+    const ambientLight = new THREE.AmbientLight(COLORS.ambient, 0.5)
     scene.add(ambientLight)
 
     const directionalLight = new THREE.DirectionalLight(COLORS.directional, 0.8)
@@ -114,16 +115,10 @@ export default function ThreeViewer({
     directionalLight.shadow.camera.bottom = -shadowSize
     scene.add(directionalLight)
 
-    // Ground plane
-    const groundGeometry = new THREE.PlaneGeometry(size * 2, size * 2)
-    const groundMaterial = new THREE.MeshStandardMaterial({ 
-      color: COLORS.ground,
-      roughness: 0.9
-    })
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial)
-    ground.rotation.x = -Math.PI / 2
-    ground.receiveShadow = true
-    scene.add(ground)
+    // Add hemisphere light for better ambient lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.3)
+    hemiLight.position.set(0, size, 0)
+    scene.add(hemiLight)
 
     // Animation loop
     const animate = () => {
@@ -174,6 +169,13 @@ export default function ThreeViewer({
         }
 
         const data: Preview3DData = await response.json()
+        console.log('[3D Preview] Received data:', {
+          terrain: data.terrain?.vertices?.length || 0,
+          buildings: data.buildings?.vertices?.length || 0,
+          roads: data.roads?.vertices?.length || 0,
+          water: data.water?.vertices?.length || 0,
+          green: data.green?.vertices?.length || 0
+        })
         renderMeshes(data)
         onLoad?.()
 
@@ -214,24 +216,32 @@ export default function ThreeViewer({
     })
     meshesRef.current = {}
 
-    // Create meshes for each layer
-    const layerConfigs: { key: keyof Preview3DData, color: number }[] = [
-      { key: 'buildings', color: COLORS.buildings },
-      { key: 'roads', color: COLORS.roads },
+    // Layer configurations - terrain FIRST (rendered at bottom)
+    const layerConfigs: { key: keyof Preview3DData, color: number, alwaysVisible?: boolean }[] = [
+      { key: 'terrain', color: COLORS.terrain, alwaysVisible: true },  // Terrain always visible
       { key: 'water', color: COLORS.water },
       { key: 'green', color: COLORS.green },
+      { key: 'roads', color: COLORS.roads },
+      { key: 'buildings', color: COLORS.buildings },
     ]
 
-    layerConfigs.forEach(({ key, color }) => {
+    layerConfigs.forEach(({ key, color, alwaysVisible }) => {
       const layerData = data[key]
-      if (!layerData || !layerData.vertices.length) return
+      if (!layerData || !layerData.vertices || !layerData.vertices.length) {
+        console.log(`[3D Preview] No data for layer: ${key}`)
+        return
+      }
+
+      console.log(`[3D Preview] Rendering ${key}: ${layerData.vertices.length} vertices, ${layerData.faces.length} faces`)
 
       const geometry = new THREE.BufferGeometry()
       
-      // Flatten vertices
+      // Flatten vertices - Backend sends [x, y, z] where y is forward, z is up
+      // Three.js uses y-up, so we need to swap: [x, z, -y]
       const positions: number[] = []
       layerData.vertices.forEach((v: number[]) => {
-        positions.push(v[0], v[1], v[2])
+        // Transform from backend coords to Three.js coords
+        positions.push(v[0], v[2], -v[1])
       })
       
       // Flatten faces (indices)
@@ -244,22 +254,75 @@ export default function ThreeViewer({
       geometry.setIndex(indices)
       geometry.computeVertexNormals()
 
-      const material = new THREE.MeshStandardMaterial({
-        color,
-        roughness: key === 'water' ? 0.2 : 0.7,
-        metalness: key === 'water' ? 0.3 : 0.1,
-        flatShading: key === 'buildings',
-        side: THREE.DoubleSide
-      })
+      // Material settings per layer type
+      let material: THREE.Material
+
+      if (key === 'terrain') {
+        material = new THREE.MeshStandardMaterial({
+          color,
+          roughness: 0.9,
+          metalness: 0.0,
+          side: THREE.DoubleSide,
+          flatShading: false
+        })
+      } else if (key === 'water') {
+        material = new THREE.MeshStandardMaterial({
+          color,
+          roughness: 0.1,
+          metalness: 0.3,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.9
+        })
+      } else if (key === 'buildings') {
+        material = new THREE.MeshStandardMaterial({
+          color,
+          roughness: 0.6,
+          metalness: 0.1,
+          flatShading: true,
+          side: THREE.DoubleSide
+        })
+      } else {
+        material = new THREE.MeshStandardMaterial({
+          color,
+          roughness: 0.7,
+          metalness: 0.1,
+          side: THREE.DoubleSide
+        })
+      }
 
       const mesh = new THREE.Mesh(geometry, material)
       mesh.castShadow = key === 'buildings'
       mesh.receiveShadow = true
-      mesh.visible = layers[key as keyof typeof layers] ?? true
+      
+      // Terrain is always visible, others depend on layer toggle
+      if (alwaysVisible) {
+        mesh.visible = true
+      } else {
+        mesh.visible = layers[key as keyof typeof layers] ?? true
+      }
 
       sceneRef.current?.add(mesh)
       meshesRef.current[key] = mesh
     })
+
+    // If no terrain was rendered, add a fallback ground plane
+    if (!meshesRef.current['terrain']) {
+      console.log('[3D Preview] No terrain data, adding fallback ground plane')
+      const halfSize = size / 2
+      const groundGeometry = new THREE.PlaneGeometry(size, size)
+      const groundMaterial = new THREE.MeshStandardMaterial({ 
+        color: COLORS.terrain,
+        roughness: 0.9,
+        side: THREE.DoubleSide
+      })
+      const ground = new THREE.Mesh(groundGeometry, groundMaterial)
+      ground.rotation.x = -Math.PI / 2
+      ground.position.y = 0
+      ground.receiveShadow = true
+      sceneRef.current?.add(ground)
+      meshesRef.current['terrain'] = ground
+    }
   }
 
   // Reset camera view
