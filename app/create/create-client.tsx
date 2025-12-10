@@ -522,6 +522,11 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   // =========================================
   useEffect(() => {
     if (typeof window === 'undefined' || !mapRef.current) return
+    
+    // Clear any existing map content
+    if (mapRef.current.children.length > 0) {
+      mapRef.current.innerHTML = ''
+    }
 
     const initMap = async () => {
       const mapboxgl = (await import('mapbox-gl')).default
@@ -683,7 +688,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     initMap()
     
     return () => {
-      if (mapInstanceRef.current) mapInstanceRef.current.remove()
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove()
+        mapInstanceRef.current = null
+      }
+      if (markerRef.current) {
+        markerRef.current = null
+      }
     }
   }, [])
 
@@ -836,15 +847,27 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       
       // If PNG, convert SVG to PNG
       if (exportFormat === 'png') {
-        const svgText = await blob.text()
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        const img = document.createElement('img')
+        let svgText = await blob.text()
         
-        // Parse SVG to get dimensions
+        // Parse SVG to modify it
         const parser = new DOMParser()
         const svgDoc = parser.parseFromString(svgText, 'image/svg+xml')
         const svgElement = svgDoc.querySelector('svg')
+        
+        // Remove or make transparent the background rect (usually the first rect)
+        const firstRect = svgElement?.querySelector('rect')
+        if (firstRect) {
+          firstRect.setAttribute('fill', 'none')
+          firstRect.setAttribute('fill-opacity', '0')
+        }
+        
+        // Serialize back to string
+        const serializer = new XMLSerializer()
+        svgText = serializer.serializeToString(svgDoc)
+        
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        const img = document.createElement('img')
         
         // Get dimensions from SVG
         let width = 2000
@@ -866,11 +889,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         await new Promise<void>((resolve, reject) => {
           img.onload = () => {
             if (ctx) {
-              // Fill white background if not transparent
-              if (!transparent) {
-                ctx.fillStyle = (colors as any).Zemin || (colors as any).background || '#ffffff'
-                ctx.fillRect(0, 0, canvas.width, canvas.height)
-              }
+              // Always fill background with theme color first
+              ctx.fillStyle = (colors as any).Zemin || '#ffffff'
+              ctx.fillRect(0, 0, canvas.width, canvas.height)
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
             }
             resolve()
@@ -1121,25 +1142,40 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               )}
             </div>
 
-            {/* Selection Info + Size - Compact Row */}
+            {/* Selection Info + Size */}
             {selection ? (
-              <div className="flex items-center gap-2 p-2 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-                <span className="text-amber-500 text-xs">✓</span>
-                <span className="text-amber-400/80 text-xs truncate flex-1">{location}</span>
-                {selectionMode === 'point' && (
-                  <select 
-                    value={size} 
-                    onChange={(e) => setSize(Number(e.target.value))}
-                    className="bg-[#111] border border-amber-500/30 rounded px-2 py-1 text-xs text-amber-400"
-                  >
-                    {[500, 750, 1000, 1500, 2000].map(s => (
-                      <option key={s} value={s}>{s}m</option>
-                    ))}
-                  </select>
-                )}
-                <button onClick={clearSelection} className="text-gray-500 hover:text-red-400 transition-colors p-1">
-                  <TrashIcon />
-                </button>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 p-2 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                  <span className="text-amber-500 text-xs">✓</span>
+                  <span className="text-amber-400/80 text-xs truncate flex-1">{location}</span>
+                  <button onClick={clearSelection} className="text-gray-500 hover:text-red-400 transition-colors p-1">
+                    <TrashIcon />
+                  </button>
+                </div>
+                {/* Area Size Slider - Always visible when selection exists */}
+                <div className="p-2 bg-[#111] rounded-lg">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-500">Area Size</span>
+                    <span className="text-amber-400">{selection.size || size}m × {selection.size || size}m</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={250}
+                    max={2000}
+                    step={50}
+                    value={selection.size || size}
+                    onChange={(e) => {
+                      const newSize = Number(e.target.value)
+                      setSize(newSize)
+                      setSelection(prev => prev ? { ...prev, size: newSize } : null)
+                    }}
+                    className="w-full accent-amber-500"
+                  />
+                  <div className="flex justify-between text-[10px] text-gray-600 mt-1">
+                    <span>250m</span>
+                    <span>2000m</span>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="flex gap-2">
@@ -1629,25 +1665,40 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 )}
               </div>
 
-              {/* Selection Info */}
+              {/* Selection Info + Size Slider */}
               {selection && (
-                <div className="flex items-center gap-2 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-                  <span className="text-amber-500">✓</span>
-                  <span className="text-amber-400/80 text-sm truncate flex-1">{location}</span>
-                  {selectionMode === 'point' && (
-                    <select 
-                      value={size} 
-                      onChange={(e) => setSize(Number(e.target.value))}
-                      className="bg-[#111] border border-amber-500/30 rounded px-2 py-1 text-sm text-amber-400"
-                    >
-                      {[500, 750, 1000, 1500, 2000].map(s => (
-                        <option key={s} value={s}>{s}m</option>
-                      ))}
-                    </select>
-                  )}
-                  <button onClick={clearSelection} className="text-gray-500 hover:text-red-400 p-1">
-                    <TrashIcon />
-                  </button>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                    <span className="text-amber-500">✓</span>
+                    <span className="text-amber-400/80 text-sm truncate flex-1">{location}</span>
+                    <button onClick={clearSelection} className="text-gray-500 hover:text-red-400 p-1">
+                      <TrashIcon />
+                    </button>
+                  </div>
+                  {/* Area Size Slider */}
+                  <div className="p-3 bg-[#111] rounded-lg">
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-gray-500">Area Size</span>
+                      <span className="text-amber-400">{selection.size || size}m × {selection.size || size}m</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={250}
+                      max={2000}
+                      step={50}
+                      value={selection.size || size}
+                      onChange={(e) => {
+                        const newSize = Number(e.target.value)
+                        setSize(newSize)
+                        setSelection(prev => prev ? { ...prev, size: newSize } : null)
+                      }}
+                      className="w-full accent-amber-500"
+                    />
+                    <div className="flex justify-between text-[10px] text-gray-600 mt-1">
+                      <span>250m</span>
+                      <span>2000m</span>
+                    </div>
+                  </div>
                 </div>
               )}
 
