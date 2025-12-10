@@ -839,7 +839,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         const svgText = await blob.text()
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
-        const img = new Image()
+        const img = document.createElement('img')
         
         // Parse SVG to get dimensions
         const parser = new DOMParser()
