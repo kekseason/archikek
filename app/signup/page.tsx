@@ -14,19 +14,13 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   
-  const { signInWithGoogle, signInWithMicrosoft, signUpWithEmail } = useAuth()
+  const { signInWithGoogle, signUpWithEmail } = useAuth()
   const router = useRouter()
 
   const handleGoogleSignUp = async () => {
     setLoading(true)
     setError('')
     await signInWithGoogle()
-  }
-
-  const handleMicrosoftSignUp = async () => {
-    setLoading(true)
-    setError('')
-    await signInWithMicrosoft()
   }
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
@@ -85,21 +79,6 @@ export default function SignUpPage() {
             Start creating professional site analysis maps
           </p>
 
-          {/* Microsoft Button - Highlighted for Students */}
-          <button
-            onClick={handleMicrosoftSignUp}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-[#2F2F2F] text-white rounded-xl font-medium hover:bg-[#3F3F3F] transition-colors disabled:opacity-50 border border-[#444] mb-3"
-          >
-            <svg width="20" height="20" viewBox="0 0 23 23">
-              <rect x="1" y="1" width="10" height="10" fill="#f25022"/>
-              <rect x="12" y="1" width="10" height="10" fill="#7fba00"/>
-              <rect x="1" y="12" width="10" height="10" fill="#00a4ef"/>
-              <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
-            </svg>
-            Sign up with Microsoft
-          </button>
-          
           {/* Yaşar Student Notice */}
           <div className="mb-4 p-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg">
             <p className="text-xs text-center text-blue-300">
