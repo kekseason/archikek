@@ -868,7 +868,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             if (ctx) {
               // Fill white background if not transparent
               if (!transparent) {
-                ctx.fillStyle = colors.background || '#ffffff'
+                ctx.fillStyle = (colors as any).Zemin || (colors as any).background || '#ffffff'
                 ctx.fillRect(0, 0, canvas.width, canvas.height)
               }
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
