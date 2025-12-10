@@ -967,7 +967,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
   // 3D Model Generation
   const generate3DModel = async () => {
-    if (!selection) {
+    if (!selection || !selection.center) {
       setError('Please select a location first')
       return
     }
@@ -1840,8 +1840,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               
               {/* Three.js Viewer */}
               <ThreeViewer
-                lat={selection.center.lat}
-                lng={selection.center.lng}
+                lat={selection.center?.lat || 0}
+                lng={selection.center?.lng || 0}
                 size={selection.size || size}
                 layers={layers3D}
               />
