@@ -670,9 +670,9 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
             </div>
             <div className="flex items-center gap-8">
               <Link href="/blog" className="text-white/40 hover:text-white text-sm transition-colors">Blog</Link>
-              <a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Terms</a>
-              <a href="#" className="text-white/40 hover:text-white text-sm transition-colors">Privacy</a>
-              <a href="mailto:support@archikek.com" className="text-white/40 hover:text-white text-sm transition-colors">Contact</a>
+              <Link href="/terms" className="text-white/40 hover:text-white text-sm transition-colors">Terms</Link>
+              <Link href="/privacy" className="text-white/40 hover:text-white text-sm transition-colors">Privacy</Link>
+              <Link href="/contact" className="text-white/40 hover:text-white text-sm transition-colors">Contact</Link>
               <a 
                 href="https://instagram.com/archikekapp" 
                 target="_blank" 
