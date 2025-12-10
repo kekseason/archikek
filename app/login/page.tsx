@@ -14,13 +14,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth()
+  const { signInWithGoogle, signInWithMicrosoft, signInWithEmail, signUpWithEmail } = useAuth()
   const router = useRouter()
 
   const handleGoogleSignIn = async () => {
     setLoading(true)
     setError('')
     await signInWithGoogle()
+  }
+
+  const handleMicrosoftSignIn = async () => {
+    setLoading(true)
+    setError('')
+    await signInWithMicrosoft()
   }
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -73,6 +79,28 @@ export default function LoginPage() {
           <p className="text-gray-400 text-center text-sm mb-8">
             {isSignUp ? 'Start creating professional maps' : 'Sign in to continue'}
           </p>
+
+          {/* Microsoft Button - Highlighted for Students */}
+          <button
+            onClick={handleMicrosoftSignIn}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-[#2F2F2F] text-white rounded-xl font-medium hover:bg-[#3F3F3F] transition-colors disabled:opacity-50 border border-[#444] mb-3"
+          >
+            <svg width="20" height="20" viewBox="0 0 23 23">
+              <rect x="1" y="1" width="10" height="10" fill="#f25022"/>
+              <rect x="12" y="1" width="10" height="10" fill="#7fba00"/>
+              <rect x="1" y="12" width="10" height="10" fill="#00a4ef"/>
+              <rect x="12" y="12" width="10" height="10" fill="#ffb900"/>
+            </svg>
+            Continue with Microsoft
+          </button>
+          
+          {/* Yaşar Student Notice */}
+          <div className="mb-4 p-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg">
+            <p className="text-xs text-center text-blue-300">
+              🎓 <span className="font-medium">Yaşar University students:</span> Sign in with your @stu.yasar.edu.tr email for <span className="text-amber-400 font-semibold">free Pro access!</span>
+            </p>
+          </div>
 
           {/* Google Button */}
           <button

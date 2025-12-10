@@ -9,6 +9,7 @@ type AuthContextType = {
   profile: Profile | null
   loading: boolean
   signInWithGoogle: () => Promise<void>
+  signInWithMicrosoft: () => Promise<void>
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
   signUpWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
@@ -93,6 +94,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }
 
+  const signInWithMicrosoft = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'azure',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: 'email profile openid'
+      }
+    })
+  }
+
   const signInWithEmail = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     return { error: error?.message ?? null }
@@ -121,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profile,
       loading,
       signInWithGoogle,
+      signInWithMicrosoft,
       signInWithEmail,
       signUpWithEmail,
       signOut,
