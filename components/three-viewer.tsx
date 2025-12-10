@@ -161,7 +161,7 @@ export default function ThreeViewer({
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/preview-3d`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lat, lng, size: Math.min(size, 500) })
+          body: JSON.stringify({ lat, lng, size })  // Use full size, no limit
         })
 
         if (!response.ok) {
