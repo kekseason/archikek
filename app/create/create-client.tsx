@@ -521,173 +521,181 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   // MAP INITIALIZATION (Native Mapbox - NO Draw plugin)
   // =========================================
   useEffect(() => {
-    if (typeof window === 'undefined' || !mapRef.current) return
+    if (typeof window === 'undefined') return
     
-    // Clear any existing map content
-    if (mapRef.current.children.length > 0) {
-      mapRef.current.innerHTML = ''
-    }
-
-    const initMap = async () => {
-      const mapboxgl = (await import('mapbox-gl')).default
+    // Small delay to ensure DOM is ready after F5
+    const timer = setTimeout(() => {
+      if (!mapRef.current) return
       
-      mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
+      // If map already exists, don't reinitialize
+      if (mapInstanceRef.current) return
 
-      const map = new mapboxgl.Map({
-        container: mapRef.current!,
-        style: 'mapbox://styles/mapbox/dark-v11',
-        center: [28.9784, 41.0082],
-        zoom: 12,
-        attributionControl: false
-      })
-
-      map.on('load', () => {
-        map.addControl(new mapboxgl.NavigationControl(), 'top-right')
-        
-        // Add rectangle source/layer for drawing
-        map.addSource('draw-rectangle', {
-          type: 'geojson',
-          data: { type: 'FeatureCollection', features: [] }
-        })
-        
-        map.addLayer({
-          id: 'draw-rectangle-fill',
-          type: 'fill',
-          source: 'draw-rectangle',
-          paint: {
-            'fill-color': '#f59e0b',
-            'fill-opacity': 0.15
-          }
-        })
-        
-        map.addLayer({
-          id: 'draw-rectangle-line',
-          type: 'line',
-          source: 'draw-rectangle',
-          paint: {
-            'line-color': '#f59e0b',
-            'line-width': 2,
-            'line-dasharray': [2, 2]
-          }
-        })
-        
-        mapInstanceRef.current = map
-      })
-
-      // --- MOUSE EVENTS FOR DRAWING ---
-      map.on('mousedown', (e) => {
-        if (selectionMode !== 'rectangle') return
-        
-        isDrawingRef.current = true
-        drawStartRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat }
-        map.dragPan.disable()
-        
-        // Clear old marker if exists
-        if (markerRef.current) {
-          markerRef.current.remove()
-          markerRef.current = null
-        }
-      })
-
-      map.on('mousemove', (e) => {
-        if (!isDrawingRef.current || !drawStartRef.current) return
-        
-        const start = drawStartRef.current
-        const end = { lng: e.lngLat.lng, lat: e.lngLat.lat }
-        
-        const bounds = {
-          west: Math.min(start.lng, end.lng),
-          east: Math.max(start.lng, end.lng),
-          south: Math.min(start.lat, end.lat),
-          north: Math.max(start.lat, end.lat)
-        }
-        
-        const geojson = {
-          type: 'FeatureCollection' as const,
-          features: [{
-            type: 'Feature' as const,
-            properties: {},
-            geometry: {
-              type: 'Polygon' as const,
-              coordinates: [[
-                [bounds.west, bounds.south],
-                [bounds.east, bounds.south],
-                [bounds.east, bounds.north],
-                [bounds.west, bounds.north],
-                [bounds.west, bounds.south]
-              ]]
-            }
-          }]
-        }
-        
-        const source = map.getSource('draw-rectangle') as any
-        if (source) source.setData(geojson)
-      })
-
-      map.on('mouseup', (e) => {
-        if (!isDrawingRef.current || !drawStartRef.current) return
-        
-        map.dragPan.enable()
-        isDrawingRef.current = false
-        
-        const start = drawStartRef.current
-        const end = { lng: e.lngLat.lng, lat: e.lngLat.lat }
-        
-        const bounds = {
-          west: Math.min(start.lng, end.lng),
-          east: Math.max(start.lng, end.lng),
-          south: Math.min(start.lat, end.lat),
-          north: Math.max(start.lat, end.lat)
-        }
-        
-        const centerLng = (bounds.west + bounds.east) / 2
-        const centerLat = (bounds.south + bounds.north) / 2
-        const latMeters = (bounds.north - bounds.south) * 111000
-        const lngMeters = (bounds.east - bounds.west) * 111000 * Math.cos(centerLat * Math.PI / 180)
-        const avgSize = Math.round((latMeters + lngMeters) / 2)
-        
-        if (avgSize > 50) {
-          setSelection({
-            mode: 'rectangle',
-            center: { lat: centerLat, lng: centerLng },
-            bounds,
-            size: avgSize
-          })
+      const initMap = async () => {
+        try {
+          const mapboxgl = (await import('mapbox-gl')).default
           
-          const areaKm = (latMeters * lngMeters) / 1000000
-          setLocation(`${latMeters.toFixed(0)}m × ${lngMeters.toFixed(0)}m (${areaKm.toFixed(2)} km²)`)
-        }
-        
-        drawStartRef.current = null
-      })
+          mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
-      // --- CLICK EVENT (Point Mode) ---
-      map.on('click', (e) => {
-        if (selectionMode !== 'point') return
-        
-        const { lng, lat } = e.lngLat
-        
-        // Clear rectangle if exists
-        const source = map.getSource('draw-rectangle') as any
-        if (source) source.setData({ type: 'FeatureCollection', features: [] })
-        
-        setSelection({ mode: 'point', center: { lat, lng }, size: size })
-        setLocation(`${lat.toFixed(6)}, ${lng.toFixed(6)}`)
-        
-        // Add/update marker
-        if (markerRef.current) {
-          markerRef.current.setLngLat([lng, lat])
-        } else {
-          const el = document.createElement('div')
-          el.innerHTML = `<div style="width:28px;height:28px;background:#f59e0b;border:3px solid white;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;"></div>`
-          markerRef.current = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
-        }
-      })
-    }
+          const map = new mapboxgl.Map({
+            container: mapRef.current!,
+            style: 'mapbox://styles/mapbox/dark-v11',
+            center: [28.9784, 41.0082],
+            zoom: 12,
+            attributionControl: false
+          })
 
-    initMap()
+          map.on('load', () => {
+            map.addControl(new mapboxgl.NavigationControl(), 'top-right')
+            
+            // Add rectangle source/layer for drawing
+            map.addSource('draw-rectangle', {
+              type: 'geojson',
+              data: { type: 'FeatureCollection', features: [] }
+            })
+            
+            map.addLayer({
+              id: 'draw-rectangle-fill',
+              type: 'fill',
+              source: 'draw-rectangle',
+              paint: {
+                'fill-color': '#f59e0b',
+                'fill-opacity': 0.15
+              }
+            })
+            
+            map.addLayer({
+              id: 'draw-rectangle-line',
+              type: 'line',
+              source: 'draw-rectangle',
+              paint: {
+                'line-color': '#f59e0b',
+                'line-width': 2,
+                'line-dasharray': [2, 2]
+              }
+            })
+            
+            mapInstanceRef.current = map
+          })
+
+          // --- MOUSE EVENTS FOR DRAWING ---
+          map.on('mousedown', (e) => {
+            if (selectionMode !== 'rectangle') return
+            
+            isDrawingRef.current = true
+            drawStartRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat }
+            map.dragPan.disable()
+            
+            // Clear old marker if exists
+            if (markerRef.current) {
+              markerRef.current.remove()
+              markerRef.current = null
+            }
+          })
+
+          map.on('mousemove', (e) => {
+            if (!isDrawingRef.current || !drawStartRef.current) return
+            
+            const start = drawStartRef.current
+            const end = { lng: e.lngLat.lng, lat: e.lngLat.lat }
+            
+            const bounds = {
+              west: Math.min(start.lng, end.lng),
+              east: Math.max(start.lng, end.lng),
+              south: Math.min(start.lat, end.lat),
+              north: Math.max(start.lat, end.lat)
+            }
+            
+            const geojson = {
+              type: 'FeatureCollection' as const,
+              features: [{
+                type: 'Feature' as const,
+                properties: {},
+                geometry: {
+                  type: 'Polygon' as const,
+                  coordinates: [[
+                    [bounds.west, bounds.south],
+                    [bounds.east, bounds.south],
+                    [bounds.east, bounds.north],
+                    [bounds.west, bounds.north],
+                    [bounds.west, bounds.south]
+                  ]]
+                }
+              }]
+            }
+            
+            const source = map.getSource('draw-rectangle') as any
+            if (source) source.setData(geojson)
+          })
+
+          map.on('mouseup', (e) => {
+            if (!isDrawingRef.current || !drawStartRef.current) return
+            
+            map.dragPan.enable()
+            isDrawingRef.current = false
+            
+            const start = drawStartRef.current
+            const end = { lng: e.lngLat.lng, lat: e.lngLat.lat }
+            
+            const bounds = {
+              west: Math.min(start.lng, end.lng),
+              east: Math.max(start.lng, end.lng),
+              south: Math.min(start.lat, end.lat),
+              north: Math.max(start.lat, end.lat)
+            }
+            
+            const centerLng = (bounds.west + bounds.east) / 2
+            const centerLat = (bounds.south + bounds.north) / 2
+            const latMeters = (bounds.north - bounds.south) * 111000
+            const lngMeters = (bounds.east - bounds.west) * 111000 * Math.cos(centerLat * Math.PI / 180)
+            const avgSize = Math.round((latMeters + lngMeters) / 2)
+            
+            if (avgSize > 50) {
+              setSelection({
+                mode: 'rectangle',
+                center: { lat: centerLat, lng: centerLng },
+                bounds,
+                size: avgSize
+              })
+              
+              const areaKm = (latMeters * lngMeters) / 1000000
+              setLocation(`${latMeters.toFixed(0)}m × ${lngMeters.toFixed(0)}m (${areaKm.toFixed(2)} km²)`)
+            }
+            
+            drawStartRef.current = null
+          })
+
+          // --- CLICK EVENT (Point Mode) ---
+          map.on('click', (e) => {
+            if (selectionMode !== 'point') return
+            
+            const { lng, lat } = e.lngLat
+            
+            // Clear rectangle if exists
+            const source = map.getSource('draw-rectangle') as any
+            if (source) source.setData({ type: 'FeatureCollection', features: [] })
+            
+            setSelection({ mode: 'point', center: { lat, lng }, size: size })
+            setLocation(`${lat.toFixed(6)}, ${lng.toFixed(6)}`)
+            
+            // Add/update marker
+            if (markerRef.current) {
+              markerRef.current.setLngLat([lng, lat])
+            } else {
+              const el = document.createElement('div')
+              el.innerHTML = `<div style="width:28px;height:28px;background:#f59e0b;border:3px solid white;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;"></div>`
+              markerRef.current = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
+            }
+          })
+        } catch (error) {
+          console.error('Map init error:', error)
+        }
+      }
+
+      initMap()
+    }, 100)
     
     return () => {
+      clearTimeout(timer)
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null
@@ -847,27 +855,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       
       // If PNG, convert SVG to PNG
       if (exportFormat === 'png') {
-        let svgText = await blob.text()
+        const svgText = await blob.text()
         
-        // Parse SVG to modify it
+        // Parse SVG to get dimensions
         const parser = new DOMParser()
         const svgDoc = parser.parseFromString(svgText, 'image/svg+xml')
         const svgElement = svgDoc.querySelector('svg')
-        
-        // Remove or make transparent the background rect (usually the first rect)
-        const firstRect = svgElement?.querySelector('rect')
-        if (firstRect) {
-          firstRect.setAttribute('fill', 'none')
-          firstRect.setAttribute('fill-opacity', '0')
-        }
-        
-        // Serialize back to string
-        const serializer = new XMLSerializer()
-        svgText = serializer.serializeToString(svgDoc)
-        
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        const img = document.createElement('img')
         
         // Get dimensions from SVG
         let width = 2000
@@ -875,29 +868,45 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         if (svgElement) {
           const viewBox = svgElement.getAttribute('viewBox')
           if (viewBox) {
-            const [, , vbWidth, vbHeight] = viewBox.split(' ').map(Number)
-            width = vbWidth || 2000
-            height = vbHeight || 2000
+            const parts = viewBox.split(' ').map(Number)
+            width = parts[2] || 2000
+            height = parts[3] || 2000
+          } else {
+            // Try width/height attributes
+            width = parseInt(svgElement.getAttribute('width') || '2000')
+            height = parseInt(svgElement.getAttribute('height') || '2000')
           }
         }
         
-        // Set canvas size (high resolution)
-        const scale = 2 // 2x for high quality
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        
+        // Set canvas size (2x for high quality)
+        const scale = 2
         canvas.width = width * scale
         canvas.height = height * scale
+        
+        // Create image from SVG
+        const img = document.createElement('img')
+        const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' })
+        const svgUrl = URL.createObjectURL(svgBlob)
         
         await new Promise<void>((resolve, reject) => {
           img.onload = () => {
             if (ctx) {
-              // Always fill background with theme color first
-              ctx.fillStyle = (colors as any).Zemin || '#ffffff'
-              ctx.fillRect(0, 0, canvas.width, canvas.height)
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+              // Scale context for high resolution
+              ctx.scale(scale, scale)
+              // Draw SVG directly (it should have its own background)
+              ctx.drawImage(img, 0, 0, width, height)
             }
+            URL.revokeObjectURL(svgUrl)
             resolve()
           }
-          img.onerror = reject
-          img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgText)))
+          img.onerror = (e) => {
+            URL.revokeObjectURL(svgUrl)
+            reject(e)
+          }
+          img.src = svgUrl
         })
         
         // Convert to PNG and download
