@@ -236,12 +236,11 @@ export default function ThreeViewer({
 
       const geometry = new THREE.BufferGeometry()
       
-      // Flatten vertices - Backend sends [x, y, z] where y is forward, z is up
-      // Three.js uses y-up, so we need to swap: [x, z, -y]
+      // Backend already sends coordinates in Three.js format [x, y(up), z(forward)]
+      // So we use them directly without transformation
       const positions: number[] = []
       layerData.vertices.forEach((v: number[]) => {
-        // Transform from backend coords to Three.js coords
-        positions.push(v[0], v[2], -v[1])
+        positions.push(v[0], v[1], v[2])
       })
       
       // Flatten faces (indices)
