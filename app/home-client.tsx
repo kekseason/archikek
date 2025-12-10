@@ -666,7 +666,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                 className="opacity-70"
                 style={{ objectFit: 'contain' }}
               />
-              <span className="text-white/40 text-sm">© 2024 ArchiKEK. All rights reserved.</span>
+              <span className="text-white/40 text-sm">© 2025 ArchiKEK. Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">OpenStreetMap</a> contributors.</span>
             </div>
             <div className="flex items-center gap-8">
               <Link href="/blog" className="text-white/40 hover:text-white text-sm transition-colors">Blog</Link>
