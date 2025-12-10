@@ -74,13 +74,6 @@ export default function LoginPage() {
             {isSignUp ? 'Start creating professional maps' : 'Sign in to continue'}
           </p>
 
-          {/* Yaşar Student Notice */}
-          <div className="mb-4 p-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg">
-            <p className="text-xs text-center text-blue-300">
-              🎓 <span className="font-medium">Yaşar University students:</span> Sign up with your @stu.yasar.edu.tr email for <span className="text-amber-400 font-semibold">free Pro access!</span>
-            </p>
-          </div>
-
           {/* Google Button */}
           <button
             onClick={handleGoogleSignIn}

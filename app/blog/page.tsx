@@ -103,9 +103,7 @@ export default function BlogPage() {
       <header className="border-b border-[#1a1a1a]">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-              <span className="text-black font-bold text-sm">A</span>
-            </div>
+            <Image src="/logo.png" alt="ArchiKEK" width={32} height={32} className="rounded-lg" />
             <span className="text-white font-semibold">ArchiKEK</span>
           </Link>
           <nav className="flex items-center gap-6">
