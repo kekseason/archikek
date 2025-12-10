@@ -6,6 +6,15 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { trackViewContent } from '@/lib/tiktok'
+import dynamic from 'next/dynamic'
+
+// Dynamic import for Three.js (client-side only)
+const ThreeViewer = dynamic(() => import('@/components/three-viewer'), {
+  ssr: false,
+  loading: () => <div className="w-full h-full min-h-[300px] bg-[#0a0a0a] rounded-lg flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+})
 
 // ============================================================
 // PROPS
@@ -347,6 +356,16 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showFrame, setShowFrame] = useState(false)
   const [locationName, setLocationName] = useState('')
   const [exportFormat, setExportFormat] = useState<'svg' | 'dxf' | 'png'>('svg')
+  const [exportMode, setExportMode] = useState<'2d' | '3d'>('2d')
+  const [format3D, setFormat3D] = useState<'obj' | 'glb' | 'stl'>('obj')
+  const [includeTerrain, setIncludeTerrain] = useState(true)
+  const [show3DPreview, setShow3DPreview] = useState(false)
+  const [layers3D, setLayers3D] = useState({
+    buildings: true,
+    roads: true,
+    water: true,
+    green: true
+  })
   const [resolution, setResolution] = useState(1200)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
@@ -946,6 +965,58 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     setGenerating(false)
   }
 
+  // 3D Model Generation
+  const generate3DModel = async () => {
+    if (!selection) {
+      setError('Please select a location first')
+      return
+    }
+
+    setGenerating(true)
+    setError('')
+
+    try {
+      const requestBody = {
+        lat: selection.center.lat,
+        lng: selection.center.lng,
+        size: selection.size || size,
+        format: format3D,
+        include_terrain: includeTerrain,
+        location_name: locationName || undefined
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-3d`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+
+      if (!response.ok) {
+        throw new Error(await response.text())
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const safeName = locationName ? locationName.replace(/\s+/g, '_') : 'archikek'
+      a.download = `${safeName}_3d_${requestBody.size}m.${format3D}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+
+      await refreshProfile()
+      setGenerated(true)
+
+    } catch (err: any) {
+      console.error('3D Generate error:', err)
+      setError(err.message || 'Failed to generate 3D model')
+    }
+
+    setGenerating(false)
+  }
+
   // Preview function - no credit, low resolution
   const previewMap = async () => {
     if (!selection) {
@@ -1098,7 +1169,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             )}
 
             <button 
-              onClick={generateMap} 
+              onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
               disabled={generating || !selection}
               className={`hidden md:flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all ${
                 selection 
@@ -1107,7 +1178,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               }`}
             >
               {generating ? <LoaderIcon /> : <DownloadIcon />}
-              {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+              {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
             </button>
           </div>
         </div>
@@ -1327,12 +1398,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   
                   {/* Generate Button */}
                   <button 
-                    onClick={generateMap} 
+                    onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
                     disabled={generating}
                     className="w-full flex items-center justify-center gap-2 py-3 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition-all"
                   >
                     {generating ? <LoaderIcon /> : <DownloadIcon />}
-                    {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+                    {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
                   </button>
                   
                   {/* Pricing Info - Context Aware */}
@@ -1561,25 +1632,154 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   ))}
                 </div>
 
-                {/* Export Format */}
+                {/* Export Mode - 2D/3D Toggle */}
                 <div>
-                  <p className="text-xs text-gray-500 mb-2">Export Format</p>
+                  <p className="text-xs text-gray-500 mb-2">Export Mode</p>
                   <div className="flex gap-2">
-                    {['svg', 'dxf', 'png'].map(fmt => (
-                      <button
-                        key={fmt}
-                        onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                          exportFormat === fmt 
-                            ? 'bg-amber-500 text-black' 
-                            : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
-                        }`}
-                      >
-                        {fmt.toUpperCase()}
-                      </button>
-                    ))}
+                    <button
+                      onClick={() => setExportMode('2d')}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-1.5 ${
+                        exportMode === '2d'
+                          ? 'bg-amber-500 text-black'
+                          : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
+                      </svg>
+                      2D
+                    </button>
+                    <button
+                      onClick={() => setExportMode('3d')}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-1.5 ${
+                        exportMode === '3d'
+                          ? 'bg-amber-500 text-black'
+                          : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                      3D
+                    </button>
                   </div>
                 </div>
+
+                {/* 2D Format Options */}
+                {exportMode === '2d' && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">Format</p>
+                    <div className="flex gap-2">
+                      {['svg', 'dxf', 'png'].map(fmt => (
+                        <button
+                          key={fmt}
+                          onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
+                          className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                            exportFormat === fmt 
+                              ? 'bg-amber-500 text-black' 
+                              : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          {fmt.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 3D Format Options + Layers */}
+                {exportMode === '3d' && (
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-2">3D Format</p>
+                      <div className="flex gap-2">
+                        {[
+                          { id: 'obj', label: 'OBJ', desc: 'Rhino, SketchUp' },
+                          { id: 'glb', label: 'GLB', desc: 'Web, Blender' },
+                          { id: 'stl', label: 'STL', desc: '3D Print' },
+                        ].map(fmt => (
+                          <button
+                            key={fmt.id}
+                            onClick={() => setFormat3D(fmt.id as 'obj' | 'glb' | 'stl')}
+                            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
+                              format3D === fmt.id
+                                ? 'bg-amber-500 text-black'
+                                : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            <span className="font-bold">{fmt.label}</span>
+                            <span className={`text-[10px] ${format3D === fmt.id ? 'text-black/60' : 'text-gray-600'}`}>
+                              {fmt.desc}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Layer Toggles */}
+                    <div>
+                      <p className="text-xs text-gray-500 mb-2">Layers</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { key: 'buildings', label: 'Buildings', icon: '🏢' },
+                          { key: 'roads', label: 'Roads', icon: '🛣️' },
+                          { key: 'water', label: 'Water', icon: '💧' },
+                          { key: 'green', label: 'Green', icon: '🌳' },
+                        ].map(layer => (
+                          <button
+                            key={layer.key}
+                            onClick={() => setLayers3D(prev => ({ ...prev, [layer.key]: !prev[layer.key as keyof typeof prev] }))}
+                            className={`py-1.5 px-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                              layers3D[layer.key as keyof typeof layers3D]
+                                ? 'bg-amber-500/20 border border-amber-500/50 text-amber-400'
+                                : 'bg-[#1a1a1a] border border-transparent text-gray-500'
+                            }`}
+                          >
+                            <span>{layer.icon}</span>
+                            <span>{layer.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Terrain Toggle */}
+                    <label className="flex items-center justify-between px-3 py-2 bg-[#111] rounded-lg cursor-pointer hover:bg-[#161616] transition-colors">
+                      <div className="flex items-center gap-2">
+                        <span>⛰️</span>
+                        <span className="text-sm text-gray-300">Include Terrain</span>
+                      </div>
+                      <div className={`w-10 h-5 rounded-full transition-colors ${includeTerrain ? 'bg-amber-500' : 'bg-[#333]'}`}>
+                        <div className={`w-4 h-4 bg-white rounded-full m-0.5 transition-transform ${includeTerrain ? 'translate-x-5' : ''}`} />
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        checked={includeTerrain} 
+                        onChange={(e) => setIncludeTerrain(e.target.checked)} 
+                        className="hidden" 
+                      />
+                    </label>
+                    
+                    {/* 3D Preview Button */}
+                    {selection && (
+                      <button
+                        onClick={() => setShow3DPreview(true)}
+                        className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        Preview 3D Model
+                      </button>
+                    )}
+                    
+                    {/* Use case tips */}
+                    <div className="p-2 bg-[#111] rounded-lg">
+                      <p className="text-[10px] text-gray-500">
+                        💡 OBJ exports separate layers: Buildings, Roads, Water, Green - easy to style in Rhino/SketchUp
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </details>
 
@@ -1591,6 +1791,63 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             )}
           </div>
         </aside>
+
+        {/* 3D Preview Modal */}
+        {show3DPreview && selection && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="relative w-full max-w-4xl h-[70vh] bg-[#111] rounded-2xl overflow-hidden border border-[#333]">
+              {/* Header */}
+              <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
+                <div>
+                  <h3 className="text-white font-semibold">3D Preview</h3>
+                  <p className="text-xs text-gray-400">{locationName || 'Selected Area'} • {size}m</p>
+                </div>
+                <button
+                  onClick={() => setShow3DPreview(false)}
+                  className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Layer toggles in modal */}
+              <div className="absolute top-16 left-4 z-10 flex flex-col gap-1">
+                {[
+                  { key: 'buildings', label: 'Buildings', color: '#444444' },
+                  { key: 'roads', label: 'Roads', color: '#666666' },
+                  { key: 'water', label: 'Water', color: '#4a90d9' },
+                  { key: 'green', label: 'Green', color: '#5a8f5a' },
+                ].map(layer => (
+                  <button
+                    key={layer.key}
+                    onClick={() => setLayers3D(prev => ({ ...prev, [layer.key]: !prev[layer.key as keyof typeof prev] }))}
+                    className={`flex items-center gap-2 px-2 py-1 rounded text-xs transition-all ${
+                      layers3D[layer.key as keyof typeof layers3D]
+                        ? 'bg-black/60 text-white'
+                        : 'bg-black/40 text-gray-500'
+                    }`}
+                  >
+                    <div 
+                      className="w-3 h-3 rounded-sm" 
+                      style={{ backgroundColor: layers3D[layer.key as keyof typeof layers3D] ? layer.color : '#333' }}
+                    />
+                    {layer.label}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Three.js Viewer */}
+              <ThreeViewer
+                lat={selection.center.lat}
+                lng={selection.center.lng}
+                size={selection.size || size}
+                layers={layers3D}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Mobile Bottom Panel */}
         <div 
@@ -1773,11 +2030,11 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       <img src={previewUrl} alt="Preview" className="w-full" />
                     </div>
                     <button 
-                      onClick={generateMap} 
+                      onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
                       disabled={generating}
                       className="w-full py-3.5 bg-amber-500 text-black rounded-lg font-semibold flex items-center justify-center gap-2"
                     >
-                      {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+                      {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
                     </button>
                   </>
                 )}
@@ -1828,22 +2085,106 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 ))}
               </div>
 
+              {/* 2D/3D Mode Toggle */}
+              <div className="flex gap-2 mb-2">
+                <button
+                  onClick={() => setExportMode('2d')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                    exportMode === '2d' ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
+                  }`}
+                >
+                  2D Map
+                </button>
+                <button
+                  onClick={() => setExportMode('3d')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                    exportMode === '3d' ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
+                  }`}
+                >
+                  3D Model
+                </button>
+              </div>
+
               {/* Format selector */}
-              <div className="flex gap-2">
-                {['svg', 'dxf', 'png'].map(fmt => (
+              {exportMode === '2d' ? (
+                <div className="flex gap-2">
+                  {['svg', 'dxf', 'png'].map(fmt => (
+                    <button
+                      key={fmt}
+                      onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                        exportFormat === fmt 
+                          ? 'bg-amber-500 text-black' 
+                          : 'bg-[#1a1a1a] text-gray-400'
+                      }`}
+                    >
+                      {fmt.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    {['obj', 'glb', 'stl'].map(fmt => (
+                      <button
+                        key={fmt}
+                        onClick={() => setFormat3D(fmt as 'obj' | 'glb' | 'stl')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                          format3D === fmt ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
+                        }`}
+                      >
+                        {fmt.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Layer toggles - mobile */}
+                  <div className="flex gap-1.5 flex-wrap">
+                    {[
+                      { key: 'buildings', label: '🏢' },
+                      { key: 'roads', label: '🛣️' },
+                      { key: 'water', label: '💧' },
+                      { key: 'green', label: '🌳' },
+                    ].map(layer => (
+                      <button
+                        key={layer.key}
+                        onClick={() => setLayers3D(prev => ({ ...prev, [layer.key]: !prev[layer.key as keyof typeof prev] }))}
+                        className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
+                          layers3D[layer.key as keyof typeof layers3D]
+                            ? 'bg-amber-500/20 border border-amber-500/50'
+                            : 'bg-[#1a1a1a] border border-transparent'
+                        }`}
+                      >
+                        {layer.label}
+                      </button>
+                    ))}
+                  </div>
+                  
                   <button
-                    key={fmt}
-                    onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                      exportFormat === fmt 
-                        ? 'bg-amber-500 text-black' 
-                        : 'bg-[#1a1a1a] text-gray-400'
+                    onClick={() => setIncludeTerrain(!includeTerrain)}
+                    className={`w-full py-2 rounded-lg text-sm border transition-all ${
+                      includeTerrain 
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-400' 
+                        : 'bg-[#111] border-[#333] text-gray-500'
                     }`}
                   >
-                    {fmt.toUpperCase()}
+                    {includeTerrain ? '✓ ⛰️' : '⛰️'} Terrain
                   </button>
-                ))}
-              </div>
+                  
+                  {/* 3D Preview Button - Mobile */}
+                  {selection && (
+                    <button
+                      onClick={() => setShow3DPreview(true)}
+                      className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                      Preview 3D
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Error */}
               {error && (
@@ -1977,12 +2318,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               </p>
               
               <button 
-                onClick={generateMap} 
+                onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
                 disabled={generating}
                 className="w-full max-w-xs flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
               >
                 {generating ? <LoaderIcon /> : <DownloadIcon />}
-                {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+                {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
               </button>
               
               {/* Pricing Info - Context Aware */}
