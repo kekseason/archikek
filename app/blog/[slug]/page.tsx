@@ -551,6 +551,1029 @@ Preview is free—experiment with different themes to find what works.
 [Explore Themes →](/create)
     `
   },
+  'barcelona-eixample-urban-analysis': {
+    title: "Barcelona's Eixample: A Perfect Grid for Urban Analysis",
+    description: "Explore how Ildefons Cerdà's revolutionary grid design makes Barcelona ideal for site analysis studies.",
+    date: '2024-12-09',
+    readTime: '8 min read',
+    category: 'Case Study',
+    content: `
+## The Cerdà Plan: A Revolution in Urban Planning
+
+In 1859, Ildefons Cerdà presented his plan for Barcelona's expansion—the Eixample (meaning "extension" in Catalan). This wasn't just city planning; it was a radical reimagining of how cities could work.
+
+## Why Barcelona's Grid is Special
+
+### The Chamfered Corners
+
+Unlike typical American grids with 90-degree corners, Cerdà's blocks have 45-degree chamfers (cuts) at each corner. This creates:
+
+- **Better visibility** at intersections
+- **Small plazas** at every crossing
+- **Improved air circulation**
+- **More interesting figure-ground patterns**
+
+### The Superblock Concept
+
+Cerdà designed the grid with "superblocks" in mind—groups of blocks that share interior courtyards. This creates:
+
+- Semi-private green spaces
+- Pedestrian-priority zones
+- Community gathering areas
+
+## Figure Ground Analysis of Eixample
+
+When you generate a figure ground map of Eixample, you'll notice:
+
+### The Octagonal Pattern
+The chamfered corners create a distinctive octagonal rhythm that's immediately recognizable. This is why Barcelona maps are so popular for architectural presentations—they're visually striking.
+
+### Building Perimeters
+Most blocks follow the perimeter building typology—structures around the edges with courtyards in the center. This creates a clear distinction between public streets and private interiors.
+
+### Density Variations
+While the grid is regular, building heights and densities vary. Some courtyards have been filled in over time, visible in detailed figure-ground studies.
+
+## Best Themes for Barcelona Analysis
+
+For Eixample specifically, try these ArchiKEK themes:
+
+- **Figure Ground**: Classic black/white shows the octagonal pattern clearly
+- **Nolli**: Reveals public vs private space relationships
+- **Blueprint**: Technical feel perfect for urban analysis presentations
+- **Warm Sunset**: Beautiful for portfolio pieces
+
+## Urban Lessons from Eixample
+
+Cerdà's design teaches us:
+
+1. **Grid doesn't mean boring**: The chamfered corners add visual interest
+2. **Scale matters**: 113m x 113m blocks are walkable
+3. **Flexibility within structure**: The grid accommodates diverse uses
+4. **Green space integration**: Interior courtyards provide relief
+
+## Create Your Barcelona Map
+
+Generate a map of Eixample and see these patterns yourself.
+
+[Create Barcelona Map →](/create)
+    `
+  },
+  'urban-morphology-explained': {
+    title: 'Urban Morphology: Reading Cities Through Their Shapes',
+    description: 'Understanding how cities evolve through their physical form. A primer for architecture students.',
+    date: '2024-12-02',
+    readTime: '9 min read',
+    category: 'Theory',
+    content: `
+## What is Urban Morphology?
+
+Urban morphology is the study of the physical form of cities—how they're shaped, how they grew, and what patterns emerge from their development. For architects, it's a fundamental tool for understanding context.
+
+## The Three Scales of Urban Form
+
+### 1. Street Pattern (Macro Scale)
+The overall layout of streets and blocks:
+- **Grid**: Planned cities (New York, Barcelona)
+- **Radial**: Cities centered on a point (Paris, Moscow)
+- **Organic**: Medieval cities (Venice, Marrakech)
+- **Linear**: Cities along routes (strip developments)
+
+### 2. Plot Pattern (Meso Scale)
+How land is divided into individual parcels:
+- **Regular plots**: Planned subdivisions
+- **Irregular plots**: Organic growth over time
+- **Burgage plots**: Medieval long, narrow lots
+
+### 3. Building Pattern (Micro Scale)
+The footprints and arrangements of buildings:
+- **Perimeter blocks**: Buildings around edges
+- **Freestanding**: Isolated buildings in space
+- **Row houses**: Connected street frontage
+- **Courtyard**: Buildings around central space
+
+## Reading a Figure Ground Map
+
+When you look at a figure ground map, ask yourself:
+
+### What's the dominant pattern?
+- Regular grid suggests planned development
+- Irregular organic patterns suggest gradual growth
+- Mixed patterns suggest different eras of development
+
+### Where are the anomalies?
+- Large footprints often indicate institutions or industry
+- Voids might be parks, plazas, or former sites
+- Dense clusters might be historic cores
+
+### What's the grain?
+- Fine grain (small plots, many buildings) = pedestrian-friendly
+- Coarse grain (large plots, few buildings) = car-oriented
+
+## Historical Layers in Cities
+
+Cities are palimpsests—they accumulate layers over time:
+
+1. **Medieval core**: Organic streets, small plots
+2. **Renaissance/Baroque**: Formal axes, symmetry
+3. **Industrial era**: Large factories, worker housing
+4. **Modernist period**: Towers in parks, wide roads
+5. **Contemporary**: Mixed approaches, infill
+
+## Morphological Analysis for Design
+
+Understanding morphology helps architects:
+
+- **Respect context**: Match grain and scale
+- **Identify opportunities**: Find gaps and anomalies
+- **Justify proposals**: Ground designs in urban logic
+- **Predict impacts**: Understand how changes affect surroundings
+
+## Tools for Morphological Study
+
+### Figure Ground Maps
+Show building footprints vs open space. Essential first step.
+
+### Solid-Void Diagrams
+Invert figure-ground to focus on public space.
+
+### Street Hierarchy Maps
+Show primary, secondary, tertiary routes.
+
+### Historical Overlays
+Compare maps from different eras.
+
+## Start Your Analysis
+
+Generate figure ground maps to begin understanding any city's morphology.
+
+[Create Map →](/create)
+    `
+  },
+  'color-theory-architecture-maps': {
+    title: 'Color Theory for Architecture Maps: Choosing the Right Palette',
+    description: 'Why some map colors work better than others. Learn to pick themes that enhance your presentations.',
+    date: '2024-12-01',
+    readTime: '6 min read',
+    category: 'Design',
+    content: `
+## Why Color Matters in Site Analysis
+
+The colors you choose for your site analysis maps affect how your work is perceived. The right palette can make your analysis clearer, more professional, and more memorable.
+
+## Color Psychology in Architecture Presentations
+
+### Black and White
+**Feeling**: Professional, timeless, analytical
+**Best for**: Academic presentations, publications, technical analysis
+**ArchiKEK themes**: Figure Ground, Minimal Light
+
+### Blue Tones
+**Feeling**: Technical, trustworthy, precise
+**Best for**: Engineering-focused presentations, technical documentation
+**ArchiKEK themes**: Blueprint, Technical
+
+### Warm Tones (Orange, Amber)
+**Feeling**: Inviting, creative, energetic
+**Best for**: Client presentations, portfolio pieces
+**ArchiKEK themes**: Warm Sunset, Desert
+
+### Earth Tones
+**Feeling**: Natural, grounded, contextual
+**Best for**: Landscape-focused projects, environmental analysis
+**ArchiKEK themes**: Satellite, Terrain
+
+### Dark Themes
+**Feeling**: Modern, sophisticated, dramatic
+**Best for**: Digital presentations, evening reviews
+**ArchiKEK themes**: Midnight, Neon
+
+## Contrast and Readability
+
+### High Contrast
+Black on white (or vice versa) provides maximum readability. Use for:
+- Complex urban areas with many buildings
+- Maps that will be printed
+- Presentations in bright rooms
+
+### Low Contrast
+Subtle color differences create atmosphere. Use for:
+- Background context maps
+- Mood boards and concept presentations
+- Digital-only presentations
+
+## Color for Information Hierarchy
+
+Use color strategically to guide the eye:
+
+### Primary Elements (Buildings)
+Should be the most visually prominent. Use solid, saturated colors.
+
+### Secondary Elements (Roads)
+Should be visible but not dominant. Use medium values.
+
+### Tertiary Elements (Water, Green)
+Provide context without competing. Use lighter values.
+
+## Common Mistakes to Avoid
+
+### Too Many Colors
+Stick to 3-5 colors maximum. More creates visual chaos.
+
+### Fighting Colors
+Avoid colors that vibrate when placed together (like red and cyan).
+
+### Ignoring Print
+What looks good on screen may not print well. Test your outputs.
+
+### Forgetting Context
+Your map doesn't exist in isolation. Consider the overall presentation.
+
+## Matching Your Design Aesthetic
+
+Your site analysis should feel cohesive with your design presentation:
+
+- **Minimalist design?** Use Minimal Light/Dark themes
+- **Bold, expressive design?** Try Neon or Warm Sunset
+- **Technical approach?** Blueprint or Technical themes
+- **Contextual/sensitive design?** Satellite or Terrain themes
+
+## Experiment with Themes
+
+ArchiKEK's preview feature lets you try different themes instantly. Don't settle for the first option—explore what works best for your specific project and presentation context.
+
+[Try Different Themes →](/create)
+    `
+  },
+  'autocad-architecture-maps': {
+    title: 'How to Import Site Maps into AutoCAD: Complete DXF Guide',
+    description: 'Step-by-step tutorial for importing ArchiKEK DXF exports into AutoCAD with proper layers and scaling.',
+    date: '2024-12-10',
+    readTime: '5 min read',
+    category: 'Tutorial',
+    content: `
+## Why DXF for AutoCAD?
+
+While SVG works great for Illustrator and graphic design, AutoCAD users need DXF (Drawing Exchange Format) for proper CAD integration. ArchiKEK exports clean DXF files ready for architectural workflows.
+
+## Step-by-Step Import Process
+
+### 1. Generate Your Map
+- Go to archikek.com/create
+- Select your location and area
+- Choose any theme (colors won't transfer to CAD)
+- Select "DXF" as export format
+- Click Download
+
+### 2. Open in AutoCAD
+- File → Open
+- Select your .dxf file
+- AutoCAD will import with layers intact
+
+### 3. Check Your Layers
+Your DXF includes organized layers:
+- **buildings** - All building footprints
+- **roads_highway** - Major roads
+- **roads_primary** - Primary streets
+- **roads_secondary** - Secondary streets
+- **roads_residential** - Local streets
+- **water** - Rivers, lakes, sea
+- **green** - Parks and vegetation
+
+### 4. Scale Verification
+
+ArchiKEK exports are in real-world meters. To verify scale:
+
+1. Draw a line between two known points
+2. Use DIST command to measure
+3. Compare with Google Maps measurement
+
+If scaling is off:
+- SCALE command
+- Select all objects
+- Apply scale factor
+
+## Working with the Import
+
+### Cleaning Up
+- Delete unnecessary layers (LAYDEL)
+- Purge unused elements (PURGE)
+- Freeze layers you don't need visible
+
+### Modifying Buildings
+Building footprints are closed polylines. You can:
+- OFFSET to create setbacks
+- HATCH to fill areas
+- PEDIT to modify shapes
+
+### Adding Your Design
+Create new layers for your design:
+- proposed_buildings
+- site_boundary
+- landscape
+- circulation
+
+## Tips for Best Results
+
+### Before Export
+- Use larger area sizes (1000m+) for context
+- Disable "Frame" option (not needed in CAD)
+- Check that your selection includes all needed context
+
+### In AutoCAD
+- Save as DWG immediately after import
+- Set up your layers before detailed work
+- Use XREF if combining multiple exports
+
+### Layer Standards
+Consider renaming layers to match your office standards:
+- A-BLDG-EXIST (existing buildings)
+- A-ROAD-MAJR (major roads)
+- C-TOPO-WATR (water features)
+
+## Common Issues and Solutions
+
+### File Won't Open
+- Update AutoCAD to latest version
+- Try opening in a blank drawing and INSERT as block
+
+### Everything on One Layer
+- Check Layer Manager (LA command)
+- Layers exist but might all be same color
+
+### Scale is Wrong
+- Most likely unit mismatch
+- Try UNITS command, set to Meters
+- Re-import the DXF
+
+### Missing Elements
+- Some themes hide certain layers
+- Try a different theme or enable all options
+
+## DXF vs DWG
+
+ArchiKEK exports DXF because:
+- Universal format (works in any CAD software)
+- No version compatibility issues
+- Smaller file sizes
+- Open standard
+
+You can save as DWG after import for full AutoCAD features.
+
+[Generate Your DXF →](/create)
+    `
+  },
+  'rhino-grasshopper-maps': {
+    title: 'Using Site Maps in Rhino and Grasshopper for Parametric Design',
+    description: 'Import ArchiKEK exports into Rhino for 3D site modeling and Grasshopper parametric workflows.',
+    date: '2024-12-09',
+    readTime: '7 min read',
+    category: 'Tutorial',
+    content: `
+## Rhino + Site Analysis = Powerful Combination
+
+Rhino's precision and Grasshopper's parametric power make them ideal for site analysis and urban design. ArchiKEK exports work seamlessly with both.
+
+## Importing into Rhino
+
+### SVG Import
+1. File → Import → Select your .svg file
+2. Choose import options:
+   - Scale: 1 unit = 1 meter
+   - Curves: Keep as curves
+3. Position at origin or georeferenced location
+
+### DXF Import
+1. File → Import → Select your .dxf file
+2. DXF imports with layers intact
+3. Check layer panel for organization
+
+## Setting Up Your Site Model
+
+### Organize Layers
+Create a layer structure:
+\`\`\`
+SITE
+├── CONTEXT
+│   ├── buildings_existing
+│   ├── roads
+│   ├── water
+│   └── green
+├── BOUNDARY
+│   └── site_limit
+└── DESIGN
+    ├── buildings_proposed
+    └── landscape
+\`\`\`
+
+### Create Building Masses
+From 2D footprints to 3D:
+1. Select building curves
+2. ExtrudeCrv command
+3. Enter height (or use variable heights)
+
+### Add Topography
+If you have contour data:
+1. Import contour lines
+2. Use Patch or NetworkSrf
+3. Project buildings onto terrain
+
+## Grasshopper Workflows
+
+### Parametric Site Analysis
+
+**Building Density Analysis**
+1. Reference building curves from Rhino
+2. Calculate areas with Area component
+3. Sum for total built area
+4. Divide by site area for FAR
+
+**Shadow Studies**
+1. Create building masses
+2. Use Ladybug plugin for sun position
+3. Generate shadow projections
+4. Animate through day/year
+
+**Circulation Analysis**
+1. Reference road centerlines
+2. Create network graph
+3. Calculate distances and connectivity
+4. Visualize accessibility
+
+### Urban Design Tools
+
+**Random Building Heights**
+\`\`\`
+Curves → Extrude → Random(min, max) → Masses
+\`\`\`
+
+**Setback Generation**
+\`\`\`
+Curves → Offset → Extrude → Buildings with setbacks
+\`\`\`
+
+**View Corridor Analysis**
+\`\`\`
+Key viewpoints → Ray intersection → Height limits
+\`\`\`
+
+## Plugins That Help
+
+### Ladybug Tools
+Environmental analysis:
+- Sun path diagrams
+- Shadow studies
+- Radiation analysis
+- Wind visualization
+
+### Elk
+OpenStreetMap data directly in Grasshopper:
+- Good for large-scale analysis
+- Real-time data fetching
+- Complements ArchiKEK exports
+
+### Urbano
+Urban analysis toolkit:
+- Street network analysis
+- Walkability scoring
+- Land use modeling
+
+## Tips for Best Results
+
+### Scale Consistency
+Always work in meters for site-scale projects. ArchiKEK exports are in meters by default.
+
+### Layer Management
+Keep imported context on locked layers to prevent accidental modification.
+
+### Performance
+Large site models can slow down. Use:
+- Meshes instead of surfaces where possible
+- Display modes that hide complex geometry
+- Selective layer visibility
+
+### Baking Workflow
+In Grasshopper, bake analysis results to specific layers for documentation.
+
+## Export for Presentations
+
+From Rhino back to 2D:
+- Make2D command for elevations/plans
+- Export as PDF or SVG
+- Use in Illustrator with ArchiKEK base maps
+
+[Get Your Site Map →](/create)
+    `
+  },
+  'revit-site-analysis': {
+    title: 'Site Analysis Workflow in Revit: From ArchiKEK to BIM',
+    description: 'How to use ArchiKEK exports as site context in Revit for BIM projects.',
+    date: '2024-12-08',
+    readTime: '6 min read',
+    category: 'Tutorial',
+    content: `
+## Revit and Site Context
+
+Revit excels at building modeling but often lacks easy site context tools. ArchiKEK fills this gap by providing quick context maps that you can reference in your BIM workflow.
+
+## Import Methods
+
+### Method 1: Linked CAD (Recommended)
+Best for context that won't change:
+
+1. Export DXF from ArchiKEK
+2. In Revit: Insert → Link CAD
+3. Choose your .dxf file
+4. Set positioning:
+   - Origin to Origin (if georeferenced)
+   - Or manual placement
+5. Link appears in your view
+
+Benefits:
+- File stays external (smaller Revit file)
+- Easy to update (relink)
+- Layers become Revit subcategories
+
+### Method 2: Import CAD
+For geometry you'll trace over:
+
+1. Insert → Import CAD
+2. Select .dxf file
+3. Check "Current view only" if not needed in 3D
+4. Explode if needed for tracing
+
+### Method 3: Image Reference
+Quick and simple for early design:
+
+1. Export PNG from ArchiKEK (screenshot)
+2. Insert → Image
+3. Scale to match (use known dimension)
+
+## Working with Imported Context
+
+### Visibility Control
+Manage imported layers:
+1. Visibility/Graphics (VG)
+2. Imported Categories tab
+3. Expand your linked file
+4. Toggle individual layers
+
+### Scaling Verification
+ArchiKEK exports are in meters. In Revit:
+1. Use Measure tool
+2. Check known distance (street width, etc.)
+3. If off, delete and re-import with correct units
+
+### Tracing Context Buildings
+
+For buildings you want as Revit masses:
+1. Create In-Place Mass
+2. Trace footprint using Pick Lines
+3. Extrude to approximate height
+4. Use for shadow/view studies
+
+## Site Analysis in Revit
+
+### Sun Studies
+With context buildings as masses:
+1. View → Sun Path
+2. Enable shadows
+3. Create solar study animation
+4. Export for presentations
+
+### View Analysis
+Check sight lines from your building:
+1. Create section views through site
+2. Use 3D views with context visible
+3. Generate view corridors
+
+### Area Calculations
+With imported roads/boundaries:
+1. Create area boundary from context
+2. Calculate site area
+3. Use for FAR/coverage calculations
+
+## Tips for Revit Integration
+
+### Keep It Light
+- Link instead of import when possible
+- Use 2D for context (import to plan views only)
+- Delete what you don't need
+
+### Coordinate with Team
+If sharing the model:
+- Keep linked files in project folder
+- Use relative paths
+- Document the context source
+
+### Update Workflow
+If site changes:
+1. Generate new export from ArchiKEK
+2. Save with same filename
+3. Revit will update automatically (if linked)
+
+## From Analysis to Design
+
+Use your context map to:
+1. Identify building setbacks
+2. Align with street grid
+3. Respond to neighboring masses
+4. Justify design decisions
+
+[Create Your Site Context →](/create)
+    `
+  },
+  'openstreetmap-architecture': {
+    title: 'OpenStreetMap for Architects: The Ultimate Free Data Source',
+    description: 'Understanding OSM data and how architects can leverage this free resource for site analysis.',
+    date: '2024-12-07',
+    readTime: '8 min read',
+    category: 'Guide',
+    content: `
+## What is OpenStreetMap?
+
+OpenStreetMap (OSM) is a collaborative project to create a free, editable map of the world. Think of it as Wikipedia for maps—anyone can contribute, and the data is free to use.
+
+## Why Architects Should Care
+
+### Free and Open
+No licensing fees, no usage limits. Use OSM data in your projects, publications, and commercial work (with attribution).
+
+### Global Coverage
+From New York to rural villages, OSM has data worldwide. Perfect for international projects.
+
+### Detailed Building Data
+Many cities have complete building footprints with:
+- Accurate geometries
+- Height information (where available)
+- Building types and uses
+
+### Constantly Updated
+Volunteer mappers keep data current. Major cities update frequently.
+
+## OSM Data Layers Useful for Architecture
+
+### Buildings
+- Footprint geometry
+- Building height
+- Number of levels
+- Building type (residential, commercial, etc.)
+- Roof shape (in detailed areas)
+
+### Roads
+- Hierarchy (motorway → residential)
+- Width information
+- Surface type
+- Speed limits
+
+### Land Use
+- Residential areas
+- Commercial zones
+- Industrial areas
+- Green spaces
+
+### Natural Features
+- Water bodies
+- Parks and forests
+- Elevation contours
+- Trees (in detailed areas)
+
+### Points of Interest
+- Transit stops
+- Schools, hospitals
+- Shops and restaurants
+- Historical markers
+
+## OSM Data Quality
+
+### Where It's Great
+- Major cities worldwide
+- Europe (especially Germany, France, UK)
+- USA urban areas
+- Japan
+- Areas with active mapping communities
+
+### Where It's Limited
+- Rural areas in developing countries
+- Private developments
+- Very recent construction
+- Building heights (inconsistent coverage)
+
+### How to Check Quality
+Before relying on OSM data:
+1. View the area on openstreetmap.org
+2. Compare with satellite imagery
+3. Check when data was last updated
+4. Generate a test map
+
+## How ArchiKEK Uses OSM
+
+ArchiKEK queries OSM through the Overpass API to:
+
+1. **Fetch building footprints** for your selected area
+2. **Get road networks** with proper hierarchy
+3. **Include water and green spaces** for context
+4. **Organize into layers** for easy editing
+
+The raw data is processed into clean, architect-friendly exports.
+
+## Contributing Back
+
+If you find missing or incorrect data:
+
+1. Create an account at openstreetmap.org
+2. Use the iD editor (browser-based)
+3. Add missing buildings or correct errors
+4. Your changes help everyone
+
+Even tracing a few buildings helps improve the resource for all architects.
+
+## OSM vs Paid Alternatives
+
+| Feature | OSM | Google Maps | Proprietary GIS |
+|---------|-----|-------------|-----------------|
+| Cost | Free | Expensive | Expensive |
+| Building footprints | Yes | Limited | Yes |
+| Downloadable | Yes | No | Varies |
+| Editable | Yes | No | No |
+| Global coverage | Good | Best | Varies |
+| Update frequency | Community | Google | Varies |
+
+## Legal Considerations
+
+OSM uses the Open Database License (ODbL):
+- **You can**: Use, share, modify, use commercially
+- **You must**: Attribute OSM, share modifications under same license
+- **You cannot**: Claim exclusive rights to the data
+
+For architectural projects:
+- Include "© OpenStreetMap contributors" in your credits
+- This applies to ArchiKEK exports too
+
+## Get Started
+
+See OSM data quality for your project site:
+
+[Generate Map →](/create)
+    `
+  },
+  'portfolio-site-analysis': {
+    title: 'Create Stunning Portfolio Site Analysis Pages',
+    description: 'Tips for presenting site analysis work in your architecture portfolio that stands out.',
+    date: '2024-12-06',
+    readTime: '7 min read',
+    category: 'Guide',
+    content: `
+## Why Site Analysis Matters in Portfolios
+
+Site analysis pages demonstrate that you:
+- Understand context
+- Research before designing
+- Think systematically
+- Can communicate complex information clearly
+
+Many portfolios skip this. Don't. It sets you apart.
+
+## The Anatomy of Great Site Analysis
+
+### 1. Location Context
+Start with orientation:
+- Country → City → District → Site
+- Progressive zoom levels
+- Clear labeling
+
+### 2. Figure Ground
+The essential base map:
+- Shows urban fabric
+- Identifies your site
+- Reveals patterns and voids
+
+### 3. Analytical Layers
+Build upon the base:
+- Circulation (vehicular, pedestrian)
+- Green space and water
+- Building heights
+- Land use
+- Historical development
+
+### 4. Site-Specific Studies
+- Sun path and shadows
+- Views and vistas
+- Noise and pollution
+- Microclimate
+
+### 5. Synthesis
+Bring it together:
+- Key opportunities
+- Main constraints
+- Design drivers
+
+## Visual Hierarchy Tips
+
+### Consistency is Key
+- Same scale across all maps
+- Consistent north orientation
+- Matching color palette
+- Uniform line weights
+
+### Less is More
+- One main idea per diagram
+- Remove unnecessary information
+- Let the analysis breathe
+
+### Guide the Eye
+- Use color to highlight key elements
+- Size indicates importance
+- White space is your friend
+
+## Using ArchiKEK for Portfolio Work
+
+### Choose the Right Theme
+- **Figure Ground**: For urban morphology spread
+- **Minimal**: For base maps you'll annotate
+- **Blueprint**: For technical portfolios
+- **Warm/Atmospheric**: For mood-setting pages
+
+### Build Your Layers
+Generate multiple exports:
+1. Base figure-ground
+2. Roads only
+3. Water and green
+4. Transit
+
+Combine in Illustrator for custom diagrams.
+
+### Customize Colors
+Match your portfolio palette:
+1. Generate with any theme
+2. Open SVG in Illustrator
+3. Select layers
+4. Apply your colors
+
+## Layout Suggestions
+
+### The Classic Grid
+4-6 small maps showing different analyses, equal size, strong alignment.
+
+### The Hero Map
+One large figure-ground with smaller analytical diagrams around it.
+
+### The Process Sequence
+Left to right progression from research to synthesis.
+
+### The Layered Build-up
+Sequential pages that add information progressively.
+
+## Common Mistakes to Avoid
+
+### Information Overload
+Don't show everything at once. Spread across pages.
+
+### Poor Scale Choice
+Too zoomed in = no context
+Too zoomed out = no detail
+Find the balance.
+
+### Inconsistent Style
+Your site analysis should feel like it belongs with your design pages.
+
+### Missing Synthesis
+Raw analysis isn't enough. Show what you learned.
+
+### Generic Analysis
+Every site is unique. Show what's special about yours.
+
+## Stand Out Strategies
+
+### Show Your Process
+Include sketches, notes, photos from site visits.
+
+### Tell a Story
+Connect analysis findings to design decisions.
+
+### Be Selective
+Show the analyses that mattered most to your design.
+
+### Beautiful Execution
+Even analytical work should be visually engaging.
+
+[Create Your Base Map →](/create)
+    `
+  },
+  'free-architecture-tools': {
+    title: '10 Free Tools Every Architecture Student Needs',
+    description: 'Essential free software and resources for architecture students, including mapping, visualization, and productivity tools.',
+    date: '2024-12-05',
+    readTime: '6 min read',
+    category: 'Resources',
+    content: `
+## Build Your Toolkit Without Breaking the Bank
+
+Architecture school is expensive. Software shouldn't be. Here are 10 free tools that rival paid alternatives.
+
+## 1. ArchiKEK (Site Analysis Maps)
+**What it does**: Generates figure ground maps, urban analysis diagrams in SVG and DXF
+**Replaces**: Manual tracing, expensive GIS software
+**Best for**: Site analysis, urban studies, quick context maps
+**Link**: archikek.com
+
+## 2. Blender (3D Modeling & Rendering)
+**What it does**: Full 3D modeling, animation, rendering
+**Replaces**: 3ds Max, Cinema 4D
+**Best for**: Visualizations, animations, complex modeling
+**Learning curve**: Steep but worth it
+**Link**: blender.org
+
+## 3. QGIS (Geographic Information System)
+**What it does**: Full GIS analysis, mapping, data processing
+**Replaces**: ArcGIS
+**Best for**: Large-scale urban analysis, data-driven design
+**Learning curve**: Moderate
+**Link**: qgis.org
+
+## 4. Figma (Diagrams & Presentations)
+**What it does**: Vector graphics, collaborative design
+**Replaces**: Illustrator for diagrams
+**Best for**: Concept diagrams, presentation graphics, collaboration
+**Link**: figma.com
+
+## 5. Canva (Quick Graphics)
+**What it does**: Easy graphic design with templates
+**Replaces**: Photoshop for simple tasks
+**Best for**: Social media, quick presentations, posters
+**Link**: canva.com
+
+## 6. Notion (Organization)
+**What it does**: Notes, databases, project management
+**Replaces**: Evernote, Trello
+**Best for**: Research organization, thesis tracking, project logs
+**Link**: notion.so
+
+## 7. Photopea (Image Editing)
+**What it does**: Browser-based Photoshop alternative
+**Replaces**: Photoshop for many tasks
+**Best for**: Quick photo editing, compositing
+**Link**: photopea.com
+
+## 8. Ladybug Tools (Environmental Analysis)
+**What it does**: Climate analysis for Grasshopper
+**Replaces**: Ecotect, paid environmental plugins
+**Best for**: Sun studies, energy analysis, comfort modeling
+**Link**: ladybug.tools
+
+## 9. OpenStreetMap (Map Data)
+**What it does**: Free, open map data worldwide
+**Replaces**: Paid map services
+**Best for**: Base maps, site context, urban data
+**Link**: openstreetmap.org
+
+## 10. Sketchfab (3D Sharing)
+**What it does**: Share 3D models online
+**Replaces**: Complex web viewers
+**Best for**: Portfolio, presentations, client sharing
+**Link**: sketchfab.com
+
+## Bonus: Student Discounts
+
+If you need paid software, get student versions:
+- **Autodesk** (AutoCAD, Revit): Free for students
+- **Adobe CC**: Heavy discount with .edu email
+- **Rhino**: Student license ~$195 (vs $995)
+
+## How to Learn These Tools
+
+### YouTube
+Search "[tool name] architecture tutorial"
+
+### Official Documentation
+Most tools have free learning resources
+
+### Online Courses
+- Coursera and edX have free options
+- LinkedIn Learning (often free through universities)
+
+### Practice Projects
+Best way to learn: use tools on real projects
+
+## Building Your Workflow
+
+Don't try to learn everything. Build around your focus:
+
+**Visualization Track**
+Blender + Photopea + Figma
+
+**Urban Design Track**
+QGIS + ArchiKEK + Blender
+
+**Technical Track**
+Free Autodesk + QGIS + Ladybug
+
+**Presentation Track**
+Figma + Canva + Notion
+
+[Start with Site Analysis →](/create)
+    `
+  },
 }
 
 // Generate static params for all blog posts
