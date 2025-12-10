@@ -102,13 +102,13 @@ export default function ThreePreview({ lat, lng, size, onClose }: ThreePreviewPr
           
           // Flatten vertices
           const positions: number[] = []
-          layerData.vertices.forEach(v => {
+          layerData.vertices.forEach((v: number[]) => {
             positions.push(v[0], v[1], v[2])
           })
           
           // Flatten faces (indices)
           const indices: number[] = []
-          layerData.faces.forEach(f => {
+          layerData.faces.forEach((f: number[]) => {
             indices.push(f[0], f[1], f[2])
           })
 
