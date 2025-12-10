@@ -1484,9 +1484,22 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   )}
                 </div>
 
+                {/* Map Title */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Map Title (optional)</p>
+                  <input
+                    type="text"
+                    value={locationName}
+                    onChange={(e) => setLocationName(e.target.value)}
+                    placeholder="e.g., Barcelona Eixample"
+                    className="w-full px-3 py-2 bg-[#111] border border-[#222] rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
+                  />
+                </div>
+
                 {/* Options Toggles */}
                 <div className="space-y-2">
                   {[
+                    { state: showLabels, setter: setShowLabels, label: 'Building Names' },
                     { state: showTransit, setter: setShowTransit, label: 'Transit Stops' },
                     { state: showContours, setter: setShowContours, label: 'Contours' },
                     { state: showScale, setter: setShowScale, label: 'Scale Bar' },
@@ -1721,9 +1734,21 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 </div>
               </div>
 
+              {/* Map Title - Mobile */}
+              <div>
+                <input
+                  type="text"
+                  value={locationName}
+                  onChange={(e) => setLocationName(e.target.value)}
+                  placeholder="Map title (optional)"
+                  className="w-full px-3 py-2 bg-[#111] border border-[#222] rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
+                />
+              </div>
+
               {/* Quick Options */}
               <div className="flex flex-wrap gap-2">
                 {[
+                  { state: showLabels, setter: setShowLabels, label: 'Labels' },
                   { state: showTransit, setter: setShowTransit, label: 'Transit' },
                   { state: showContours, setter: setShowContours, label: 'Contours' },
                   { state: showScale, setter: setShowScale, label: 'Scale' },
