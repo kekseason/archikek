@@ -262,7 +262,8 @@ export default function ThreeViewer({
           roughness: 0.9,
           metalness: 0.0,
           side: THREE.DoubleSide,
-          flatShading: false
+          flatShading: false,
+          depthWrite: true
         })
       } else if (key === 'water') {
         material = new THREE.MeshStandardMaterial({
@@ -271,7 +272,7 @@ export default function ThreeViewer({
           metalness: 0.3,
           side: THREE.DoubleSide,
           transparent: true,
-          opacity: 0.9
+          opacity: 0.85
         })
       } else if (key === 'buildings') {
         material = new THREE.MeshStandardMaterial({
@@ -291,6 +292,18 @@ export default function ThreeViewer({
       }
 
       const mesh = new THREE.Mesh(geometry, material)
+      
+      // Set render order: terrain first (lowest), then others on top
+      if (key === 'terrain') {
+        mesh.renderOrder = -10
+      } else if (key === 'water' || key === 'green') {
+        mesh.renderOrder = 0
+      } else if (key === 'roads') {
+        mesh.renderOrder = 1
+      } else if (key === 'buildings') {
+        mesh.renderOrder = 2
+      }
+      
       mesh.castShadow = key === 'buildings'
       mesh.receiveShadow = true
       
