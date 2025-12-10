@@ -346,7 +346,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showLabels, setShowLabels] = useState(true)
   const [showFrame, setShowFrame] = useState(false)
   const [locationName, setLocationName] = useState('')
-  const [exportFormat, setExportFormat] = useState<'svg' | 'dxf'>('svg')
+  const [exportFormat, setExportFormat] = useState<'svg' | 'dxf' | 'png'>('svg')
   const [resolution, setResolution] = useState(1200)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
@@ -792,9 +792,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
       const colors = useCustomColors ? customColors : selectedTheme.colors
       
+      // For PNG, we request SVG first then convert
+      const backendFormat = exportFormat === 'png' ? 'svg' : exportFormat
+      
       const requestBody: any = {
         theme: selectedTheme.id,
-        format: exportFormat,
+        format: backendFormat,
         resolution: resolution,
         show_transit: showTransit,
         show_scale: showScale,
@@ -830,16 +833,76 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       }
       
       const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
       
-      // Download the file
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `archikek_${selectedTheme.id}_${requestBody.size}m.${exportFormat}`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
+      // If PNG, convert SVG to PNG
+      if (exportFormat === 'png') {
+        const svgText = await blob.text()
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        const img = new Image()
+        
+        // Parse SVG to get dimensions
+        const parser = new DOMParser()
+        const svgDoc = parser.parseFromString(svgText, 'image/svg+xml')
+        const svgElement = svgDoc.querySelector('svg')
+        
+        // Get dimensions from SVG
+        let width = 2000
+        let height = 2000
+        if (svgElement) {
+          const viewBox = svgElement.getAttribute('viewBox')
+          if (viewBox) {
+            const [, , vbWidth, vbHeight] = viewBox.split(' ').map(Number)
+            width = vbWidth || 2000
+            height = vbHeight || 2000
+          }
+        }
+        
+        // Set canvas size (high resolution)
+        const scale = 2 // 2x for high quality
+        canvas.width = width * scale
+        canvas.height = height * scale
+        
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => {
+            if (ctx) {
+              // Fill white background if not transparent
+              if (!transparent) {
+                ctx.fillStyle = colors.background || '#ffffff'
+                ctx.fillRect(0, 0, canvas.width, canvas.height)
+              }
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+            }
+            resolve()
+          }
+          img.onerror = reject
+          img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgText)))
+        })
+        
+        // Convert to PNG and download
+        canvas.toBlob((pngBlob) => {
+          if (pngBlob) {
+            const url = window.URL.createObjectURL(pngBlob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `archikek_${selectedTheme.id}_${requestBody.size}m.png`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            window.URL.revokeObjectURL(url)
+          }
+        }, 'image/png', 1.0)
+      } else {
+        // SVG or DXF - download directly
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `archikek_${selectedTheme.id}_${requestBody.size}m.${exportFormat}`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+      }
       
       // Refresh profile to get updated credits
       await refreshProfile()
@@ -1444,10 +1507,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 <div>
                   <p className="text-xs text-gray-500 mb-2">Export Format</p>
                   <div className="flex gap-2">
-                    {['svg', 'dxf'].map(fmt => (
+                    {['svg', 'dxf', 'png'].map(fmt => (
                       <button
                         key={fmt}
-                        onClick={() => setExportFormat(fmt as 'svg' | 'dxf')}
+                        onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
                         className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
                           exportFormat === fmt 
                             ? 'bg-amber-500 text-black' 
@@ -1682,10 +1745,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
               {/* Format selector */}
               <div className="flex gap-2">
-                {['svg', 'dxf'].map(fmt => (
+                {['svg', 'dxf', 'png'].map(fmt => (
                   <button
                     key={fmt}
-                    onClick={() => setExportFormat(fmt as 'svg' | 'dxf')}
+                    onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
                       exportFormat === fmt 
                         ? 'bg-amber-500 text-black' 
