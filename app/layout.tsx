@@ -114,6 +114,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap" rel="stylesheet" />
         <link rel="icon" href="/favicon.ico" />
+        <meta name="p:domain_verify" content="bc7f55ef554f9c7a4bf953c81cc5dec9"/>
       </head>
       <body className="antialiased">
         {/* JSON-LD Structured Data */}
