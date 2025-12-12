@@ -2155,7 +2155,7 @@ The theme is a starting point—make it yours!
 [Try All 10 Themes →](/create)
     `
   },
-}
+
 
   // ============================================
   // NEW SEO-OPTIMIZED BLOG POSTS
