@@ -1574,6 +1574,587 @@ Figma + Canva + Notion
 [Start with Site Analysis →](/create)
     `
   },
+  '3d-site-model-rhino-obj': {
+    title: 'How to Create 3D Site Models for Rhino in Minutes',
+    description: 'Export ready-to-use OBJ files with buildings, roads, water and terrain. Complete guide for Rhino users.',
+    date: '2024-12-12',
+    readTime: '6 min read',
+    category: '3D Export',
+    content: `
+## Why 3D Site Models Matter
+
+Every architecture project needs context. A 3D site model shows your design in relation to existing buildings, roads, terrain, and landscape features. But creating accurate 3D context models traditionally takes hours of manual work.
+
+## The ArchiKEK 3D Export
+
+ArchiKEK now exports 3D models directly to OBJ format—the industry standard for Rhino, SketchUp, and most 3D software. Your export includes:
+
+- **Buildings**: Extruded to real heights from OpenStreetMap data
+- **Roads**: As 3D surfaces with proper widths
+- **Water**: Rivers, lakes, and coastlines
+- **Terrain**: Ground plane for your site
+- **Green areas**: Parks and vegetation zones
+
+## Step-by-Step: ArchiKEK to Rhino
+
+### 1. Generate Your 3D Model
+1. Go to archikek.com/create
+2. Search for your location
+3. Select **3D** export mode
+4. Choose your theme (Default, Blueprint, Neon, etc.)
+5. Pick **OBJ** format
+6. Enable "Include Materials" for colors
+7. Click Generate
+
+### 2. Download the ZIP
+Your download includes:
+- \`archikek_model.obj\` - The 3D geometry
+- \`archikek.mtl\` - Material definitions
+- \`import_to_rhino.py\` - Automation script
+- \`README.txt\` - Instructions
+
+### 3. Import to Rhino
+
+**Option A: Manual Import**
+1. Open Rhino
+2. File → Import → Select the .obj file
+3. Materials load automatically with the MTL file
+
+**Option B: Use the Script**
+1. Open Rhino
+2. Run the import_to_rhino.py script
+3. Everything imports with correct layers and colors
+
+## 10 Material Themes
+
+Choose the right mood for your project:
+
+| Theme | Best For |
+|-------|----------|
+| Default | Realistic presentations |
+| Dark | Dramatic night renders |
+| Light | Clean white models |
+| Blueprint | Technical drawings |
+| Satellite | Earth-tone context |
+| Vintage | Warm, retro aesthetic |
+| Neon | Futuristic concepts |
+| Minimal | Abstract diagrams |
+| Autumn | Seasonal warmth |
+| Ocean | Coastal projects |
+
+## Tips for Rhino Users
+
+### Scale Correctly
+Models export in meters. Use \`Scale\` command if you need different units.
+
+### Organize Layers
+The OBJ imports as groups:
+- Buildings_Residential
+- Buildings_Commercial
+- Roads_Primary
+- Roads_Residential
+- Water
+- Green_Park
+- Terrain
+
+### Add Your Design
+Place your building model at coordinates (0,0) for center of the exported area.
+
+### Render with Materials
+The MTL file includes basic colors. For better renders, assign Rhino materials to each layer.
+
+## File Sizes
+
+Typical exports:
+- 500m area: ~2-5 MB
+- 1000m area: ~5-15 MB
+- 2000m area: ~15-40 MB
+
+Dense urban areas = larger files (more buildings).
+
+## Ready to Try?
+
+Generate your first 3D site model in under a minute.
+
+[Create 3D Model →](/create)
+    `
+  },
+  '3d-print-city-model': {
+    title: '3D Print Your City: STL Export Guide for Architecture Models',
+    description: 'Learn how to export and prepare 3D city models for FDM and SLA printers. Tips for scale and detail.',
+    date: '2024-12-11',
+    readTime: '8 min read',
+    category: '3D Export',
+    content: `
+## Physical Site Models in the Digital Age
+
+3D printed site models are making a comeback. They're perfect for:
+- Client presentations
+- Design reviews
+- Public exhibitions
+- Portfolio photography
+
+ArchiKEK's STL export makes it easy to print any location worldwide.
+
+## Understanding STL Export
+
+STL (Stereolithography) is the standard format for 3D printing. Unlike OBJ, STL:
+- Contains only geometry (no materials)
+- Uses triangulated mesh
+- Requires watertight geometry
+
+ArchiKEK handles all this automatically.
+
+## STL Export Settings
+
+### Raft Thickness
+The "raft" is a solid base under your model. Recommended settings:
+- **2mm**: Standard desktop prints
+- **3mm**: Larger models (>15cm)
+- **5mm**: Exhibition models
+
+### Layers to Include
+Consider what you need:
+- ✅ Buildings: Essential
+- ✅ Terrain: Provides base
+- ⚡ Roads: Optional (adds detail but print time)
+- ⚡ Water: Nice for coastal areas
+- ❌ Green: Usually skip (hard to print well)
+
+## Choosing the Right Scale
+
+| Print Size | Area | Scale | Detail Level |
+|------------|------|-------|--------------|
+| 10×10 cm | 500m | 1:5000 | Low |
+| 15×15 cm | 1000m | 1:6600 | Medium |
+| 20×20 cm | 1000m | 1:5000 | Good |
+| 30×30 cm | 2000m | 1:6600 | High |
+
+## FDM Printing Tips
+
+For standard filament printers (Ender, Prusa, etc.):
+
+### Layer Height
+- 0.2mm for speed
+- 0.12mm for detail
+- 0.08mm for maximum detail
+
+### Infill
+- 15-20% is enough for models
+- Gyroid or cubic pattern recommended
+
+### Supports
+Buildings usually print fine without supports if:
+- Layer height ≤ 0.2mm
+- Overhang angle < 45°
+
+### Material
+- PLA: Easy, good detail
+- PETG: Stronger, slight stringing
+- White filament: Best for architectural models
+
+## SLA/Resin Printing
+
+For resin printers (Elegoo, Anycubic, Formlabs):
+
+### Advantages
+- Amazing detail
+- Smooth surfaces
+- Perfect for small scales
+
+### Settings
+- 50µm layer height for detail
+- Standard grey resin
+- Careful with supports (can damage buildings)
+
+## Post-Processing
+
+### FDM Models
+1. Remove any supports
+2. Light sanding (220 grit)
+3. Primer spray (grey)
+4. Optional: Paint with acrylics
+
+### Resin Models
+1. Wash in IPA
+2. UV cure
+3. Remove supports
+4. Light sanding if needed
+5. Prime and paint
+
+## Common Issues
+
+### Model Won't Slice
+- File too large → reduce area size
+- Geometry errors → re-export from ArchiKEK
+
+### Weak Buildings
+- Increase wall thickness in slicer
+- Print larger scale
+- Use resin for tiny details
+
+### Poor Layer Adhesion
+- Increase print temperature
+- Slower print speed
+- Check bed leveling
+
+## Printing Services
+
+Don't have a printer? Use online services:
+- **Shapeways**: Professional quality
+- **Sculpteo**: Good for architecture
+- **Local makerspaces**: Often cheapest
+
+Upload your STL and choose material.
+
+## Project Ideas
+
+### Urban Study Model
+Print 2km of a city in sections, assemble for exhibition.
+
+### Site Context
+Print 500m around your project site at 1:500.
+
+### Before/After
+Print existing + proposed for comparison.
+
+### Cityscape Art
+Print in resin, photograph with dramatic lighting.
+
+[Generate STL Export →](/create)
+    `
+  },
+  'blender-glb-site-model': {
+    title: 'Import ArchiKEK 3D Models into Blender: GLB Workflow',
+    description: 'Step-by-step guide for importing GLB files into Blender. Perfect for rendering and animation.',
+    date: '2024-12-10',
+    readTime: '5 min read',
+    category: '3D Export',
+    content: `
+## Why GLB for Blender?
+
+GLB (binary glTF) is the web-native 3D format that Blender handles brilliantly:
+- Single file (geometry + materials + textures)
+- Small file size
+- Fast import
+- Preserves layer structure
+
+## Importing GLB to Blender
+
+### Basic Import
+1. File → Import → glTF 2.0 (.glb/.gltf)
+2. Navigate to your ArchiKEK export
+3. Click "Import glTF 2.0"
+
+### Import Settings
+Keep defaults, but check:
+- ☑️ Import Materials
+- ☑️ Import Shading
+
+## Working with Imported Models
+
+### Scene Organization
+GLB imports as a hierarchy:
+\`\`\`
+ArchiKEK_Model
+├── Buildings
+│   ├── Residential
+│   ├── Commercial
+│   └── Default
+├── Roads
+├── Water
+├── Green
+└── Terrain
+\`\`\`
+
+### Converting Materials
+ArchiKEK exports basic colors. For better renders:
+
+1. Select all buildings
+2. Go to Material Properties
+3. Add new material or modify existing
+4. Adjust roughness/metallic for realism
+
+## Rendering Your Site Model
+
+### Quick Setup
+1. Add HDRI for environment lighting
+2. Set camera position
+3. Enable Cycles or Eevee
+4. Render!
+
+### Recommended Settings
+
+**For Previews (Eevee)**
+- Ambient Occlusion: On
+- Screen Space Reflections: On
+- Render samples: 64
+
+**For Finals (Cycles)**
+- Render samples: 256-512
+- Denoising: On
+- Light bounces: 4-8
+
+## Adding Your Design
+
+### Positioning
+The model is centered at origin (0,0,0). Your site center.
+
+### Scaling
+Model is in meters. No conversion needed in Blender.
+
+### Inserting Buildings
+1. Model your design
+2. Position at appropriate coordinates
+3. Match scale with context
+
+## Animation Ideas
+
+### Camera Flythrough
+- Add camera path (Bezier curve)
+- Add Follow Path constraint
+- Animate!
+
+### Day-Night Cycle
+- Animate sun position
+- Add HDRI rotation
+- Create timelapse effect
+
+### Construction Sequence
+- Animate building visibility
+- Show "before" context, then "after"
+
+## Exporting from Blender
+
+### For Web (Sketchfab)
+File → Export → glTF 2.0
+- Format: GLB
+- Include: Selected objects if you've added content
+
+### For Video
+Render → Render Animation
+- Output: MP4 with H.264
+- Quality: High or Perceptual Lossless
+
+## Tips & Tricks
+
+### Performance
+Large models can be slow. Tips:
+- Use viewport simplify
+- Hide layers you're not using
+- Enable GPU rendering
+
+### Materials by Theme
+Match ArchiKEK themes in Blender:
+- **Dark theme**: Add emission to buildings
+- **Neon**: Use glow effects in compositing
+- **Blueprint**: Freestyle lines + blue background
+
+### Photorealism
+For realistic renders:
+1. Add scatter objects (cars, trees)
+2. Use PBR materials
+3. Add atmospheric fog
+4. Match real sun angle
+
+[Export GLB for Blender →](/create)
+    `
+  },
+  'sketchup-obj-import': {
+    title: 'SketchUp OBJ Import: Add Real Context to Your Designs',
+    description: 'How to import ArchiKEK OBJ exports into SketchUp with proper materials and layers.',
+    date: '2024-12-09',
+    readTime: '5 min read',
+    category: '3D Export',
+    content: `
+## SketchUp + ArchiKEK = Perfect Context
+
+SketchUp is great for design. ArchiKEK is great for context. Together, they're unstoppable.
+
+## Importing OBJ to SketchUp
+
+### Step 1: Download from ArchiKEK
+1. Go to archikek.com/create
+2. Select your site location
+3. Choose 3D → OBJ format
+4. Enable "Include Materials"
+5. Download the ZIP
+
+### Step 2: Import to SketchUp
+1. File → Import
+2. Change file type to "OBJ Files"
+3. Select archikek_model.obj
+4. Click Import
+
+### Step 3: Check Import Options
+- ☑️ Preserve drawing origin
+- ☑️ Merge coplanar faces (optional)
+
+## Working with the Model
+
+### Layers/Tags
+Imported geometry comes in groups:
+- Buildings_Residential
+- Buildings_Commercial
+- Roads_Primary
+- Water
+- Green_Park
+- Terrain
+
+Create tags for each group for easy control.
+
+### Materials
+The MTL file should load colors automatically. If not:
+1. Select geometry
+2. Open Materials panel
+3. Apply colors manually
+
+### Scale
+Models export in meters. SketchUp should handle this, but verify with the tape measure tool.
+
+## Adding Your Design
+
+### Best Workflow
+1. Import ArchiKEK model
+2. Create new tag for "Proposed"
+3. Model your building at site center (0,0)
+4. Use context for massing studies
+
+### Tips
+- Hide terrain when working at ground level
+- Use X-ray mode to see through context
+- Create scenes for different views
+
+## Export for Presentation
+
+### Styles
+Apply SketchUp styles for different effects:
+- "Architectural Design" for clean look
+- "Sketchy Edges" for conceptual
+- "X-Ray" for transparency studies
+
+### Scenes
+Save views as scenes:
+- Bird's eye
+- Street level
+- Aerial approach
+- Key viewpoints
+
+### Export
+- 2D: File → Export → 2D Graphic
+- 3D: File → Export → 3D Model (for rendering in other software)
+
+## Common Issues
+
+### Model Too Slow
+- Hide distant buildings
+- Reduce shadow quality
+- Use smaller export area
+
+### Missing Materials
+- Check MTL file is in same folder
+- Manually apply colors if needed
+
+### Scale Wrong
+- Model menu → Units
+- Verify meters are selected
+
+[Create SketchUp-Ready OBJ →](/create)
+    `
+  },
+  '3d-themes-explained': {
+    title: '10 3D Themes Explained: From Default to Neon Cyberpunk',
+    description: 'Understand each 3D theme and when to use them. Material colors for different presentation styles.',
+    date: '2024-12-08',
+    readTime: '4 min read',
+    category: '3D Export',
+    content: `
+## Why 3D Themes Matter
+
+The right color scheme sets the tone for your entire presentation. ArchiKEK offers 10 carefully designed 3D themes.
+
+## The 10 Themes
+
+### 1. Default
+**Colors**: Natural grays, muted greens, blue water
+**Best for**: Standard presentations, realistic context
+**Mood**: Professional, neutral
+
+### 2. Dark Mode
+**Colors**: Dark background, light buildings, accent colors
+**Best for**: Night renders, dramatic presentations
+**Mood**: Modern, sophisticated
+
+### 3. Light Mode
+**Colors**: White/cream buildings, light roads, pastel accents
+**Best for**: Clean presentations, daytime studies
+**Mood**: Fresh, minimal
+
+### 4. Blueprint
+**Colors**: Navy background, blue/white geometry
+**Best for**: Technical presentations, engineering context
+**Mood**: Professional, technical
+
+### 5. Satellite
+**Colors**: Earth tones, brown/green/blue
+**Best for**: Environmental studies, landscape projects
+**Mood**: Natural, grounded
+
+### 6. Vintage
+**Colors**: Sepia tones, warm browns, muted colors
+**Best for**: Historical projects, heritage sites
+**Mood**: Nostalgic, warm
+
+### 7. Neon Cyberpunk
+**Colors**: Black background, hot pink, cyan, purple
+**Best for**: Futuristic concepts, tech projects
+**Mood**: Edgy, futuristic
+
+### 8. Minimal
+**Colors**: Pure white buildings, black/gray roads
+**Best for**: Abstract diagrams, massing studies
+**Mood**: Clean, diagrammatic
+
+### 9. Autumn
+**Colors**: Orange/brown foliage, warm buildings
+**Best for**: Seasonal presentations, cozy projects
+**Mood**: Warm, inviting
+
+### 10. Ocean
+**Colors**: Blues and teals, coastal palette
+**Best for**: Waterfront projects, marine context
+**Mood**: Calm, refreshing
+
+## Choosing Your Theme
+
+### By Project Type
+| Project | Recommended Theme |
+|---------|-------------------|
+| Residential | Default, Light |
+| Commercial | Dark, Minimal |
+| Cultural | Vintage, Blueprint |
+| Tech Campus | Neon, Dark |
+| Waterfront | Ocean, Light |
+| Historic | Vintage, Satellite |
+
+### By Presentation Style
+- **Client meeting**: Default, Light
+- **Competition**: Neon, Dark (stand out!)
+- **Technical review**: Blueprint, Minimal
+- **Public exhibition**: Ocean, Autumn (approachable)
+
+## Customizing After Export
+
+All themes export with separate layers. In your 3D software:
+1. Select layer
+2. Modify material
+3. Add textures if desired
+
+The theme is a starting point—make it yours!
+
+[Try All 10 Themes →](/create)
+    `
+  },
 }
 
 // Generate static params for all blog posts

@@ -6,7 +6,15 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { trackViewContent } from '@/lib/tiktok'
+import dynamic from 'next/dynamic'
 
+// Dynamic import for Three.js (client-side only)
+const ThreeViewer = dynamic(() => import('@/components/three-viewer'), {
+  ssr: false,
+  loading: () => <div className="w-full h-full min-h-[300px] bg-[#0a0a0a] rounded-lg flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+})
 
 // ============================================================
 // PROPS
@@ -296,6 +304,88 @@ const ANALYSIS_THEMES = [
 
 const THEME_CATEGORIES = ['Classic', 'Minimal', 'Analysis', 'Environment', 'Aesthetic', 'Professional']
 
+// ============================================================
+// 3D THEMES (10 TEMA)
+// ============================================================
+
+const THEMES_3D = [
+  // ============ REALISTIC ============
+  {
+    id: 'default',
+    name: 'Default',
+    category: 'Realistic',
+    description: 'Natural realistic colors',
+    preview: { terrain: '#404040', building: '#b3ae9f', road: '#8c8c8c', water: '#3373bf', green: '#4da64d' }
+  },
+  {
+    id: 'satellite',
+    name: 'Satellite',
+    category: 'Realistic',
+    description: 'Earth tone colors',
+    preview: { terrain: '#594d40', building: '#a6998c', road: '#595959', water: '#26598c', green: '#407338' }
+  },
+  {
+    id: 'autumn',
+    name: 'Autumn',
+    category: 'Realistic',
+    description: 'Warm fall colors',
+    preview: { terrain: '#735940', building: '#e6cc99', road: '#806b59', water: '#5980a6', green: '#d98c40' }
+  },
+  // ============ MINIMAL ============
+  {
+    id: 'light',
+    name: 'Light Mode',
+    category: 'Minimal',
+    description: 'Clean white aesthetic',
+    preview: { terrain: '#ebe6e0', building: '#fff9f2', road: '#cccccc', water: '#a6d1f2', green: '#b3e0b3' }
+  },
+  {
+    id: 'dark',
+    name: 'Dark Mode',
+    category: 'Minimal',
+    description: 'Dark background, bright objects',
+    preview: { terrain: '#141419', building: '#a6a6b3', road: '#47474d', water: '#1a5999', green: '#267333' }
+  },
+  {
+    id: 'minimal',
+    name: 'Minimal',
+    category: 'Minimal',
+    description: 'White buildings, dark roads',
+    preview: { terrain: '#fafafa', building: '#ffffff', road: '#666666', water: '#cce0f2', green: '#d9e6d9' }
+  },
+  // ============ ARTISTIC ============
+  {
+    id: 'blueprint',
+    name: 'Blueprint',
+    category: 'Artistic',
+    description: 'Architectural drawing style',
+    preview: { terrain: '#1f2e59', building: '#739ad9', road: '#527ab3', water: '#2e5280', green: '#4d8c99' }
+  },
+  {
+    id: 'vintage',
+    name: 'Vintage',
+    category: 'Artistic',
+    description: 'Retro sepia tones',
+    preview: { terrain: '#b8ad99', building: '#e0d1b8', road: '#a6997f', water: '#809eb3', green: '#8ca67a' }
+  },
+  {
+    id: 'neon',
+    name: 'Neon',
+    category: 'Artistic',
+    description: 'Bright neon colors',
+    preview: { terrain: '#0d0514', building: '#bf73cc', road: '#1ab3cc', water: '#4d33cc', green: '#33e666' }
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean',
+    category: 'Artistic',
+    description: 'Cool blue-green tones',
+    preview: { terrain: '#335973', building: '#cce0eb', road: '#618099', water: '#2673b3', green: '#59a68c' }
+  },
+]
+
+const THEME_3D_CATEGORIES = ['Realistic', 'Minimal', 'Artistic']
+
 // --- ICONS ---
 const ArrowLeftIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
 const DownloadIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -348,6 +438,20 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showFrame, setShowFrame] = useState(false)
   const [locationName, setLocationName] = useState('')
   const [exportFormat, setExportFormat] = useState<'svg' | 'dxf' | 'png'>('svg')
+  const [exportMode, setExportMode] = useState<'2d' | '3d'>('2d')
+  const [format3D, setFormat3D] = useState<'obj' | 'glb' | 'stl'>('obj')
+  const [theme3D, setTheme3D] = useState(THEMES_3D[0])
+  const [active3DCategory, setActive3DCategory] = useState('Realistic')
+  const [includeTerrain, setIncludeTerrain] = useState(true)
+  const [includeMtl, setIncludeMtl] = useState(true)  // OBJ için MTL dosyası
+  const [raftThickness, setRaftThickness] = useState(2.0)  // STL için raft (mm)
+  const [show3DPreview, setShow3DPreview] = useState(false)
+  const [layers3D, setLayers3D] = useState({
+    buildings: true,
+    roads: true,
+    water: true,
+    green: true
+  })
   const [resolution, setResolution] = useState(1200)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
@@ -376,7 +480,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   // Drawing state refs
   const isDrawingRef = useRef(false)
   const drawStartRef = useRef<{lng: number, lat: number} | null>(null)
-  const selectionModeRef = useRef<SelectionMode>('point')
 
   // Track TikTok ViewContent event
   useEffect(() => {
@@ -439,64 +542,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         if (state.showContours !== undefined) setShowContours(state.showContours)
         if (state.showFrame !== undefined) setShowFrame(state.showFrame)
         if (state.exportFormat) setExportFormat(state.exportFormat)
-        
-        // Restore visual on map after map is ready
-        const restoreMapVisual = () => {
-          if (!mapInstanceRef.current || !state.selection?.center) return
-          
-          const map = mapInstanceRef.current
-          const { lat, lng } = state.selection.center
-          
-          // Fly to location
-          map.flyTo({ center: [lng, lat], zoom: 14 })
-          
-          // Add marker for point mode
-          if (state.selection.mode === 'point') {
-            import('mapbox-gl').then(({ default: mapboxgl }) => {
-              if (markerRef.current) {
-                markerRef.current.remove()
-              }
-              const el = document.createElement('div')
-              el.innerHTML = `<div style="width:28px;height:28px;background:#f59e0b;border:3px solid white;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;"></div>`
-              markerRef.current = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
-            })
-          }
-          
-          // Draw rectangle for rectangle mode
-          if (state.selection.mode === 'rectangle' && state.selection.bounds) {
-            const bounds = state.selection.bounds
-            const geojson = {
-              type: 'FeatureCollection' as const,
-              features: [{
-                type: 'Feature' as const,
-                properties: {},
-                geometry: {
-                  type: 'Polygon' as const,
-                  coordinates: [[
-                    [bounds.west, bounds.south],
-                    [bounds.east, bounds.south],
-                    [bounds.east, bounds.north],
-                    [bounds.west, bounds.north],
-                    [bounds.west, bounds.south]
-                  ]]
-                }
-              }]
-            }
-            const source = map.getSource('draw-rectangle') as any
-            if (source) source.setData(geojson)
-          }
-        }
-        
-        // Wait for map to be ready
-        const checkMapReady = setInterval(() => {
-          if (mapInstanceRef.current && mapInstanceRef.current.isStyleLoaded()) {
-            clearInterval(checkMapReady)
-            restoreMapVisual()
-          }
-        }, 200)
-        
-        // Clear after 10 seconds max
-        setTimeout(() => clearInterval(checkMapReady), 10000)
         
         // Clear saved state after restoring
         localStorage.removeItem('archikek_pending_map')
@@ -639,7 +684,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           // --- MOUSE EVENTS FOR DRAWING ---
           map.on('mousedown', (e) => {
-            if (selectionModeRef.current !== 'rectangle') return
+            if (selectionMode !== 'rectangle') return
             
             isDrawingRef.current = true
             drawStartRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat }
@@ -726,7 +771,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           // --- CLICK EVENT (Point Mode) ---
           map.on('click', (e) => {
-            if (selectionModeRef.current !== 'point') return
+            if (selectionMode !== 'point') return
             
             const { lng, lat } = e.lngLat
             
@@ -768,8 +813,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
   // Update selection mode behavior
   useEffect(() => {
-    selectionModeRef.current = selectionMode
-    
     if (!mapInstanceRef.current) return
     
     const map = mapInstanceRef.current
@@ -1008,6 +1051,83 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     setGenerating(false)
   }
 
+  // 3D Model Generation
+  const generate3DModel = async () => {
+    if (!selection || !selection.center) {
+      setError('Please select a location first')
+      return
+    }
+
+    setGenerating(true)
+    setError('')
+
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
+      
+      const requestBody = {
+        lat: selection.center.lat,
+        lng: selection.center.lng,
+        size: selection.size || size,
+        format: format3D,
+        include_terrain: includeTerrain,
+        include_roads: layers3D.roads,
+        include_water: layers3D.water,
+        include_green: layers3D.green,
+        include_mtl: format3D === 'obj' ? includeMtl : false,
+        raft_thickness: format3D === 'stl' ? raftThickness : 0,
+        location_name: locationName || undefined,
+        // Send theme colors explicitly
+        color_terrain: theme3D.preview.terrain,
+        color_building: theme3D.preview.building,
+        color_road: theme3D.preview.road,
+        color_water: theme3D.preview.water,
+        color_green: theme3D.preview.green
+      }
+
+      console.log('3D Request v7 with colors:', requestBody)
+
+      const response = await fetch(`${API_URL}/generate-3d`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(errorText || `Server error: ${response.status}`)
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      
+      // Dosya uzantısını belirle
+      const safeName = locationName ? locationName.replace(/\s+/g, '_') : 'archikek'
+      let ext: string = format3D
+      
+      // OBJ + MTL = ZIP dosyası
+      if (format3D === 'obj' && includeMtl) {
+        ext = 'zip'
+      }
+      
+      a.download = `${safeName}_3d_${requestBody.size}m.${ext}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+
+      await refreshProfile()
+      setGenerated(true)
+
+    } catch (err: any) {
+      console.error('3D Generate error:', err)
+      setError(err.message || 'Failed to generate 3D model')
+    }
+
+    setGenerating(false)
+  }
+
   // Preview function - no credit, low resolution
   const previewMap = async () => {
     if (!selection) {
@@ -1064,8 +1184,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       setPreviewUrl(url)
-      setShowLightbox(true) // Auto-open lightbox
-      setLightboxZoom(1) // Reset zoom
+      // Open correct viewer based on export mode
+      if (exportMode === '3d') {
+        setShow3DPreview(true) // Open 3D viewer
+      } else {
+        setShowLightbox(true) // Open 2D lightbox
+        setLightboxZoom(1) // Reset zoom
+      }
     } catch (err: any) {
       console.error('Preview catch:', err)
       if (err.message === 'Failed to fetch') {
@@ -1160,7 +1285,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             )}
 
             <button 
-              onClick={generateMap} 
+              onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
               disabled={generating || !selection}
               className={`hidden md:flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all ${
                 selection 
@@ -1169,7 +1294,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               }`}
             >
               {generating ? <LoaderIcon /> : <DownloadIcon />}
-              {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+              {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
             </button>
           </div>
         </div>
@@ -1178,8 +1303,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       {/* Main Content */}
       <div className="flex flex-1 pt-12 md:pt-14 h-screen overflow-hidden">
         
-        {/* Sidebar - Hidden on mobile, fixed height with scroll */}
-        <aside className="hidden md:flex md:flex-col w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] flex-shrink-0 h-[calc(100vh-56px)] overflow-hidden">
+        {/* Sidebar - Hidden on mobile */}
+        <aside className="hidden md:flex md:flex-col w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] flex-shrink-0 h-[calc(100vh-56px)]">
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             
             {/* Location Search - Compact */}
@@ -1247,6 +1372,266 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     <span>2000m</span>
                   </div>
                 </div>
+
+                {/* ═══════════════════════════════════════════════════════ */}
+                {/* 2D / 3D MODE SELECTION - With Format Info */}
+                {/* ═══════════════════════════════════════════════════════ */}
+                <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                  <p className="text-xs text-gray-500 mb-2">Export Type</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setExportMode('2d')}
+                      className={`p-3 rounded-xl border-2 transition-all text-left ${
+                        exportMode === '2d'
+                          ? 'border-amber-500 bg-amber-500/10'
+                          : 'border-[#222] bg-[#111] hover:border-[#333]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
+                        </svg>
+                        <span className={`font-semibold ${exportMode === '2d' ? 'text-amber-400' : 'text-white'}`}>2D Map</span>
+                      </div>
+                      <p className="text-[10px] text-gray-500">SVG · PNG · DXF</p>
+                    </button>
+                    <button
+                      onClick={() => setExportMode('3d')}
+                      className={`p-3 rounded-xl border-2 transition-all text-left ${
+                        exportMode === '3d'
+                          ? 'border-amber-500 bg-amber-500/10'
+                          : 'border-[#222] bg-[#111] hover:border-[#333]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <span className={`font-semibold ${exportMode === '3d' ? 'text-amber-400' : 'text-white'}`}>3D Model</span>
+                      </div>
+                      <p className="text-[10px] text-gray-500">OBJ · GLB · STL</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* ═══════════════════════════════════════════════════════ */}
+                {/* 2D OPTIONS */}
+                {/* ═══════════════════════════════════════════════════════ */}
+                {exportMode === '2d' && (
+                  <>
+                    {/* 2D Theme Selection */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {THEME_CATEGORIES.map(cat => (
+                          <button 
+                            key={cat} 
+                            onClick={() => setActiveCategory(cat)} 
+                            className={`px-2 py-1 text-xs rounded-md transition-all ${
+                              activeCategory === cat 
+                                ? 'bg-amber-500 text-black font-medium' 
+                                : 'bg-[#1a1a1a] text-gray-500 hover:text-gray-300'
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {ANALYSIS_THEMES.filter(t => t.category === activeCategory).map((theme) => (
+                          <button 
+                            key={theme.id} 
+                            onClick={() => { setSelectedTheme(theme); setUseCustomColors(false) }} 
+                            className={`aspect-square rounded-lg border-2 transition-all relative group overflow-hidden ${
+                              selectedTheme.id === theme.id 
+                                ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                                : 'border-[#333] hover:border-[#555]'
+                            }`} 
+                            style={{ background: theme.colors.Zemin }}
+                            title={theme.name}
+                          >
+                            <div className="w-full h-full p-1 flex flex-col gap-0.5">
+                              <div className="flex-1 rounded-sm" style={{ background: theme.colors.Binalar }} />
+                              <div className="h-1 rounded-sm" style={{ background: theme.colors.Yol_Otoyol }} />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-center mt-2 text-amber-500 font-medium">{selectedTheme.name}</p>
+                    </div>
+
+                    {/* 2D Format Selection */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <p className="text-xs text-gray-500 mb-2">Format</p>
+                      <div className="flex gap-2">
+                        {[
+                          { id: 'svg', label: 'SVG', desc: 'Illustrator' },
+                          { id: 'png', label: 'PNG', desc: 'Image' },
+                          { id: 'dxf', label: 'DXF', desc: 'AutoCAD' },
+                        ].map(fmt => (
+                          <button
+                            key={fmt.id}
+                            onClick={() => setExportFormat(fmt.id as 'svg' | 'dxf' | 'png')}
+                            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
+                              exportFormat === fmt.id
+                                ? 'bg-amber-500 text-black'
+                                : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            <span className="font-bold">{fmt.label}</span>
+                            <span className={`text-[10px] ${exportFormat === fmt.id ? 'text-black/60' : 'text-gray-600'}`}>
+                              {fmt.desc}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* ═══════════════════════════════════════════════════════ */}
+                {/* 3D OPTIONS */}
+                {/* ═══════════════════════════════════════════════════════ */}
+                {exportMode === '3d' && (
+                  <>
+                    {/* 3D Theme Selection - Same style as 2D with categories */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {THEME_3D_CATEGORIES.map(cat => (
+                          <button 
+                            key={cat} 
+                            onClick={() => setActive3DCategory(cat)} 
+                            className={`px-2 py-1 text-xs rounded-md transition-all ${
+                              active3DCategory === cat 
+                                ? 'bg-amber-500 text-black font-medium' 
+                                : 'bg-[#1a1a1a] text-gray-500 hover:text-gray-300'
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {THEMES_3D.filter(t => t.category === active3DCategory).map((theme) => (
+                          <button 
+                            key={theme.id} 
+                            onClick={() => setTheme3D(theme)} 
+                            className={`aspect-square rounded-lg border-2 transition-all relative group overflow-hidden ${
+                              theme3D.id === theme.id 
+                                ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                                : 'border-[#333] hover:border-[#555]'
+                            }`} 
+                            style={{ background: theme.preview.terrain }}
+                            title={theme.name}
+                          >
+                            <div className="w-full h-full p-1 flex flex-col gap-0.5">
+                              <div className="flex-1 rounded-sm" style={{ background: theme.preview.building }} />
+                              <div className="h-1 rounded-sm" style={{ background: theme.preview.road }} />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-center mt-2 text-amber-500 font-medium">{theme3D.name}</p>
+                    </div>
+
+                    {/* 3D Format Selection */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <p className="text-xs text-gray-500 mb-2">Format</p>
+                      <div className="flex gap-2">
+                        {[
+                          { id: 'obj', label: 'OBJ', desc: 'Rhino, SketchUp' },
+                          { id: 'glb', label: 'GLB', desc: 'Blender, Web' },
+                          { id: 'stl', label: 'STL', desc: '3D Print' },
+                        ].map(fmt => (
+                          <button
+                            key={fmt.id}
+                            onClick={() => setFormat3D(fmt.id as 'obj' | 'glb' | 'stl')}
+                            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
+                              format3D === fmt.id
+                                ? 'bg-amber-500 text-black'
+                                : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            <span className="font-bold">{fmt.label}</span>
+                            <span className={`text-[10px] ${format3D === fmt.id ? 'text-black/60' : 'text-gray-600'}`}>
+                              {fmt.desc}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 3D Layer Toggles */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <p className="text-xs text-gray-500 mb-2">Layers</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { key: 'buildings', label: 'Buildings', icon: '🏢' },
+                          { key: 'roads', label: 'Roads', icon: '🛣️' },
+                          { key: 'water', label: 'Water', icon: '💧' },
+                          { key: 'green', label: 'Green', icon: '🌳' },
+                        ].map(layer => (
+                          <button
+                            key={layer.key}
+                            onClick={() => setLayers3D(prev => ({ ...prev, [layer.key]: !prev[layer.key as keyof typeof prev] }))}
+                            className={`py-1.5 px-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                              layers3D[layer.key as keyof typeof layers3D]
+                                ? 'bg-amber-500/20 border border-amber-500/50 text-amber-400'
+                                : 'bg-[#1a1a1a] border border-transparent text-gray-500'
+                            }`}
+                          >
+                            <span>{layer.icon}</span>
+                            <span>{layer.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                      
+                      {/* Terrain Toggle */}
+                      <label className="flex items-center justify-between mt-2 px-2 py-1.5 bg-[#1a1a1a] rounded-lg cursor-pointer hover:bg-[#222] transition-colors">
+                        <div className="flex items-center gap-2">
+                          <span>⛰️</span>
+                          <span className="text-xs text-gray-300">Include Terrain</span>
+                        </div>
+                        <div className={`w-8 h-4 rounded-full transition-colors ${includeTerrain ? 'bg-amber-500' : 'bg-[#333]'}`}>
+                          <div className={`w-3 h-3 bg-white rounded-full m-0.5 transition-transform ${includeTerrain ? 'translate-x-4' : ''}`} />
+                        </div>
+                        <input type="checkbox" checked={includeTerrain} onChange={(e) => setIncludeTerrain(e.target.checked)} className="hidden" />
+                      </label>
+
+                      {/* OBJ-specific: MTL Toggle */}
+                      {format3D === 'obj' && (
+                        <label className="flex items-center justify-between mt-2 px-2 py-1.5 bg-[#1a1a1a] rounded-lg cursor-pointer hover:bg-[#222] transition-colors">
+                          <div className="flex items-center gap-2">
+                            <span>🎨</span>
+                            <span className="text-xs text-gray-300">Include Materials (.mtl)</span>
+                          </div>
+                          <div className={`w-8 h-4 rounded-full transition-colors ${includeMtl ? 'bg-amber-500' : 'bg-[#333]'}`}>
+                            <div className={`w-3 h-3 bg-white rounded-full m-0.5 transition-transform ${includeMtl ? 'translate-x-4' : ''}`} />
+                          </div>
+                          <input type="checkbox" checked={includeMtl} onChange={(e) => setIncludeMtl(e.target.checked)} className="hidden" />
+                        </label>
+                      )}
+
+                      {/* STL-specific: Raft Thickness */}
+                      {format3D === 'stl' && (
+                        <div className="mt-2 px-2 py-1.5 bg-[#1a1a1a] rounded-lg">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">🧱 Raft Thickness</span>
+                            <span className="text-amber-400">{raftThickness}mm</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={0}
+                            max={5}
+                            step={0.5}
+                            value={raftThickness}
+                            onChange={(e) => setRaftThickness(Number(e.target.value))}
+                            className="w-full accent-amber-500 h-1"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <div className="flex gap-2">
@@ -1272,48 +1657,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 </button>
               </div>
             )}
-
-            {/* ═══════════════════════════════════════════════════════ */}
-            {/* THEMES - PRIMARY SECTION (Always Visible) */}
-            {/* ═══════════════════════════════════════════════════════ */}
-            <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
-              <div className="flex flex-wrap gap-1 mb-3">
-                {THEME_CATEGORIES.map(cat => (
-                  <button 
-                    key={cat} 
-                    onClick={() => setActiveCategory(cat)} 
-                    className={`px-2 py-1 text-xs rounded-md transition-all ${
-                      activeCategory === cat 
-                        ? 'bg-amber-500 text-black font-medium' 
-                        : 'bg-[#1a1a1a] text-gray-500 hover:text-gray-300'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-              <div className="grid grid-cols-4 gap-1.5">
-                {ANALYSIS_THEMES.filter(t => t.category === activeCategory).map((theme) => (
-                  <button 
-                    key={theme.id} 
-                    onClick={() => { setSelectedTheme(theme); setUseCustomColors(false) }} 
-                    className={`aspect-square rounded-lg border-2 transition-all relative group overflow-hidden ${
-                      selectedTheme.id === theme.id 
-                        ? 'border-amber-500 ring-2 ring-amber-500/30' 
-                        : 'border-[#333] hover:border-[#555]'
-                    }`} 
-                    style={{ background: theme.colors.Zemin }}
-                    title={theme.name}
-                  >
-                    <div className="w-full h-full p-1 flex flex-col gap-0.5">
-                      <div className="flex-1 rounded-sm" style={{ background: theme.colors.Binalar }} />
-                      <div className="h-1 rounded-sm" style={{ background: theme.colors.Yol_Otoyol }} />
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-center mt-2 text-amber-500 font-medium">{selectedTheme.name}</p>
-            </div>
 
             {/* ═══════════════════════════════════════════════════════ */}
             {/* PREVIEW & GENERATE - PRIMARY SECTION */}
@@ -1368,33 +1711,104 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 <div className="space-y-3">
                   {/* Clickable Mini Preview */}
                   <div 
-                    onClick={() => { setShowLightbox(true); setLightboxZoom(1); }}
+                    onClick={() => { 
+                      if (exportMode === '3d') {
+                        setShow3DPreview(true);
+                      } else {
+                        setShowLightbox(true); 
+                        setLightboxZoom(1); 
+                      }
+                    }}
                     className="cursor-zoom-in group relative rounded-lg overflow-hidden border-2 border-amber-500/50 hover:border-amber-500 transition-colors"
                   >
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview" 
-                      className={`w-full ${previewLoading ? 'opacity-50' : ''}`}
-                    />
+                    {exportMode === '3d' ? (
+                      /* 3D Isometric Preview */
+                      <div className="w-full aspect-square bg-gradient-to-br from-[#111] to-[#0a0a0a] p-4">
+                        <svg viewBox="0 0 200 200" className="w-full h-full">
+                          {/* Ground */}
+                          <polygon points="100,180 10,130 100,80 190,130" fill={theme3D.preview.terrain} stroke={theme3D.preview.road} strokeWidth="0.5" opacity="0.8"/>
+                          
+                          {/* Roads */}
+                          <line x1="55" y1="105" x2="145" y2="155" stroke={theme3D.preview.road} strokeWidth="6" strokeLinecap="round"/>
+                          <line x1="100" y1="130" x2="100" y2="80" stroke={theme3D.preview.road} strokeWidth="4" strokeLinecap="round"/>
+                          
+                          {/* Building 1 - Tall */}
+                          <g>
+                            <polygon points="30,115 30,50 50,40 50,105" fill={theme3D.preview.building}/>
+                            <polygon points="30,50 70,65 70,130 30,115" fill={theme3D.preview.building} opacity="0.85"/>
+                            <polygon points="30,50 50,40 90,55 70,65" fill={theme3D.preview.building} opacity="0.65"/>
+                            <polygon points="30,115 70,130 90,120 50,105" fill={theme3D.preview.building} opacity="0.5"/>
+                          </g>
+                          
+                          {/* Building 2 - Medium */}
+                          <g>
+                            <polygon points="80,135 80,95 100,85 100,125" fill={theme3D.preview.building} opacity="0.9"/>
+                            <polygon points="80,95 120,110 120,150 80,135" fill={theme3D.preview.building} opacity="0.75"/>
+                            <polygon points="80,95 100,85 140,100 120,110" fill={theme3D.preview.building} opacity="0.55"/>
+                            <polygon points="80,135 120,150 140,140 100,125" fill={theme3D.preview.building} opacity="0.45"/>
+                          </g>
+                          
+                          {/* Building 3 - Wide */}
+                          <g>
+                            <polygon points="130,150 130,120 155,108 155,138" fill={theme3D.preview.building} opacity="0.9"/>
+                            <polygon points="130,120 180,138 180,168 130,150" fill={theme3D.preview.building} opacity="0.75"/>
+                            <polygon points="130,120 155,108 205,126 180,138" fill={theme3D.preview.building} opacity="0.55"/>
+                            <polygon points="130,150 180,168 205,156 155,138" fill={theme3D.preview.building} opacity="0.45"/>
+                          </g>
+                          
+                          {/* Water */}
+                          <ellipse cx="45" cy="145" rx="18" ry="10" fill={theme3D.preview.water} opacity="0.7"/>
+                          
+                          {/* Green */}
+                          <ellipse cx="160" cy="170" rx="15" ry="8" fill={theme3D.preview.green} opacity="0.8"/>
+                          <circle cx="95" cy="160" r="6" fill={theme3D.preview.green} opacity="0.7"/>
+                        </svg>
+                        
+                        {/* Theme name overlay */}
+                        <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-[10px] text-white/70">
+                          {theme3D.name}
+                        </div>
+                      </div>
+                    ) : (
+                      /* 2D Map Preview */
+                      <img 
+                        src={previewUrl} 
+                        alt="Preview" 
+                        className={`w-full ${previewLoading ? 'opacity-50' : ''}`}
+                      />
+                    )}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
                       <span className="bg-amber-500 text-black px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="11" cy="11" r="8" />
-                          <path d="m21 21-4.35-4.35M11 8v6M8 11h6" />
-                        </svg>
-                        Click to zoom
+                        {exportMode === '3d' ? (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                              <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                            Open 3D View
+                          </>
+                        ) : (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="11" cy="11" r="8" />
+                              <path d="m21 21-4.35-4.35M11 8v6M8 11h6" />
+                            </svg>
+                            Click to zoom
+                          </>
+                        )}
                       </span>
                     </div>
                   </div>
                   
                   {/* Generate Button */}
                   <button 
-                    onClick={generateMap} 
+                    onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
                     disabled={generating}
                     className="w-full flex items-center justify-center gap-2 py-3 bg-amber-500 text-black rounded-lg font-semibold hover:bg-amber-400 transition-all"
                   >
                     {generating ? <LoaderIcon /> : <DownloadIcon />}
-                    {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+                    {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
                   </button>
                   
                   {/* Pricing Info - Context Aware */}
@@ -1458,25 +1872,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     )}
                   </div>
                   
-                  {/* Update Preview Button */}
+                  {/* New Preview */}
                   <button
                     onClick={previewMap}
                     disabled={previewLoading}
-                    className="w-full py-2.5 bg-[#1a1a1a] border border-[#333] text-gray-300 hover:text-amber-400 hover:border-amber-500/50 rounded-lg transition-all flex items-center justify-center gap-2 text-sm font-medium"
+                    className="w-full py-2 text-xs text-gray-400 hover:text-amber-400 transition-colors flex items-center justify-center gap-1"
                   >
-                    {previewLoading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                        Updating...
-                      </>
-                    ) : (
-                      <>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
-                        </svg>
-                        Update Preview
-                      </>
-                    )}
+                    {previewLoading ? 'Updating...' : '↻ Update preview'}
                   </button>
                 </div>
               )}
@@ -1635,25 +2037,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   ))}
                 </div>
 
-                {/* Format selector */}
-                <div>
-                  <p className="text-xs text-gray-500 mb-2">Format</p>
-                  <div className="flex gap-2">
-                    {['svg', 'dxf', 'png'].map(fmt => (
-                      <button
-                        key={fmt}
-                        onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                          exportFormat === fmt 
-                            ? 'bg-amber-500 text-black' 
-                            : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
-                        }`}
-                      >
-                        {fmt.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                {/* 3D Preview Button - Only show in 3D mode */}
+                {exportMode === '3d' && selection && (
+                  <button
+                    onClick={() => setShow3DPreview(true)}
+                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    Preview 3D Model
+                  </button>
+                )}
               </div>
             </details>
 
@@ -1665,6 +2060,64 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             )}
           </div>
         </aside>
+
+        {/* 3D Preview Modal */}
+        {show3DPreview && selection && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="relative w-full max-w-4xl h-[70vh] bg-[#111] rounded-2xl overflow-hidden border border-[#333]">
+              {/* Header */}
+              <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
+                <div>
+                  <h3 className="text-white font-semibold">3D Preview</h3>
+                  <p className="text-xs text-gray-400">{locationName || 'Selected Area'} • {size}m</p>
+                </div>
+                <button
+                  onClick={() => setShow3DPreview(false)}
+                  className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Layer toggles in modal - use theme colors */}
+              <div className="absolute top-16 left-4 z-10 flex flex-col gap-1">
+                {[
+                  { key: 'buildings', label: 'Buildings', color: theme3D.preview.building },
+                  { key: 'roads', label: 'Roads', color: theme3D.preview.road },
+                  { key: 'water', label: 'Water', color: theme3D.preview.water },
+                  { key: 'green', label: 'Green', color: theme3D.preview.green },
+                ].map(layer => (
+                  <button
+                    key={layer.key}
+                    onClick={() => setLayers3D(prev => ({ ...prev, [layer.key]: !prev[layer.key as keyof typeof prev] }))}
+                    className={`flex items-center gap-2 px-2 py-1 rounded text-xs transition-all ${
+                      layers3D[layer.key as keyof typeof layers3D]
+                        ? 'bg-black/60 text-white'
+                        : 'bg-black/40 text-gray-500'
+                    }`}
+                  >
+                    <div 
+                      className="w-3 h-3 rounded-sm" 
+                      style={{ backgroundColor: layers3D[layer.key as keyof typeof layers3D] ? layer.color : '#333' }}
+                    />
+                    {layer.label}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Three.js Viewer */}
+              <ThreeViewer
+                lat={selection.center?.lat || 0}
+                lng={selection.center?.lng || 0}
+                size={selection.size || size}
+                layers={layers3D}
+                themeColors={theme3D.preview}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Mobile Bottom Panel */}
         <div 
@@ -1706,10 +2159,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 )}
                 {previewUrl && (
                   <button
-                    onClick={(e) => { e.stopPropagation(); setShowLightbox(true); }}
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      if (exportMode === '3d') {
+                        setShow3DPreview(true);
+                      } else {
+                        setShowLightbox(true); 
+                      }
+                    }}
                     className="px-4 py-2 bg-amber-500 text-black rounded-lg font-medium text-sm"
                   >
-                    View
+                    {exportMode === '3d' ? '3D View' : 'View'}
                   </button>
                 )}
               </div>
@@ -1841,17 +2301,29 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 ) : (
                   <>
                     <div 
-                      onClick={() => { setShowLightbox(true); setLightboxZoom(1); }}
+                      onClick={() => { 
+                        if (exportMode === '3d') {
+                          setShow3DPreview(true);
+                        } else {
+                          setShowLightbox(true); 
+                          setLightboxZoom(1); 
+                        }
+                      }}
                       className="cursor-pointer rounded-lg overflow-hidden border-2 border-amber-500/50"
                     >
                       <img src={previewUrl} alt="Preview" className="w-full" />
+                      {exportMode === '3d' && (
+                        <div className="bg-purple-500/20 text-purple-400 text-xs text-center py-1">
+                          Tap for 3D View
+                        </div>
+                      )}
                     </div>
                     <button 
-                      onClick={generateMap} 
+                      onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
                       disabled={generating}
                       className="w-full py-3.5 bg-amber-500 text-black rounded-lg font-semibold flex items-center justify-center gap-2"
                     >
-                      {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+                      {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
                     </button>
                   </>
                 )}
@@ -1902,22 +2374,146 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 ))}
               </div>
 
+              {/* 2D/3D Mode Toggle */}
+              <div className="flex gap-2 mb-2">
+                <button
+                  onClick={() => setExportMode('2d')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                    exportMode === '2d' ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
+                  }`}
+                >
+                  2D Map
+                </button>
+                <button
+                  onClick={() => setExportMode('3d')}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                    exportMode === '3d' ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
+                  }`}
+                >
+                  3D Model
+                </button>
+              </div>
+
               {/* Format selector */}
-              <div className="flex gap-2">
-                {['svg', 'dxf', 'png'].map(fmt => (
+              {exportMode === '2d' ? (
+                <div className="flex gap-2">
+                  {['svg', 'dxf', 'png'].map(fmt => (
+                    <button
+                      key={fmt}
+                      onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                        exportFormat === fmt 
+                          ? 'bg-amber-500 text-black' 
+                          : 'bg-[#1a1a1a] text-gray-400'
+                      }`}
+                    >
+                      {fmt.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    {['obj', 'glb', 'stl'].map(fmt => (
+                      <button
+                        key={fmt}
+                        onClick={() => setFormat3D(fmt as 'obj' | 'glb' | 'stl')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                          format3D === fmt ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
+                        }`}
+                      >
+                        {fmt.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Layer toggles - mobile */}
+                  <div className="flex gap-1.5 flex-wrap">
+                    {[
+                      { key: 'buildings', label: '🏢' },
+                      { key: 'roads', label: '🛣️' },
+                      { key: 'water', label: '💧' },
+                      { key: 'green', label: '🌳' },
+                    ].map(layer => (
+                      <button
+                        key={layer.key}
+                        onClick={() => setLayers3D(prev => ({ ...prev, [layer.key]: !prev[layer.key as keyof typeof prev] }))}
+                        className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
+                          layers3D[layer.key as keyof typeof layers3D]
+                            ? 'bg-amber-500/20 border border-amber-500/50'
+                            : 'bg-[#1a1a1a] border border-transparent'
+                        }`}
+                      >
+                        {layer.label}
+                      </button>
+                    ))}
+                  </div>
+                  
                   <button
-                    key={fmt}
-                    onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                      exportFormat === fmt 
-                        ? 'bg-amber-500 text-black' 
-                        : 'bg-[#1a1a1a] text-gray-400'
+                    onClick={() => setIncludeTerrain(!includeTerrain)}
+                    className={`w-full py-2 rounded-lg text-sm border transition-all ${
+                      includeTerrain 
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-400' 
+                        : 'bg-[#111] border-[#333] text-gray-500'
                     }`}
                   >
-                    {fmt.toUpperCase()}
+                    {includeTerrain ? '✓ ⛰️' : '⛰️'} Terrain
                   </button>
-                ))}
-              </div>
+                  
+                  {/* OBJ: MTL toggle - Mobile */}
+                  {format3D === 'obj' && (
+                    <button
+                      onClick={() => setIncludeMtl(!includeMtl)}
+                      className={`w-full py-2 rounded-lg text-sm border transition-all ${
+                        includeMtl 
+                          ? 'bg-amber-500/20 border-amber-500 text-amber-400' 
+                          : 'bg-[#111] border-[#333] text-gray-500'
+                      }`}
+                    >
+                      {includeMtl ? '✓ 🎨' : '🎨'} Materials (MTL)
+                    </button>
+                  )}
+                  
+                  {/* STL: Raft slider - Mobile */}
+                  {format3D === 'stl' && (
+                    <div className="px-3 py-2 bg-[#111] rounded-lg border border-[#333]">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-sm text-gray-300">📐 Print Raft</span>
+                        <span className="text-xs text-amber-400 font-mono">
+                          {raftThickness === 0 ? 'OFF' : `${raftThickness}mm`}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="5"
+                        step="0.5"
+                        value={raftThickness}
+                        onChange={(e) => setRaftThickness(parseFloat(e.target.value))}
+                        className="w-full h-1 bg-[#333] rounded-lg appearance-none cursor-pointer
+                                   [&::-webkit-slider-thumb]:appearance-none
+                                   [&::-webkit-slider-thumb]:w-4
+                                   [&::-webkit-slider-thumb]:h-4
+                                   [&::-webkit-slider-thumb]:bg-amber-500
+                                   [&::-webkit-slider-thumb]:rounded-full"
+                      />
+                    </div>
+                  )}
+                  
+                  {/* 3D Preview Button - Mobile */}
+                  {selection && (
+                    <button
+                      onClick={() => setShow3DPreview(true)}
+                      className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                      Preview 3D
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Error */}
               {error && (
@@ -1950,31 +2546,78 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             </p>
           </div>
           
-          {/* Theme preview widget - hidden on mobile */}
-          <div className="hidden md:block absolute bottom-4 left-4 bg-[#161616]/95 backdrop-blur border border-[#222] rounded-xl p-4 z-10 pointer-events-none select-none">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-gray-500 font-medium">{selectedTheme.name}</p>
-              <span className="text-[10px] text-gray-600 bg-[#222] px-2 py-0.5 rounded">Theme Preview</span>
+          {/* Theme preview widget - hidden on mobile - Shows only when area is selected */}
+          {selection && (
+            <div className="hidden md:block absolute bottom-4 left-4 bg-[#161616]/95 backdrop-blur border border-[#222] rounded-xl p-4 z-10">
+              {exportMode === '2d' ? (
+                <>
+                  <p className="text-xs text-gray-500 mb-2 font-medium">Preview: {selectedTheme.name}</p>
+                  <div className="w-48 h-32 rounded-lg overflow-hidden" style={{ background: customColors.Zemin }}>
+                    <svg viewBox="0 0 200 130" className="w-full h-full">
+                      <ellipse cx="160" cy="100" rx="30" ry="20" fill={customColors.Su} />
+                      <path d="M 10 80 Q 30 60 60 75 L 70 130 L 10 130 Z" fill={customColors.Yesil} />
+                      <path d="M 0 70 Q 100 65 200 75" fill="none" stroke={customColors.Yol_Otoyol} strokeWidth={strokeWidths.highway * 0.8} strokeLinecap="round" />
+                      <line x1="100" y1="0" x2="95" y2="130" stroke={customColors.Yol_Birincil} strokeWidth={strokeWidths.primary * 0.8} />
+                      <line x1="50" y1="90" x2="150" y2="95" stroke={customColors.Yol_Konut} strokeWidth={strokeWidths.residential * 0.8} />
+                      <rect x="20" y="20" width="35" height="30" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
+                      <rect x="70" y="25" width="45" height="25" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
+                      <rect x="130" y="15" width="30" height="40" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
+                      {showTransit && (
+                        <>
+                          <circle cx="45" cy="55" r="6" fill={customColors.Metro} stroke="white" strokeWidth="1.5" />
+                          <text x="45" y="58" textAnchor="middle" fontSize="7" fontWeight="bold" fill="white">M</text>
+                        </>
+                      )}
+                    </svg>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-gray-500 mb-2 font-medium">3D Preview: {theme3D.name}</p>
+                  <div className="w-48 h-32 rounded-lg overflow-hidden" style={{ background: `linear-gradient(180deg, ${theme3D.preview.terrain}88 0%, ${theme3D.preview.terrain} 100%)` }}>
+                    <svg viewBox="0 0 200 130" className="w-full h-full">
+                      {/* Ground/Terrain */}
+                      <polygon points="100,120 10,85 100,50 190,85" fill={theme3D.preview.terrain} opacity="0.8"/>
+                      <polygon points="100,120 10,85 100,50 190,85" fill="none" stroke={theme3D.preview.road} strokeWidth="0.5" opacity="0.5"/>
+                      
+                      {/* Main Road */}
+                      <path d="M 30,72 L 170,98" stroke={theme3D.preview.road} strokeWidth="6" strokeLinecap="round" opacity="0.9"/>
+                      <path d="M 100,85 L 100,50" stroke={theme3D.preview.road} strokeWidth="4" strokeLinecap="round" opacity="0.7"/>
+                      
+                      {/* Building 1 - Left Tall */}
+                      <g>
+                        <polygon points="35,75 35,30 50,22 50,67" fill={theme3D.preview.building}/>
+                        <polygon points="35,30 75,42 75,87 35,75" fill={theme3D.preview.building} opacity="0.85"/>
+                        <polygon points="35,30 50,22 90,34 75,42" fill={theme3D.preview.building} opacity="0.65"/>
+                      </g>
+                      
+                      {/* Building 2 - Center Medium */}
+                      <g>
+                        <polygon points="85,82 85,55 100,48 100,75" fill={theme3D.preview.building}/>
+                        <polygon points="85,55 120,67 120,94 85,82" fill={theme3D.preview.building} opacity="0.85"/>
+                        <polygon points="85,55 100,48 135,60 120,67" fill={theme3D.preview.building} opacity="0.65"/>
+                      </g>
+                      
+                      {/* Building 3 - Right Wide */}
+                      <g>
+                        <polygon points="130,92 130,68 145,61 145,85" fill={theme3D.preview.building}/>
+                        <polygon points="130,68 175,82 175,106 130,92" fill={theme3D.preview.building} opacity="0.85"/>
+                        <polygon points="130,68 145,61 190,75 175,82" fill={theme3D.preview.building} opacity="0.65"/>
+                      </g>
+                      
+                      {/* Water - Ellipse */}
+                      <ellipse cx="160" cy="112" rx="22" ry="10" fill={theme3D.preview.water} opacity="0.85"/>
+                      <ellipse cx="160" cy="112" rx="18" ry="7" fill={theme3D.preview.water} opacity="0.5"/>
+                      
+                      {/* Trees/Green */}
+                      <ellipse cx="25" cy="90" rx="12" ry="8" fill={theme3D.preview.green} opacity="0.9"/>
+                      <ellipse cx="105" cy="105" rx="8" ry="5" fill={theme3D.preview.green} opacity="0.8"/>
+                    </svg>
+                  </div>
+                </>
+              )}
             </div>
-            <div className="w-48 h-32 rounded-lg overflow-hidden border border-[#333]" style={{ background: customColors.Zemin }}>
-              <svg viewBox="0 0 200 130" className="w-full h-full">
-                <ellipse cx="160" cy="100" rx="30" ry="20" fill={customColors.Su} />
-                <path d="M 10 80 Q 30 60 60 75 L 70 130 L 10 130 Z" fill={customColors.Yesil} />
-                <path d="M 0 70 Q 100 65 200 75" fill="none" stroke={customColors.Yol_Otoyol} strokeWidth={strokeWidths.highway * 0.8} strokeLinecap="round" />
-                <line x1="100" y1="0" x2="95" y2="130" stroke={customColors.Yol_Birincil} strokeWidth={strokeWidths.primary * 0.8} />
-                <line x1="50" y1="90" x2="150" y2="95" stroke={customColors.Yol_Konut} strokeWidth={strokeWidths.residential * 0.8} />
-                <rect x="20" y="20" width="35" height="30" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
-                <rect x="70" y="25" width="45" height="25" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
-                <rect x="130" y="15" width="30" height="40" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
-                {showTransit && (
-                  <>
-                    <circle cx="45" cy="55" r="6" fill={customColors.Metro} stroke="white" strokeWidth="1.5" />
-                    <text x="45" y="58" textAnchor="middle" fontSize="7" fontWeight="bold" fill="white">M</text>
-                  </>
-                )}
-              </svg>
-            </div>
-          </div>
+          )}
         </main>
       </div>
 
@@ -2054,12 +2697,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               </p>
               
               <button 
-                onClick={generateMap} 
+                onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
                 disabled={generating}
                 className="w-full max-w-xs flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
               >
                 {generating ? <LoaderIcon /> : <DownloadIcon />}
-                {generating ? 'Generating...' : `Generate ${exportFormat.toUpperCase()}`}
+                {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
               </button>
               
               {/* Pricing Info - Context Aware */}
@@ -2380,15 +3023,20 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold mb-2">Map Downloaded!</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              {exportMode === '3d' ? '3D Model Downloaded!' : 'Map Downloaded!'}
+            </h3>
             <p className="text-gray-400 text-sm mb-6">
-              Your SVG file has been downloaded. Open it in Adobe Illustrator or any vector editor.
+              {exportMode === '3d' 
+                ? `Your ${format3D.toUpperCase()} file has been downloaded. Open it in Rhino, SketchUp, Blender or any 3D software.`
+                : `Your ${exportFormat.toUpperCase()} file has been downloaded. Open it in Adobe Illustrator or any vector editor.`
+              }
             </p>
             <button
               onClick={() => setGenerated(false)}
               className="w-full px-5 py-3 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-colors"
             >
-              Create Another Map
+              {exportMode === '3d' ? 'Create Another Model' : 'Create Another Map'}
             </button>
           </div>
         </div>

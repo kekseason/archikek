@@ -81,6 +81,14 @@ const TrainIcon = () => (
   </svg>
 )
 
+const BoxIcon = () => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+    <line x1="12" y1="22.08" x2="12" y2="12"/>
+  </svg>
+)
+
 export default function HomeClient({ discount, country }: HomeClientProps) {
   const [scrolled, setScrolled] = useState(false)
   const { user, profile, signOut } = useAuth()
@@ -98,12 +106,12 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
   }, [])
 
   const features = [
-    { icon: <LayersIcon />, title: 'Layered SVG & DXF', desc: 'Export to SVG for Illustrator or DXF for AutoCAD, Rhino, SketchUp. Every element on its own layer.' },
-    { icon: <PaletteIcon />, title: '24 Analysis Themes', desc: 'Figure Ground, Nolli, Street Hierarchy, Transit, Topographic, Sunset, Gold, and more.' },
+    { icon: <BoxIcon />, title: '3D Model Export', desc: 'Export to OBJ for Rhino, GLB for Blender, or STL for 3D printing. Buildings, roads, water & terrain.' },
+    { icon: <LayersIcon />, title: 'Layered SVG & DXF', desc: 'Export to SVG for Illustrator or DXF for AutoCAD. Every element on its own layer.' },
+    { icon: <PaletteIcon />, title: '34 Total Themes', desc: '24 analysis themes for 2D maps + 10 material themes for 3D models. From Blueprint to Neon.' },
     { icon: <ZapIcon />, title: 'Ready in 30 Seconds', desc: 'No more hours in QGIS or CAD. Select area, pick theme, download. Optimized file sizes.' },
-    { icon: <GlobeIcon />, title: 'Topography Contours', desc: 'Smooth elevation contour lines with customizable intervals. Real terrain data for site analysis.' },
-    { icon: <TrainIcon />, title: 'Smart Transit Icons', desc: 'Metro, tram, bus stops auto-filtered by zoom level. Clean maps at any scale.' },
-    { icon: <MapPinIcon />, title: 'Landmark Labels', desc: 'Important buildings (hospitals, schools, mosques) automatically labeled. Scale bar & north arrow included.' },
+    { icon: <GlobeIcon />, title: 'Real Terrain Data', desc: 'Accurate building heights, topography contours, and ground plane. Ready for site analysis.' },
+    { icon: <MapPinIcon />, title: 'Global Coverage', desc: 'Any location worldwide. OpenStreetMap data with smart filtering and landmark labels.' },
   ]
 
   const themes = [
@@ -235,14 +243,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
 
               {/* Headline */}
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
-                Site analysis maps
+                2D & 3D site maps
                 <br />
                 <span className="text-amber-500 italic font-serif font-medium">in seconds</span>
               </h1>
 
               {/* Subhead */}
               <p className="text-lg md:text-xl text-white/50 mb-10 leading-relaxed">
-                Generate professional, Illustrator-ready site analysis maps for your architecture projects. No GIS skills required.
+                Generate layered SVG maps for Illustrator and 3D models for Rhino, SketchUp & Blender. No GIS skills required.
               </p>
 
               {/* CTA Buttons */}
@@ -267,24 +275,118 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               <div className="flex gap-8 md:gap-12 pt-8 border-t border-white/10">
                 <div>
                   <div className="text-3xl md:text-4xl font-bold text-amber-500">24</div>
-                  <div className="text-white/40 text-sm mt-1">Analysis Themes</div>
+                  <div className="text-white/40 text-sm mt-1">2D Themes</div>
+                </div>
+                <div>
+                  <div className="text-3xl md:text-4xl font-bold text-amber-500">10</div>
+                  <div className="text-white/40 text-sm mt-1">3D Themes</div>
                 </div>
                 <div>
                   <div className="text-3xl md:text-4xl font-bold">SVG</div>
-                  <div className="text-white/40 text-sm mt-1">Vector Export</div>
-                </div>
-                <div>
-                  <div className="text-3xl md:text-4xl font-bold">&lt;30s</div>
-                  <div className="text-white/40 text-sm mt-1">Generation</div>
+                  <div className="text-white/40 text-sm mt-1">Illustrator Ready</div>
                 </div>
               </div>
             </div>
 
-            {/* Right - Create Screen Mockup with Tutorial */}
+            {/* Right - Clean Preview Cards */}
             <div className="relative hidden lg:block">
               <div className="relative">
                 {/* Glow effect */}
                 <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/10 via-transparent to-amber-500/5 rounded-3xl blur-2xl" />
+                
+                {/* 3D Model Preview Card */}
+                <div className="relative mb-4 bg-gradient-to-br from-[#111] to-[#0a0a0a] border border-amber-500/20 rounded-2xl p-5 overflow-hidden">
+                  {/* Subtle grid background */}
+                  <div className="absolute inset-0 opacity-10" style={{
+                    backgroundImage: `linear-gradient(rgba(245,158,11,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.3) 1px, transparent 1px)`,
+                    backgroundSize: '20px 20px'
+                  }} />
+                  
+                  {/* 3D Isometric City Model - Proper Closed Boxes */}
+                  <svg viewBox="0 0 360 160" className="w-full h-auto relative z-10">
+                    <defs>
+                      <linearGradient id="groundGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#1a1a1a"/>
+                        <stop offset="100%" stopColor="#111"/>
+                      </linearGradient>
+                    </defs>
+                    
+                    {/* Ground plane */}
+                    <polygon points="180,145 30,100 180,55 330,100" fill="url(#groundGrad)" stroke="#333" strokeWidth="0.5"/>
+                    
+                    {/* Roads */}
+                    <line x1="105" y1="78" x2="255" y2="122" stroke="#2a2a2a" strokeWidth="8" strokeLinecap="round"/>
+                    <line x1="180" y1="100" x2="180" y2="55" stroke="#2a2a2a" strokeWidth="6" strokeLinecap="round"/>
+                    
+                    {/* Building 1 - Tall Tower (Amber) - CLOSED BOX */}
+                    <g>
+                      {/* Left face */}
+                      <polygon points="60,95 60,40 85,28 85,83" fill="#d97706"/>
+                      {/* Right face */}
+                      <polygon points="85,28 125,43 125,98 85,83" fill="#fbbf24"/>
+                      {/* Top face */}
+                      <polygon points="60,40 85,28 125,43 100,55" fill="#fcd34d"/>
+                      {/* Bottom edge (closes the box) */}
+                      <polygon points="60,95 100,110 125,98 85,83" fill="#b45309"/>
+                    </g>
+                    
+                    {/* Building 2 - Medium (Gray) - CLOSED BOX */}
+                    <g>
+                      {/* Left face */}
+                      <polygon points="135,108 135,68 158,56 158,96" fill="#3a3a3a"/>
+                      {/* Right face */}
+                      <polygon points="158,56 195,70 195,110 158,96" fill="#4a4a4a"/>
+                      {/* Top face */}
+                      <polygon points="135,68 158,56 195,70 172,82" fill="#5a5a5a"/>
+                      {/* Bottom */}
+                      <polygon points="135,108 172,122 195,110 158,96" fill="#2a2a2a"/>
+                    </g>
+                    
+                    {/* Building 3 - Wide Low (Gray) - CLOSED BOX */}
+                    <g>
+                      {/* Left face */}
+                      <polygon points="200,118 200,88 230,76 230,106" fill="#333"/>
+                      {/* Right face */}
+                      <polygon points="230,76 285,94 285,124 230,106" fill="#444"/>
+                      {/* Top face */}
+                      <polygon points="200,88 230,76 285,94 255,106" fill="#555"/>
+                      {/* Bottom */}
+                      <polygon points="200,118 255,136 285,124 230,106" fill="#222"/>
+                    </g>
+                    
+                    {/* Building 4 - Small Tower (Amber) - CLOSED BOX */}
+                    <g>
+                      {/* Left face */}
+                      <polygon points="290,122 290,95 308,87 308,114" fill="#d97706"/>
+                      {/* Right face */}
+                      <polygon points="308,87 340,98 340,125 308,114" fill="#fbbf24"/>
+                      {/* Top face */}
+                      <polygon points="290,95 308,87 340,98 322,106" fill="#fcd34d"/>
+                      {/* Bottom */}
+                      <polygon points="290,122 322,133 340,125 308,114" fill="#b45309"/>
+                    </g>
+                    
+                    {/* Water */}
+                    <ellipse cx="75" cy="118" rx="20" ry="10" fill="#3b82f6" opacity="0.5"/>
+                    
+                    {/* Trees */}
+                    <circle cx="50" cy="105" r="5" fill="#22c55e" opacity="0.8"/>
+                    <circle cx="165" cy="128" r="4" fill="#22c55e" opacity="0.7"/>
+                    <circle cx="248" cy="135" r="5" fill="#22c55e" opacity="0.8"/>
+                  </svg>
+                  
+                  {/* 3D Badge - Amber themed */}
+                  <div className="absolute top-3 left-3 px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 rounded-lg">
+                    <span className="text-amber-400 text-[10px] font-bold tracking-wide">3D MODEL</span>
+                  </div>
+                  
+                  {/* Format badges */}
+                  <div className="absolute bottom-3 right-3 flex gap-1.5">
+                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60 font-medium">OBJ</span>
+                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60 font-medium">GLB</span>
+                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60 font-medium">STL</span>
+                  </div>
+                </div>
                 
                 {/* Create screen container */}
                 <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
@@ -305,12 +407,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                         <span>🔍</span> Search location...
                       </div>
                       
+                      {/* 2D/3D Toggle */}
+                      <div className="flex gap-1 p-1 bg-[#111] rounded-lg">
+                        <div className="flex-1 py-1.5 bg-amber-500 text-black text-[10px] font-bold rounded text-center">2D</div>
+                        <div className="flex-1 py-1.5 text-gray-500 text-[10px] rounded text-center">3D</div>
+                      </div>
+                      
                       {/* Theme selector */}
                       <div className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-2">
-                        <div className="flex gap-1 mb-2">
-                          <span className="px-1.5 py-0.5 bg-amber-500 text-black rounded text-[8px] font-medium">Analysis</span>
-                          <span className="px-1.5 py-0.5 bg-[#1a1a1a] text-gray-500 rounded text-[8px]">Classic</span>
-                        </div>
                         <div className="grid grid-cols-4 gap-1">
                           {[
                             { bg: '#fff', fg: '#1a1a1a' },
@@ -338,45 +442,45 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                     </div>
                     
                     {/* Map area mockup */}
-                    <div className="w-64 h-56 bg-[#1a1a2e] relative">
+                    <div className="w-64 h-44 bg-[#111] relative">
                       {/* Simple map representation */}
-                      <svg viewBox="0 0 256 224" className="w-full h-full">
-                        <rect fill="#1a1a2e" width="256" height="224"/>
-                        <path d="M0 80 L256 75" stroke="#333" strokeWidth="6"/>
-                        <path d="M0 150 L256 145" stroke="#333" strokeWidth="4"/>
-                        <path d="M80 0 L85 224" stroke="#333" strokeWidth="4"/>
-                        <path d="M180 0 L175 224" stroke="#333" strokeWidth="4"/>
+                      <svg viewBox="0 0 256 176" className="w-full h-full">
+                        <rect fill="#111" width="256" height="176"/>
+                        <path d="M0 60 L256 55" stroke="#222" strokeWidth="6"/>
+                        <path d="M0 120 L256 115" stroke="#222" strokeWidth="4"/>
+                        <path d="M80 0 L85 176" stroke="#222" strokeWidth="4"/>
+                        <path d="M180 0 L175 176" stroke="#222" strokeWidth="4"/>
                         
                         {/* Selection box */}
-                        <rect x="100" y="85" width="80" height="70" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,4">
+                        <rect x="100" y="65" width="70" height="55" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,4">
                           <animate attributeName="stroke-dashoffset" from="0" to="8" dur="1s" repeatCount="indefinite"/>
                         </rect>
                         
                         {/* Center point */}
-                        <circle cx="140" cy="120" r="4" fill="#f59e0b"/>
+                        <circle cx="135" cy="92" r="4" fill="#f59e0b"/>
                       </svg>
                       
                       {/* Tutorial overlay */}
-                      <div className="absolute top-2 left-2 bg-black/80 backdrop-blur px-3 py-2 rounded-lg">
-                        <p className="text-white text-[10px]">🎯 Click to select area</p>
+                      <div className="absolute top-2 left-2 bg-black/80 backdrop-blur px-2 py-1.5 rounded-lg">
+                        <p className="text-white text-[9px]">🎯 Click to select area</p>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Tutorial steps floating */}
-                <div className="absolute -right-4 top-4 flex flex-col gap-2 max-w-[140px]">
+                {/* Tutorial steps floating - Amber themed - positioned lower */}
+                <div className="absolute -right-4 top-48 flex flex-col gap-2 max-w-[140px] z-20">
                   <div className="bg-amber-500 text-black px-3 py-2 rounded-lg shadow-lg">
                     <p className="text-[10px] font-bold">1. Search Location</p>
                     <p className="text-[8px] opacity-80">Type any city or address</p>
                   </div>
-                  <div className="bg-[#111] border border-white/20 text-white px-3 py-2 rounded-lg">
-                    <p className="text-[10px] font-medium">2. Pick Theme</p>
-                    <p className="text-[8px] opacity-60">24 professional styles</p>
+                  <div className="bg-[#111] border border-amber-500/30 text-white px-3 py-2 rounded-lg">
+                    <p className="text-[10px] font-medium">2. Pick 2D or 3D</p>
+                    <p className="text-[8px] opacity-60">34 total themes</p>
                   </div>
-                  <div className="bg-[#111] border border-white/20 text-white px-3 py-2 rounded-lg">
+                  <div className="bg-[#111] border border-amber-500/30 text-white px-3 py-2 rounded-lg">
                     <p className="text-[10px] font-medium">3. Download</p>
-                    <p className="text-[8px] opacity-60">SVG or DXF format</p>
+                    <p className="text-[8px] opacity-60">SVG, DXF, OBJ, GLB</p>
                   </div>
                 </div>
               </div>
@@ -571,7 +675,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               </div>
               
               <ul className="space-y-4 mb-8">
-                {['5 Map Downloads', 'All 24 Themes', 'Full Customization', 'SVG Export', 'Commercial License'].map((f, i) => (
+                {[
+                  '5 Map Downloads (2D or 3D)',
+                  'All 24 2D Themes',
+                  'All 10 3D Themes',
+                  'SVG, DXF, PNG Export',
+                  'OBJ, GLB, STL Export',
+                  'Commercial License'
+                ].map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-white/70">
                     <span className="text-green-500"><CheckIcon /></span>
                     {f}
@@ -611,7 +722,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               </div>
               
               <ul className="space-y-4 mb-8">
-                {['Unlimited Downloads', 'All Premium Themes', 'Priority Support', 'Early Access Features', 'Cancel Anytime'].map((f, i) => (
+                {[
+                  'Unlimited 2D & 3D Downloads',
+                  '34 Total Themes',
+                  'Rhino-Ready OBJ with Materials',
+                  'Layered SVG for Illustrator',
+                  'Priority Support',
+                  'Early Access Features'
+                ].map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-white/70">
                     <span className="text-amber-500"><CheckIcon /></span>
                     {f}
@@ -638,18 +756,21 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
         
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-            Ready to create your first map?
+            Ready to create your first site model?
           </h2>
           <p className="text-white/50 text-xl mb-10 max-w-xl mx-auto">
-            Join architects worldwide using ArchiKEK for their site analysis projects.
+            Generate 2D maps & 3D models in seconds. Export to Illustrator, Rhino, Blender, and more.
           </p>
-          <Link 
-            href="/create" 
-            className="inline-flex items-center gap-3 px-10 py-5 bg-amber-500 text-black font-bold rounded-full text-lg hover:bg-amber-400 transition-all hover:scale-105 hover:shadow-xl hover:shadow-amber-500/25"
-          >
-            Create Your Map — Free
-            <ArrowRightIcon />
-          </Link>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link 
+              href="/create" 
+              className="inline-flex items-center gap-3 px-10 py-5 bg-amber-500 text-black font-bold rounded-full text-lg hover:bg-amber-400 transition-all hover:scale-105 hover:shadow-xl hover:shadow-amber-500/25"
+            >
+              Start Creating — Free
+              <ArrowRightIcon />
+            </Link>
+          </div>
+          <p className="text-white/30 text-sm mt-6">No credit card required • 1 free credit to start</p>
         </div>
       </section>
 
