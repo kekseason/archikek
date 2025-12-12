@@ -294,97 +294,60 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                 {/* Glow effect */}
                 <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/10 via-transparent to-amber-500/5 rounded-3xl blur-2xl" />
                 
-                {/* 3D Model Preview Card */}
-                <div className="relative mb-4 bg-gradient-to-br from-[#111] to-[#0a0a0a] border border-amber-500/20 rounded-2xl p-5 overflow-hidden">
+                {/* 3D Model Preview Card - Smaller height */}
+                <div className="relative mb-4 bg-gradient-to-br from-[#111] to-[#0a0a0a] border border-amber-500/20 rounded-2xl p-4 overflow-hidden" style={{ height: '180px' }}>
                   {/* Subtle grid background */}
                   <div className="absolute inset-0 opacity-10" style={{
                     backgroundImage: `linear-gradient(rgba(245,158,11,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.3) 1px, transparent 1px)`,
                     backgroundSize: '20px 20px'
                   }} />
                   
-                  {/* 3D Isometric City Model - Proper Closed Boxes */}
-                  <svg viewBox="0 0 360 160" className="w-full h-auto relative z-10">
-                    <defs>
-                      <linearGradient id="groundGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#1a1a1a"/>
-                        <stop offset="100%" stopColor="#111"/>
-                      </linearGradient>
-                    </defs>
-                    
+                  {/* 3D Isometric City - Compact proper closed cubes */}
+                  <svg viewBox="0 0 300 120" className="w-full h-full relative z-10">
                     {/* Ground plane */}
-                    <polygon points="180,145 30,100 180,55 330,100" fill="url(#groundGrad)" stroke="#333" strokeWidth="0.5"/>
+                    <polygon points="150,110 20,70 150,30 280,70" fill="#1a1a1a" stroke="#333" strokeWidth="0.5"/>
                     
                     {/* Roads */}
-                    <line x1="105" y1="78" x2="255" y2="122" stroke="#2a2a2a" strokeWidth="8" strokeLinecap="round"/>
-                    <line x1="180" y1="100" x2="180" y2="55" stroke="#2a2a2a" strokeWidth="6" strokeLinecap="round"/>
+                    <line x1="85" y1="50" x2="215" y2="90" stroke="#2a2a2a" strokeWidth="6" strokeLinecap="round"/>
                     
-                    {/* Building 1 - Tall Tower (Amber) - CLOSED BOX */}
-                    <g>
-                      {/* Left face */}
-                      <polygon points="60,95 60,40 85,28 85,83" fill="#d97706"/>
-                      {/* Right face */}
-                      <polygon points="85,28 125,43 125,98 85,83" fill="#fbbf24"/>
-                      {/* Top face */}
-                      <polygon points="60,40 85,28 125,43 100,55" fill="#fcd34d"/>
-                      {/* Bottom edge (closes the box) */}
-                      <polygon points="60,95 100,110 125,98 85,83" fill="#b45309"/>
-                    </g>
+                    {/* Building 1 - Tall (Amber) */}
+                    <polygon points="45,65 45,25 65,17 65,57" fill="#b45309"/>
+                    <polygon points="65,17 95,28 95,68 65,57" fill="#f59e0b"/>
+                    <polygon points="45,25 65,17 95,28 75,36" fill="#fbbf24"/>
                     
-                    {/* Building 2 - Medium (Gray) - CLOSED BOX */}
-                    <g>
-                      {/* Left face */}
-                      <polygon points="135,108 135,68 158,56 158,96" fill="#3a3a3a"/>
-                      {/* Right face */}
-                      <polygon points="158,56 195,70 195,110 158,96" fill="#4a4a4a"/>
-                      {/* Top face */}
-                      <polygon points="135,68 158,56 195,70 172,82" fill="#5a5a5a"/>
-                      {/* Bottom */}
-                      <polygon points="135,108 172,122 195,110 158,96" fill="#2a2a2a"/>
-                    </g>
+                    {/* Building 2 - Medium (Gray) */}
+                    <polygon points="110,78 110,50 128,42 128,70" fill="#333"/>
+                    <polygon points="128,42 158,54 158,82 128,70" fill="#444"/>
+                    <polygon points="110,50 128,42 158,54 140,62" fill="#555"/>
                     
-                    {/* Building 3 - Wide Low (Gray) - CLOSED BOX */}
-                    <g>
-                      {/* Left face */}
-                      <polygon points="200,118 200,88 230,76 230,106" fill="#333"/>
-                      {/* Right face */}
-                      <polygon points="230,76 285,94 285,124 230,106" fill="#444"/>
-                      {/* Top face */}
-                      <polygon points="200,88 230,76 285,94 255,106" fill="#555"/>
-                      {/* Bottom */}
-                      <polygon points="200,118 255,136 285,124 230,106" fill="#222"/>
-                    </g>
+                    {/* Building 3 - Wide (Gray) */}
+                    <polygon points="170,88 170,68 195,58 195,78" fill="#2a2a2a"/>
+                    <polygon points="195,58 240,73 240,93 195,78" fill="#3a3a3a"/>
+                    <polygon points="170,68 195,58 240,73 215,83" fill="#4a4a4a"/>
                     
-                    {/* Building 4 - Small Tower (Amber) - CLOSED BOX */}
-                    <g>
-                      {/* Left face */}
-                      <polygon points="290,122 290,95 308,87 308,114" fill="#d97706"/>
-                      {/* Right face */}
-                      <polygon points="308,87 340,98 340,125 308,114" fill="#fbbf24"/>
-                      {/* Top face */}
-                      <polygon points="290,95 308,87 340,98 322,106" fill="#fcd34d"/>
-                      {/* Bottom */}
-                      <polygon points="290,122 322,133 340,125 308,114" fill="#b45309"/>
-                    </g>
+                    {/* Building 4 - Small (Amber) */}
+                    <polygon points="250,85 250,68 265,62 265,79" fill="#b45309"/>
+                    <polygon points="265,62 285,69 285,86 265,79" fill="#f59e0b"/>
+                    <polygon points="250,68 265,62 285,69 270,75" fill="#fbbf24"/>
                     
                     {/* Water */}
-                    <ellipse cx="75" cy="118" rx="20" ry="10" fill="#3b82f6" opacity="0.5"/>
+                    <ellipse cx="60" cy="85" rx="15" ry="7" fill="#3b82f6" opacity="0.6"/>
                     
                     {/* Trees */}
-                    <circle cx="50" cy="105" r="5" fill="#22c55e" opacity="0.8"/>
-                    <circle cx="165" cy="128" r="4" fill="#22c55e" opacity="0.7"/>
-                    <circle cx="248" cy="135" r="5" fill="#22c55e" opacity="0.8"/>
+                    <circle cx="40" cy="78" r="4" fill="#22c55e" opacity="0.8"/>
+                    <circle cx="135" cy="95" r="3" fill="#22c55e" opacity="0.7"/>
+                    <circle cx="220" cy="100" r="4" fill="#22c55e" opacity="0.8"/>
                   </svg>
                   
-                  {/* 3D Badge - Amber themed */}
-                  <div className="absolute top-3 left-3 px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 rounded-lg">
-                    <span className="text-amber-400 text-[10px] font-bold tracking-wide">3D MODEL</span>
+                  {/* 3D Badge */}
+                  <div className="absolute top-2 left-2 px-2 py-0.5 bg-amber-500/20 border border-amber-500/30 rounded">
+                    <span className="text-amber-400 text-[9px] font-bold tracking-wide">3D MODEL</span>
                   </div>
                   
                   {/* Format badges */}
-                  <div className="absolute bottom-3 right-3 flex gap-1.5">
-                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60 font-medium">OBJ</span>
-                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60 font-medium">GLB</span>
-                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60 font-medium">STL</span>
+                  <div className="absolute bottom-2 right-2 flex gap-1">
+                    <span className="px-1.5 py-0.5 bg-white/10 rounded text-[8px] text-white/60 font-medium">OBJ</span>
+                    <span className="px-1.5 py-0.5 bg-white/10 rounded text-[8px] text-white/60 font-medium">GLB</span>
                   </div>
                 </div>
                 
@@ -468,8 +431,8 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                   </div>
                 </div>
                 
-                {/* Tutorial steps floating - Amber themed - positioned lower */}
-                <div className="absolute -right-4 top-48 flex flex-col gap-2 max-w-[140px] z-20">
+                {/* Tutorial steps floating - positioned to not overlap 3D card */}
+                <div className="absolute -right-4 top-56 flex flex-col gap-2 max-w-[140px] z-20">
                   <div className="bg-amber-500 text-black px-3 py-2 rounded-lg shadow-lg">
                     <p className="text-[10px] font-bold">1. Search Location</p>
                     <p className="text-[8px] opacity-80">Type any city or address</p>
