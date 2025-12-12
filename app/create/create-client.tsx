@@ -304,6 +304,73 @@ const ANALYSIS_THEMES = [
 
 const THEME_CATEGORIES = ['Classic', 'Minimal', 'Analysis', 'Environment', 'Aesthetic', 'Professional']
 
+// ============================================================
+// 3D THEMES (10 TEMA)
+// ============================================================
+
+const THEMES_3D = [
+  {
+    id: 'default',
+    name: 'Default',
+    description: 'Natural realistic colors',
+    preview: { terrain: '#404040', building: '#b3ae9f', road: '#8c8c8c', water: '#3373bf', green: '#4da64d' }
+  },
+  {
+    id: 'dark',
+    name: 'Dark Mode',
+    description: 'Dark background, bright objects',
+    preview: { terrain: '#141419', building: '#a6a6b3', road: '#47474d', water: '#1a5999', green: '#267333' }
+  },
+  {
+    id: 'light',
+    name: 'Light Mode',
+    description: 'Clean white aesthetic',
+    preview: { terrain: '#ebe6e0', building: '#fff9f2', road: '#cccccc', water: '#a6d1f2', green: '#b3e0b3' }
+  },
+  {
+    id: 'blueprint',
+    name: 'Blueprint',
+    description: 'Architectural drawing style',
+    preview: { terrain: '#1f2e59', building: '#739ad9', road: '#527ab3', water: '#2e5280', green: '#4d8c99' }
+  },
+  {
+    id: 'satellite',
+    name: 'Satellite',
+    description: 'Earth tone colors',
+    preview: { terrain: '#594d40', building: '#a6998c', road: '#595959', water: '#26598c', green: '#407338' }
+  },
+  {
+    id: 'vintage',
+    name: 'Vintage',
+    description: 'Retro sepia tones',
+    preview: { terrain: '#b8ad99', building: '#e0d1b8', road: '#a6997f', water: '#809eb3', green: '#8ca67a' }
+  },
+  {
+    id: 'neon',
+    name: 'Neon Cyberpunk',
+    description: 'Bright neon colors',
+    preview: { terrain: '#0d0514', building: '#bf73cc', road: '#1ab3cc', water: '#4d33cc', green: '#33e666' }
+  },
+  {
+    id: 'minimal',
+    name: 'Minimal',
+    description: 'White buildings, dark roads',
+    preview: { terrain: '#fafafa', building: '#ffffff', road: '#666666', water: '#cce0f2', green: '#d9e6d9' }
+  },
+  {
+    id: 'autumn',
+    name: 'Autumn',
+    description: 'Warm fall colors',
+    preview: { terrain: '#735940', building: '#e6cc99', road: '#806b59', water: '#5980a6', green: '#d98c40' }
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean',
+    description: 'Cool blue-green tones',
+    preview: { terrain: '#335973', building: '#cce0eb', road: '#618099', water: '#2673b3', green: '#59a68c' }
+  },
+]
+
 // --- ICONS ---
 const ArrowLeftIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
 const DownloadIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -358,6 +425,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [exportFormat, setExportFormat] = useState<'svg' | 'dxf' | 'png'>('svg')
   const [exportMode, setExportMode] = useState<'2d' | '3d'>('2d')
   const [format3D, setFormat3D] = useState<'obj' | 'glb' | 'stl'>('obj')
+  const [theme3D, setTheme3D] = useState(THEMES_3D[0])
   const [includeTerrain, setIncludeTerrain] = useState(true)
   const [includeMtl, setIncludeMtl] = useState(true)  // OBJ için MTL dosyası
   const [raftThickness, setRaftThickness] = useState(2.0)  // STL için raft (mm)
@@ -985,6 +1053,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         lng: selection.center.lng,
         size: selection.size || size,
         format: format3D,
+        theme: theme3D.id,
         include_terrain: includeTerrain,
         include_roads: layers3D.roads,
         include_water: layers3D.water,
@@ -1711,6 +1780,57 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 {/* 3D Format Options + Layers */}
                 {exportMode === '3d' && (
                   <div className="space-y-3">
+                    {/* 3D Theme Selector */}
+                    <div>
+                      <p className="text-xs text-gray-500 mb-2">3D Theme</p>
+                      <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-1 scrollbar-thin">
+                        {THEMES_3D.map(theme => (
+                          <button
+                            key={theme.id}
+                            onClick={() => setTheme3D(theme)}
+                            className={`p-2 rounded-lg text-left transition-all ${
+                              theme3D.id === theme.id
+                                ? 'ring-2 ring-amber-500 bg-amber-500/10'
+                                : 'bg-[#1a1a1a] hover:bg-[#222]'
+                            }`}
+                          >
+                            {/* Theme Preview Colors */}
+                            <div className="flex gap-0.5 mb-1.5">
+                              <div 
+                                className="w-4 h-4 rounded-sm" 
+                                style={{ backgroundColor: theme.preview.terrain }}
+                                title="Terrain"
+                              />
+                              <div 
+                                className="w-4 h-4 rounded-sm" 
+                                style={{ backgroundColor: theme.preview.building }}
+                                title="Building"
+                              />
+                              <div 
+                                className="w-4 h-4 rounded-sm" 
+                                style={{ backgroundColor: theme.preview.road }}
+                                title="Road"
+                              />
+                              <div 
+                                className="w-4 h-4 rounded-sm" 
+                                style={{ backgroundColor: theme.preview.water }}
+                                title="Water"
+                              />
+                              <div 
+                                className="w-4 h-4 rounded-sm" 
+                                style={{ backgroundColor: theme.preview.green }}
+                                title="Green"
+                              />
+                            </div>
+                            <p className={`text-xs font-medium ${theme3D.id === theme.id ? 'text-amber-400' : 'text-white'}`}>
+                              {theme.name}
+                            </p>
+                            <p className="text-[10px] text-gray-500 truncate">{theme.description}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     <div>
                       <p className="text-xs text-gray-500 mb-2">3D Format</p>
                       <div className="flex gap-2">
