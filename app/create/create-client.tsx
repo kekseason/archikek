@@ -465,6 +465,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [generating, setGenerating] = useState(false)
   const [generated, setGenerated] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showProModal, setShowProModal] = useState(false)
   const [error, setError] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -752,9 +753,20 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             const centerLat = (bounds.south + bounds.north) / 2
             const latMeters = (bounds.north - bounds.south) * 111000
             const lngMeters = (bounds.east - bounds.west) * 111000 * Math.cos(centerLat * Math.PI / 180)
-            const avgSize = Math.round((latMeters + lngMeters) / 2)
+            let avgSize = Math.round((latMeters + lngMeters) / 2)
             
-            if (avgSize > 50) {
+            // Enforce max size limits based on export mode
+            // 2D: max 3000m, 3D: max 2000m
+            const maxSize = exportMode === '3d' ? 2000 : 3000
+            const minSize = 100
+            
+            if (avgSize > maxSize) {
+              avgSize = maxSize
+              setError(`Maximum area is ${maxSize}m × ${maxSize}m for ${exportMode === '3d' ? '3D models' : '2D maps'}`)
+              setTimeout(() => setError(''), 3000)
+            }
+            
+            if (avgSize >= minSize) {
               setSelection({
                 mode: 'rectangle',
                 center: { lat: centerLat, lng: centerLng },
@@ -763,7 +775,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               })
               
               const areaKm = (latMeters * lngMeters) / 1000000
-              setLocation(`${latMeters.toFixed(0)}m × ${lngMeters.toFixed(0)}m (${areaKm.toFixed(2)} km²)`)
+              setLocation(`${Math.min(latMeters, avgSize).toFixed(0)}m × ${Math.min(lngMeters, avgSize).toFixed(0)}m`)
             }
             
             drawStartRef.current = null
@@ -880,10 +892,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
-    // Check credits (unless pro)
+    // Check if Pro required for DXF
     const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
     
-    if (!isPro && (!profile?.credits || profile.credits <= 0)) {
+    if (exportFormat === 'dxf' && !isPro) {
+      setShowProModal(true)
+      return
+    }
+
+    // Check credits for non-Pro SVG/PNG (free formats don't need credits)
+    if (!isPro && (exportFormat === 'svg' || exportFormat === 'png')) {
+      // SVG and PNG are free, no credit check needed
+    } else if (!isPro && (!profile?.credits || profile.credits <= 0)) {
       setError('No credits remaining. Please purchase more credits.')
       return
     }
@@ -892,24 +912,27 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     setError('')
     
     try {
-      // Use credit first
-      const creditResponse = await fetch('/api/use-credit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          theme: selectedTheme.id,
-          location: location,
-          size: selection.size || size
+      // Use credit only for paid formats (DXF) - but DXF is Pro only now
+      // SVG/PNG are free, so skip credit usage
+      if (exportFormat !== 'svg' && exportFormat !== 'png') {
+        const creditResponse = await fetch('/api/use-credit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            theme: selectedTheme.id,
+            location: location,
+            size: selection.size || size
+          })
         })
-      })
 
-      const creditData = await creditResponse.json()
+        const creditData = await creditResponse.json()
 
-      if (!creditResponse.ok) {
-        setError(creditData.error || 'Failed to use credit')
-        setGenerating(false)
-        return
+        if (!creditResponse.ok) {
+          setError(creditData.error || 'Failed to use credit')
+          setGenerating(false)
+          return
+        }
       }
 
       // Generate the map
@@ -1143,10 +1166,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
       const colors = useCustomColors ? customColors : selectedTheme.colors
 
+      // Request format based on export format
+      // DXF gets CAD-style preview, others get regular SVG
+      const previewFormat = exportFormat === 'dxf' ? 'dxf-preview' : 'svg'
+
       // Full quality preview with /generate
       const requestBody = {
         theme: selectedTheme.id,
-        format: 'svg',
+        format: previewFormat,
         resolution: 800,
         show_transit: showTransit,
         show_scale: showScale,
@@ -1357,9 +1384,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   <input
                     type="range"
                     min={250}
-                    max={2000}
+                    max={exportMode === '3d' ? 2000 : 3000}
                     step={50}
-                    value={selection.size || size}
+                    value={Math.min(selection.size || size, exportMode === '3d' ? 2000 : 3000)}
                     onChange={(e) => {
                       const newSize = Number(e.target.value)
                       setSize(newSize)
@@ -1369,7 +1396,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   />
                   <div className="flex justify-between text-[10px] text-gray-600 mt-1">
                     <span>250m</span>
-                    <span>2000m</span>
+                    <span>{exportMode === '3d' ? '2000m' : '3000m'}</span>
                   </div>
                 </div>
 
@@ -1667,18 +1694,26 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               {!previewUrl && (
                 <>
                   <button
-                    onClick={previewMap}
-                    disabled={previewLoading || !selection}
+                    onClick={exportMode === '3d' ? () => setShow3DPreview(true) : previewMap}
+                    disabled={(exportMode === '2d' && previewLoading) || !selection}
                     className={`w-full py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-all ${
                       selection 
                         ? 'bg-amber-500 text-black hover:bg-amber-400' 
                         : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'
                     }`}
                   >
-                    {previewLoading ? (
+                    {previewLoading && exportMode === '2d' ? (
                       <>
                         <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
                         Creating preview...
+                      </>
+                    ) : exportMode === '3d' ? (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" />
+                        </svg>
+                        {selection ? 'Preview 3D Model' : 'Select location first'}
                       </>
                     ) : (
                       <>
@@ -1686,23 +1721,21 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        {selection ? 'Preview (Free)' : 'Select location first'}
+                        {selection ? 'Preview' : 'Select location first'}
                       </>
                     )}
                   </button>
                   
-                  {/* Quick info when no preview */}
-                  <div className="text-center text-[10px] text-gray-500">
-                    {!user ? (
-                      <span>🎉 First map free • No credit card needed</span>
-                    ) : profile?.is_pro ? (
-                      <span className="text-amber-400">✨ Unlimited Pro</span>
-                    ) : profile?.credits && profile.credits > 0 ? (
-                      <span><span className="text-amber-400">{profile.credits}</span> credits available</span>
-                    ) : (
-                      <span className="text-red-400">No credits • <Link href="/pricing" className="text-amber-400 hover:underline">Buy more</Link></span>
-                    )}
-                  </div>
+                  {/* Format info - 2D only */}
+                  {exportMode === '2d' && (
+                    <div className="text-center text-[10px] text-gray-500">
+                      {exportFormat === 'dxf' ? (
+                        <span className="text-amber-400">✨ DXF requires Pro</span>
+                      ) : (
+                        <span className="text-green-400">✓ {exportFormat.toUpperCase()} is free</span>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
 
@@ -1811,66 +1844,77 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
                   </button>
                   
-                  {/* Pricing Info - Context Aware */}
-                  <div className="p-3 bg-[#0f0f0f] border border-[#222] rounded-lg text-center space-y-2">
-                    {!user ? (
-                      // Not logged in
-                      <>
-                        <p className="text-xs text-green-400 font-medium">🎉 First map is FREE!</p>
-                        <p className="text-[10px] text-gray-400">No credit card required</p>
-                        <div className="border-t border-[#222] pt-2 mt-2">
-                          <p className="text-[10px] text-gray-500">
-                            Then: 5 maps for {discount ? (
-                              <><span className="line-through">${baseCreditsPrice}</span> <span className="text-amber-400">${creditsPrice}</span></>
+                  {/* Pricing Info - Only for 2D mode */}
+                  {exportMode === '2d' && (
+                    <div className="p-3 bg-[#0f0f0f] border border-[#222] rounded-lg text-center space-y-2">
+                      {!user ? (
+                        // Not logged in
+                        <>
+                          {exportFormat === 'dxf' ? (
+                            <p className="text-xs text-amber-400 font-medium">✨ DXF requires Pro</p>
+                          ) : (
+                            <p className="text-xs text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</p>
+                          )}
+                          <Link href="/pricing" className="text-[10px] text-amber-400 hover:underline">View all plans →</Link>
+                        </>
+                      ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
+                        // Pro user
+                        <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
+                      ) : profile?.credits && profile.credits > 0 ? (
+                        // Has credits
+                        <>
+                          <p className="text-xs text-white">
+                            <span className="text-amber-400 font-bold text-lg">{profile.credits}</span> credits remaining
+                          </p>
+                          <p className="text-[10px] text-gray-500">Each download uses 1 credit</p>
+                        </>
+                      ) : (
+                        // No credits
+                        <>
+                          <p className="text-xs text-red-400 font-medium">⚠️ No credits remaining</p>
+                          <p className="text-[10px] text-gray-400">
+                            Get 5 maps for {discount ? (
+                              <><span className="line-through text-gray-600">${baseCreditsPrice}</span> <span className="text-amber-400 font-medium">${creditsPrice}</span></>
                             ) : (
-                              <span className="text-white">${baseCreditsPrice}</span>
+                              <span className="text-white font-medium">${baseCreditsPrice}</span>
                             )}
                           </p>
-                        </div>
-                      </>
-                    ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                      // Pro user
-                      <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
-                    ) : profile?.credits && profile.credits > 0 ? (
-                      // Has credits
-                      <>
-                        <p className="text-xs text-white">
-                          <span className="text-amber-400 font-bold text-lg">{profile.credits}</span> credits remaining
-                        </p>
-                        <p className="text-[10px] text-gray-500">Each download uses 1 credit</p>
-                      </>
-                    ) : (
-                      // No credits
-                      <>
-                        <p className="text-xs text-red-400 font-medium">⚠️ No credits remaining</p>
-                        <p className="text-[10px] text-gray-400">
-                          Get 5 maps for {discount ? (
-                            <><span className="line-through text-gray-600">${baseCreditsPrice}</span> <span className="text-amber-400 font-medium">${creditsPrice}</span></>
-                          ) : (
-                            <span className="text-white font-medium">${baseCreditsPrice}</span>
+                          {discount && (
+                            <p className="text-[10px] text-green-400">
+                              🎉 {discount.percent}% {discount.name} discount!
+                            </p>
                           )}
-                        </p>
-                        {discount && (
-                          <p className="text-[10px] text-green-400">
-                            🎉 {discount.percent}% {discount.name} discount!
-                          </p>
-                        )}
-                        <Link 
-                          href="/pricing" 
-                          className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
-                        >
-                          Buy Credits →
+                          <Link 
+                            href="/pricing" 
+                            className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
+                          >
+                            Buy Credits →
+                          </Link>
+                        </>
+                      )}
+                      
+                      {/* Show pricing link if not showing buy button */}
+                      {(!user || (profile?.credits && profile.credits > 0) || profile?.is_pro) && (
+                        <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
+                          View all plans →
                         </Link>
-                      </>
-                    )}
-                    
-                    {/* Show pricing link if not showing buy button */}
-                    {(!user || (profile?.credits && profile.credits > 0) || profile?.is_pro) && (
-                      <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
-                        View all plans →
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* 3D Mode - Pro Required Notice */}
+                  {exportMode === '3d' && (
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-center space-y-2">
+                      <p className="text-xs text-amber-400 font-medium">✨ Pro Feature</p>
+                      <p className="text-[10px] text-gray-400">3D export requires Pro subscription</p>
+                      <Link 
+                        href="/pricing" 
+                        className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
+                      >
+                        Upgrade to Pro →
                       </Link>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   
                   {/* New Preview */}
                   <button
@@ -1885,8 +1929,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             </div>
 
             {/* ═══════════════════════════════════════════════════════ */}
-            {/* ADVANCED OPTIONS - Collapsible */}
+            {/* ADVANCED OPTIONS - Collapsible - Only for 2D mode */}
             {/* ═══════════════════════════════════════════════════════ */}
+            {exportMode === '2d' && (
             <details className="group">
               <summary className="flex items-center justify-between px-3 py-2 bg-[#111] border border-[#222] rounded-lg cursor-pointer text-sm text-gray-400 hover:text-white transition-colors">
                 <span>⚙️ Advanced Options</span>
@@ -2051,6 +2096,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 )}
               </div>
             </details>
+            )}
 
             {/* Error */}
             {error && (
@@ -2227,9 +2273,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     <input
                       type="range"
                       min={250}
-                      max={2000}
+                      max={exportMode === '3d' ? 2000 : 3000}
                       step={50}
-                      value={selection.size || size}
+                      value={Math.min(selection.size || size, exportMode === '3d' ? 2000 : 3000)}
                       onChange={(e) => {
                         const newSize = Number(e.target.value)
                         setSize(newSize)
@@ -2239,7 +2285,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     />
                     <div className="flex justify-between text-[10px] text-gray-600 mt-1">
                       <span>250m</span>
-                      <span>2000m</span>
+                      <span>{exportMode === '3d' ? '2000m' : '3000m'}</span>
                     </div>
                   </div>
                 </div>
@@ -2330,12 +2376,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 
                 {/* Pricing info */}
                 <div className="text-center text-xs text-gray-500">
-                  {!user ? (
-                    <span>🎉 First map free • No credit card needed</span>
-                  ) : profile?.credits && profile.credits > 0 ? (
-                    <span><span className="text-amber-400">{profile.credits}</span> credits available</span>
+                  {exportMode === '3d' || exportFormat === 'dxf' ? (
+                    <span className="text-amber-400">✨ Pro required</span>
                   ) : (
-                    <span className="text-red-400">No credits • <Link href="/pricing" className="text-amber-400">Buy more</Link></span>
+                    <span className="text-green-400">✓ {exportFormat.toUpperCase()} is free</span>
                   )}
                 </div>
               </div>
@@ -2707,20 +2751,15 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               
               {/* Pricing Info - Context Aware */}
               <div className="flex items-center gap-2 text-xs flex-wrap justify-center">
-                {!user ? (
-                  // Not logged in
+                {exportFormat === 'dxf' ? (
+                  // DXF requires Pro
+                  <span className="text-amber-400 font-medium">✨ DXF requires Pro</span>
+                ) : !user ? (
+                  // Not logged in - SVG/PNG free
                   <>
-                    <span className="text-green-400 font-medium">🎉 First map FREE</span>
+                    <span className="text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</span>
                     <span className="text-white/30">•</span>
-                    <span className="text-white/50">No credit card needed</span>
-                    <span className="text-white/30">•</span>
-                    <span className="text-white/50">
-                      Then {discount ? (
-                        <><span className="text-amber-400">${creditsPrice}</span> <span className="line-through text-white/30">${baseCreditsPrice}</span></>
-                      ) : (
-                        <span className="text-white">${baseCreditsPrice}</span>
-                      )} for 5 maps
-                    </span>
+                    <span className="text-white/50">Sign in to download</span>
                   </>
                 ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
                   // Pro user
@@ -2972,7 +3011,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   </svg>
-                  1 Free Map
+                  SVG/PNG Free
                 </span>
                 <span className="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -3008,6 +3047,84 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               >
                 Sign In
               </button>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Pro Required Modal */}
+      {showProModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowProModal(false)} />
+          
+          <div className="relative bg-[#0a0a0a] border border-amber-500/30 rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <button 
+              onClick={() => setShowProModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Pro Icon */}
+            <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </div>
+
+            <h3 className="text-2xl font-semibold text-center mb-2">
+              Pro Feature ✨
+            </h3>
+            <p className="text-gray-400 text-center text-sm mb-6">
+              {exportMode === '3d' 
+                ? '3D Model export (OBJ, GLB, STL) requires Pro subscription'
+                : 'DXF export for AutoCAD/Rhino requires Pro subscription'
+              }
+            </p>
+
+            {/* What's included */}
+            <div className="bg-[#111] border border-[#222] rounded-xl p-4 mb-6">
+              <p className="text-amber-400 text-sm font-medium mb-3">Pro includes:</p>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Unlimited SVG & PNG exports
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  DXF export (AutoCAD, Rhino)
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  3D Models (OBJ, GLB, STL)
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  All 34 themes & customization
+                </li>
+              </ul>
+            </div>
+
+            <Link
+              href="/pricing"
+              className="block w-full px-4 py-3.5 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-colors text-center"
+            >
+              Upgrade to Pro →
+            </Link>
+
+            {/* Free option reminder */}
+            <p className="text-center text-gray-500 text-xs mt-4">
+              SVG and PNG exports are always free
             </p>
           </div>
         </div>
