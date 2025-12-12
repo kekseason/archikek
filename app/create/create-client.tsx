@@ -1069,17 +1069,22 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         lng: selection.center.lng,
         size: selection.size || size,
         format: format3D,
-        theme: theme3D.id,
         include_terrain: includeTerrain,
         include_roads: layers3D.roads,
         include_water: layers3D.water,
         include_green: layers3D.green,
         include_mtl: format3D === 'obj' ? includeMtl : false,
         raft_thickness: format3D === 'stl' ? raftThickness : 0,
-        location_name: locationName || undefined
+        location_name: locationName || undefined,
+        // Send theme colors explicitly
+        color_terrain: theme3D.preview.terrain,
+        color_building: theme3D.preview.building,
+        color_road: theme3D.preview.road,
+        color_water: theme3D.preview.water,
+        color_green: theme3D.preview.green
       }
 
-      console.log('3D Request v7:', requestBody)
+      console.log('3D Request v7 with colors:', requestBody)
 
       const response = await fetch(`${API_URL}/generate-3d`, {
         method: 'POST',
@@ -1716,11 +1721,62 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     }}
                     className="cursor-zoom-in group relative rounded-lg overflow-hidden border-2 border-amber-500/50 hover:border-amber-500 transition-colors"
                   >
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview" 
-                      className={`w-full ${previewLoading ? 'opacity-50' : ''}`}
-                    />
+                    {exportMode === '3d' ? (
+                      /* 3D Isometric Preview */
+                      <div className="w-full aspect-square bg-gradient-to-br from-[#111] to-[#0a0a0a] p-4">
+                        <svg viewBox="0 0 200 200" className="w-full h-full">
+                          {/* Ground */}
+                          <polygon points="100,180 10,130 100,80 190,130" fill={theme3D.preview.terrain} stroke={theme3D.preview.road} strokeWidth="0.5" opacity="0.8"/>
+                          
+                          {/* Roads */}
+                          <line x1="55" y1="105" x2="145" y2="155" stroke={theme3D.preview.road} strokeWidth="6" strokeLinecap="round"/>
+                          <line x1="100" y1="130" x2="100" y2="80" stroke={theme3D.preview.road} strokeWidth="4" strokeLinecap="round"/>
+                          
+                          {/* Building 1 - Tall */}
+                          <g>
+                            <polygon points="30,115 30,50 50,40 50,105" fill={theme3D.preview.building}/>
+                            <polygon points="30,50 70,65 70,130 30,115" fill={theme3D.preview.building} opacity="0.85"/>
+                            <polygon points="30,50 50,40 90,55 70,65" fill={theme3D.preview.building} opacity="0.65"/>
+                            <polygon points="30,115 70,130 90,120 50,105" fill={theme3D.preview.building} opacity="0.5"/>
+                          </g>
+                          
+                          {/* Building 2 - Medium */}
+                          <g>
+                            <polygon points="80,135 80,95 100,85 100,125" fill={theme3D.preview.building} opacity="0.9"/>
+                            <polygon points="80,95 120,110 120,150 80,135" fill={theme3D.preview.building} opacity="0.75"/>
+                            <polygon points="80,95 100,85 140,100 120,110" fill={theme3D.preview.building} opacity="0.55"/>
+                            <polygon points="80,135 120,150 140,140 100,125" fill={theme3D.preview.building} opacity="0.45"/>
+                          </g>
+                          
+                          {/* Building 3 - Wide */}
+                          <g>
+                            <polygon points="130,150 130,120 155,108 155,138" fill={theme3D.preview.building} opacity="0.9"/>
+                            <polygon points="130,120 180,138 180,168 130,150" fill={theme3D.preview.building} opacity="0.75"/>
+                            <polygon points="130,120 155,108 205,126 180,138" fill={theme3D.preview.building} opacity="0.55"/>
+                            <polygon points="130,150 180,168 205,156 155,138" fill={theme3D.preview.building} opacity="0.45"/>
+                          </g>
+                          
+                          {/* Water */}
+                          <ellipse cx="45" cy="145" rx="18" ry="10" fill={theme3D.preview.water} opacity="0.7"/>
+                          
+                          {/* Green */}
+                          <ellipse cx="160" cy="170" rx="15" ry="8" fill={theme3D.preview.green} opacity="0.8"/>
+                          <circle cx="95" cy="160" r="6" fill={theme3D.preview.green} opacity="0.7"/>
+                        </svg>
+                        
+                        {/* Theme name overlay */}
+                        <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-[10px] text-white/70">
+                          {theme3D.name}
+                        </div>
+                      </div>
+                    ) : (
+                      /* 2D Map Preview */
+                      <img 
+                        src={previewUrl} 
+                        alt="Preview" 
+                        className={`w-full ${previewLoading ? 'opacity-50' : ''}`}
+                      />
+                    )}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
                       <span className="bg-amber-500 text-black px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5">
                         {exportMode === '3d' ? (
@@ -1755,66 +1811,82 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
                   </button>
                   
-                  {/* Pricing Info - Context Aware */}
-                  <div className="p-3 bg-[#0f0f0f] border border-[#222] rounded-lg text-center space-y-2">
-                    {!user ? (
-                      // Not logged in
-                      <>
-                        <p className="text-xs text-green-400 font-medium">🎉 First map is FREE!</p>
-                        <p className="text-[10px] text-gray-400">No credit card required</p>
-                        <div className="border-t border-[#222] pt-2 mt-2">
-                          <p className="text-[10px] text-gray-500">
-                            Then: 5 maps for {discount ? (
-                              <><span className="line-through">${baseCreditsPrice}</span> <span className="text-amber-400">${creditsPrice}</span></>
+                  {/* Pricing Info - Only for 2D mode */}
+                  {exportMode === '2d' && (
+                    <div className="p-3 bg-[#0f0f0f] border border-[#222] rounded-lg text-center space-y-2">
+                      {!user ? (
+                        // Not logged in
+                        <>
+                          <p className="text-xs text-green-400 font-medium">🎉 First map is FREE!</p>
+                          <p className="text-[10px] text-gray-400">No credit card required</p>
+                          <div className="border-t border-[#222] pt-2 mt-2">
+                            <p className="text-[10px] text-gray-500">
+                              Then: 5 maps for {discount ? (
+                                <><span className="line-through">${baseCreditsPrice}</span> <span className="text-amber-400">${creditsPrice}</span></>
+                              ) : (
+                                <span className="text-white">${baseCreditsPrice}</span>
+                              )}
+                            </p>
+                          </div>
+                        </>
+                      ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
+                        // Pro user
+                        <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
+                      ) : profile?.credits && profile.credits > 0 ? (
+                        // Has credits
+                        <>
+                          <p className="text-xs text-white">
+                            <span className="text-amber-400 font-bold text-lg">{profile.credits}</span> credits remaining
+                          </p>
+                          <p className="text-[10px] text-gray-500">Each download uses 1 credit</p>
+                        </>
+                      ) : (
+                        // No credits
+                        <>
+                          <p className="text-xs text-red-400 font-medium">⚠️ No credits remaining</p>
+                          <p className="text-[10px] text-gray-400">
+                            Get 5 maps for {discount ? (
+                              <><span className="line-through text-gray-600">${baseCreditsPrice}</span> <span className="text-amber-400 font-medium">${creditsPrice}</span></>
                             ) : (
-                              <span className="text-white">${baseCreditsPrice}</span>
+                              <span className="text-white font-medium">${baseCreditsPrice}</span>
                             )}
                           </p>
-                        </div>
-                      </>
-                    ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                      // Pro user
-                      <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
-                    ) : profile?.credits && profile.credits > 0 ? (
-                      // Has credits
-                      <>
-                        <p className="text-xs text-white">
-                          <span className="text-amber-400 font-bold text-lg">{profile.credits}</span> credits remaining
-                        </p>
-                        <p className="text-[10px] text-gray-500">Each download uses 1 credit</p>
-                      </>
-                    ) : (
-                      // No credits
-                      <>
-                        <p className="text-xs text-red-400 font-medium">⚠️ No credits remaining</p>
-                        <p className="text-[10px] text-gray-400">
-                          Get 5 maps for {discount ? (
-                            <><span className="line-through text-gray-600">${baseCreditsPrice}</span> <span className="text-amber-400 font-medium">${creditsPrice}</span></>
-                          ) : (
-                            <span className="text-white font-medium">${baseCreditsPrice}</span>
+                          {discount && (
+                            <p className="text-[10px] text-green-400">
+                              🎉 {discount.percent}% {discount.name} discount!
+                            </p>
                           )}
-                        </p>
-                        {discount && (
-                          <p className="text-[10px] text-green-400">
-                            🎉 {discount.percent}% {discount.name} discount!
-                          </p>
-                        )}
-                        <Link 
-                          href="/pricing" 
-                          className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
-                        >
-                          Buy Credits →
+                          <Link 
+                            href="/pricing" 
+                            className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
+                          >
+                            Buy Credits →
+                          </Link>
+                        </>
+                      )}
+                      
+                      {/* Show pricing link if not showing buy button */}
+                      {(!user || (profile?.credits && profile.credits > 0) || profile?.is_pro) && (
+                        <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
+                          View all plans →
                         </Link>
-                      </>
-                    )}
-                    
-                    {/* Show pricing link if not showing buy button */}
-                    {(!user || (profile?.credits && profile.credits > 0) || profile?.is_pro) && (
-                      <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
-                        View all plans →
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* 3D Mode - Pro Required Notice */}
+                  {exportMode === '3d' && (
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-center space-y-2">
+                      <p className="text-xs text-amber-400 font-medium">✨ Pro Feature</p>
+                      <p className="text-[10px] text-gray-400">3D export requires Pro subscription</p>
+                      <Link 
+                        href="/pricing" 
+                        className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
+                      >
+                        Upgrade to Pro →
                       </Link>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   
                   {/* New Preview */}
                   <button
@@ -2025,13 +2097,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 </button>
               </div>
               
-              {/* Layer toggles in modal */}
+              {/* Layer toggles in modal - use theme colors */}
               <div className="absolute top-16 left-4 z-10 flex flex-col gap-1">
                 {[
-                  { key: 'buildings', label: 'Buildings', color: '#444444' },
-                  { key: 'roads', label: 'Roads', color: '#666666' },
-                  { key: 'water', label: 'Water', color: '#4a90d9' },
-                  { key: 'green', label: 'Green', color: '#5a8f5a' },
+                  { key: 'buildings', label: 'Buildings', colorKey: 'building' as const },
+                  { key: 'roads', label: 'Roads', colorKey: 'road' as const },
+                  { key: 'water', label: 'Water', colorKey: 'water' as const },
+                  { key: 'green', label: 'Green', colorKey: 'green' as const },
                 ].map(layer => (
                   <button
                     key={layer.key}
@@ -2044,7 +2116,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   >
                     <div 
                       className="w-3 h-3 rounded-sm" 
-                      style={{ backgroundColor: layers3D[layer.key as keyof typeof layers3D] ? layer.color : '#333' }}
+                      style={{ backgroundColor: layers3D[layer.key as keyof typeof layers3D] ? theme3D.preview[layer.colorKey] : '#333' }}
                     />
                     {layer.label}
                   </button>
@@ -2967,15 +3039,20 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold mb-2">Map Downloaded!</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              {exportMode === '3d' ? '3D Model Downloaded!' : 'Map Downloaded!'}
+            </h3>
             <p className="text-gray-400 text-sm mb-6">
-              Your SVG file has been downloaded. Open it in Adobe Illustrator or any vector editor.
+              {exportMode === '3d' 
+                ? `Your ${format3D.toUpperCase()} file has been downloaded. Open it in Rhino, SketchUp, Blender or any 3D software.`
+                : `Your ${exportFormat.toUpperCase()} file has been downloaded. Open it in Adobe Illustrator or any vector editor.`
+              }
             </p>
             <button
               onClick={() => setGenerated(false)}
               className="w-full px-5 py-3 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-colors"
             >
-              Create Another Map
+              {exportMode === '3d' ? 'Create Another Model' : 'Create Another Map'}
             </button>
           </div>
         </div>
