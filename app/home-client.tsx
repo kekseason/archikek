@@ -288,70 +288,97 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               </div>
             </div>
 
-            {/* Right - 3D Model on top, Create Screen below */}
+            {/* Right - Clean Preview Cards */}
             <div className="relative hidden lg:block">
               <div className="relative">
                 {/* Glow effect */}
                 <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/10 via-transparent to-amber-500/5 rounded-3xl blur-2xl" />
                 
-                {/* 3D Model Preview - Aksonometrik */}
-                <div className="relative mb-4 bg-gradient-to-br from-[#1a1a2e] to-[#0f0f1a] border border-white/10 rounded-2xl p-6 overflow-hidden">
-                  {/* 3D Aksonometrik City Model */}
-                  <svg viewBox="0 0 400 200" className="w-full h-auto">
-                    {/* Ground plane */}
-                    <polygon points="200,180 50,130 200,80 350,130" fill="#1a1a1a" stroke="#333" strokeWidth="1"/>
+                {/* 3D Model Preview Card */}
+                <div className="relative mb-4 bg-gradient-to-br from-[#111] to-[#0a0a0a] border border-amber-500/20 rounded-2xl p-5 overflow-hidden">
+                  {/* Subtle grid background */}
+                  <div className="absolute inset-0 opacity-10" style={{
+                    backgroundImage: `linear-gradient(rgba(245,158,11,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.3) 1px, transparent 1px)`,
+                    backgroundSize: '20px 20px'
+                  }} />
+                  
+                  {/* 3D Aksonometrik City Model - Cleaner Design */}
+                  <svg viewBox="0 0 400 180" className="w-full h-auto relative z-10">
+                    {/* Ground plane with subtle gradient */}
+                    <defs>
+                      <linearGradient id="groundGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#1a1a1a"/>
+                        <stop offset="100%" stopColor="#111"/>
+                      </linearGradient>
+                      <linearGradient id="buildingGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#fcd34d"/>
+                        <stop offset="100%" stopColor="#f59e0b"/>
+                      </linearGradient>
+                      <linearGradient id="buildingGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#555"/>
+                        <stop offset="100%" stopColor="#333"/>
+                      </linearGradient>
+                    </defs>
+                    
+                    {/* Ground */}
+                    <polygon points="200,165 40,115 200,65 360,115" fill="url(#groundGrad)" stroke="#333" strokeWidth="0.5"/>
                     
                     {/* Roads */}
-                    <line x1="125" y1="105" x2="275" y2="155" stroke="#444" strokeWidth="8"/>
-                    <line x1="200" y1="130" x2="200" y2="80" stroke="#444" strokeWidth="6"/>
+                    <line x1="120" y1="90" x2="280" y2="140" stroke="#2a2a2a" strokeWidth="10" strokeLinecap="round"/>
+                    <line x1="200" y1="115" x2="200" y2="65" stroke="#2a2a2a" strokeWidth="7" strokeLinecap="round"/>
                     
-                    {/* Building 1 - Tall */}
+                    {/* Building 1 - Tall Tower (Amber accent) */}
                     <g>
-                      <polygon points="80,110 80,50 110,35 110,95" fill="#f59e0b" stroke="#d97706" strokeWidth="1"/>
-                      <polygon points="80,50 130,65 130,125 80,110" fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
-                      <polygon points="80,50 110,35 160,50 130,65" fill="#fcd34d" stroke="#d97706" strokeWidth="1"/>
+                      <polygon points="70,100 70,35 100,20 100,85" fill="#f59e0b"/>
+                      <polygon points="70,35 125,52 125,117 70,100" fill="#fbbf24"/>
+                      <polygon points="70,35 100,20 155,37 125,52" fill="#fcd34d"/>
+                      {/* Windows */}
+                      <rect x="75" y="45" width="8" height="6" fill="#111" opacity="0.5"/>
+                      <rect x="75" y="58" width="8" height="6" fill="#111" opacity="0.5"/>
+                      <rect x="75" y="71" width="8" height="6" fill="#111" opacity="0.5"/>
                     </g>
                     
-                    {/* Building 2 - Medium */}
+                    {/* Building 2 - Medium (Gray) */}
                     <g>
-                      <polygon points="140,125 140,85 165,72 165,112" fill="#666" stroke="#555" strokeWidth="1"/>
-                      <polygon points="140,85 185,100 185,140 140,125" fill="#888" stroke="#555" strokeWidth="1"/>
-                      <polygon points="140,85 165,72 210,87 185,100" fill="#999" stroke="#555" strokeWidth="1"/>
+                      <polygon points="145,115 145,70 175,55 175,100" fill="#4a4a4a"/>
+                      <polygon points="145,70 200,88 200,133 145,115" fill="#5a5a5a"/>
+                      <polygon points="145,70 175,55 230,73 200,88" fill="#6a6a6a"/>
                     </g>
                     
-                    {/* Building 3 - Wide */}
+                    {/* Building 3 - Wide (Gray) */}
                     <g>
-                      <polygon points="220,140 220,110 250,97 250,127" fill="#555" stroke="#444" strokeWidth="1"/>
-                      <polygon points="220,110 290,130 290,160 220,140" fill="#777" stroke="#444" strokeWidth="1"/>
-                      <polygon points="220,110 250,97 320,117 290,130" fill="#888" stroke="#444" strokeWidth="1"/>
+                      <polygon points="220,130 220,95 255,80 255,115" fill="#3a3a3a"/>
+                      <polygon points="220,95 300,118 300,153 220,130" fill="#4a4a4a"/>
+                      <polygon points="220,95 255,80 335,103 300,118" fill="#5a5a5a"/>
                     </g>
                     
-                    {/* Building 4 - Small accent */}
+                    {/* Building 4 - Small Tower (Amber accent) */}
                     <g>
-                      <polygon points="300,145 300,120 320,110 320,135" fill="#f59e0b" stroke="#d97706" strokeWidth="1"/>
-                      <polygon points="300,120 340,132 340,157 300,145" fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
-                      <polygon points="300,120 320,110 360,122 340,132" fill="#fcd34d" stroke="#d97706" strokeWidth="1"/>
+                      <polygon points="310,138 310,108 330,98 330,128" fill="#f59e0b"/>
+                      <polygon points="310,108 355,122 355,152 310,138" fill="#fbbf24"/>
+                      <polygon points="310,108 330,98 375,112 355,122" fill="#fcd34d"/>
                     </g>
                     
-                    {/* Water */}
-                    <ellipse cx="320" cy="170" rx="35" ry="15" fill="#3b82f6" opacity="0.6"/>
+                    {/* Water - subtle blue */}
+                    <ellipse cx="85" cy="135" rx="25" ry="12" fill="#3b82f6" opacity="0.4"/>
+                    <ellipse cx="85" cy="135" rx="18" ry="8" fill="#60a5fa" opacity="0.3"/>
                     
                     {/* Trees */}
-                    <circle cx="70" cy="135" r="8" fill="#22c55e" opacity="0.8"/>
-                    <circle cx="180" cy="155" r="6" fill="#22c55e" opacity="0.8"/>
-                    <circle cx="260" cy="165" r="7" fill="#22c55e" opacity="0.8"/>
+                    <circle cx="55" cy="120" r="6" fill="#22c55e" opacity="0.7"/>
+                    <circle cx="175" cy="145" r="5" fill="#22c55e" opacity="0.6"/>
+                    <circle cx="265" cy="155" r="6" fill="#22c55e" opacity="0.7"/>
                   </svg>
                   
-                  {/* 3D Badge */}
-                  <div className="absolute top-3 left-3 px-2 py-1 bg-purple-500/20 border border-purple-500/40 rounded-lg">
-                    <span className="text-purple-400 text-[10px] font-bold">3D MODEL</span>
+                  {/* 3D Badge - Amber themed */}
+                  <div className="absolute top-3 left-3 px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 rounded-lg">
+                    <span className="text-amber-400 text-[10px] font-bold tracking-wide">3D MODEL</span>
                   </div>
                   
                   {/* Format badges */}
-                  <div className="absolute bottom-3 right-3 flex gap-1">
-                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60">OBJ</span>
-                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60">GLB</span>
-                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60">STL</span>
+                  <div className="absolute bottom-3 right-3 flex gap-1.5">
+                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60 font-medium">OBJ</span>
+                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60 font-medium">GLB</span>
+                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60 font-medium">STL</span>
                   </div>
                 </div>
                 
@@ -409,14 +436,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                     </div>
                     
                     {/* Map area mockup */}
-                    <div className="w-64 h-44 bg-[#1a1a2e] relative">
+                    <div className="w-64 h-44 bg-[#111] relative">
                       {/* Simple map representation */}
                       <svg viewBox="0 0 256 176" className="w-full h-full">
-                        <rect fill="#1a1a2e" width="256" height="176"/>
-                        <path d="M0 60 L256 55" stroke="#333" strokeWidth="6"/>
-                        <path d="M0 120 L256 115" stroke="#333" strokeWidth="4"/>
-                        <path d="M80 0 L85 176" stroke="#333" strokeWidth="4"/>
-                        <path d="M180 0 L175 176" stroke="#333" strokeWidth="4"/>
+                        <rect fill="#111" width="256" height="176"/>
+                        <path d="M0 60 L256 55" stroke="#222" strokeWidth="6"/>
+                        <path d="M0 120 L256 115" stroke="#222" strokeWidth="4"/>
+                        <path d="M80 0 L85 176" stroke="#222" strokeWidth="4"/>
+                        <path d="M180 0 L175 176" stroke="#222" strokeWidth="4"/>
                         
                         {/* Selection box */}
                         <rect x="100" y="65" width="70" height="55" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,4">
@@ -435,17 +462,17 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                   </div>
                 </div>
                 
-                {/* Tutorial steps floating */}
+                {/* Tutorial steps floating - Amber themed */}
                 <div className="absolute -right-4 top-32 flex flex-col gap-2 max-w-[140px]">
                   <div className="bg-amber-500 text-black px-3 py-2 rounded-lg shadow-lg">
                     <p className="text-[10px] font-bold">1. Search Location</p>
                     <p className="text-[8px] opacity-80">Type any city or address</p>
                   </div>
-                  <div className="bg-[#111] border border-white/20 text-white px-3 py-2 rounded-lg">
+                  <div className="bg-[#111] border border-amber-500/30 text-white px-3 py-2 rounded-lg">
                     <p className="text-[10px] font-medium">2. Pick 2D or 3D</p>
                     <p className="text-[8px] opacity-60">34 total themes</p>
                   </div>
-                  <div className="bg-[#111] border border-white/20 text-white px-3 py-2 rounded-lg">
+                  <div className="bg-[#111] border border-amber-500/30 text-white px-3 py-2 rounded-lg">
                     <p className="text-[10px] font-medium">3. Download</p>
                     <p className="text-[8px] opacity-60">SVG, DXF, OBJ, GLB</p>
                   </div>
