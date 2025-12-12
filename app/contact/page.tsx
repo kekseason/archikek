@@ -88,7 +88,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-white font-medium">Email</h3>
-                  <p className="text-gray-400 text-sm">support@archikek.com</p>
+                  <p className="text-gray-400 text-sm">mehmetsozturk35@gmail.com</p>
                 </div>
               </div>
 
@@ -246,7 +246,7 @@ export default function ContactPage() {
       {/* Footer */}
       <footer className="border-t border-[#1a1a1a] py-8 mt-12">
         <div className="max-w-4xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-          <span>© 2024 ArchiKEK</span>
+          <span>© 2025 ArchiKEK</span>
           <div className="flex items-center gap-6">
             <Link href="/" className="hover:text-white transition">Home</Link>
             <Link href="/terms" className="hover:text-white transition">Terms</Link>
