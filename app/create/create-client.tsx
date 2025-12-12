@@ -1179,8 +1179,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       setPreviewUrl(url)
-      setShowLightbox(true) // Auto-open lightbox
-      setLightboxZoom(1) // Reset zoom
+      // Open correct viewer based on export mode
+      if (exportMode === '3d') {
+        setShow3DPreview(true) // Open 3D viewer
+      } else {
+        setShowLightbox(true) // Open 2D lightbox
+        setLightboxZoom(1) // Reset zoom
+      }
     } catch (err: any) {
       console.error('Preview catch:', err)
       if (err.message === 'Failed to fetch') {
