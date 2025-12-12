@@ -1701,7 +1701,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 <div className="space-y-3">
                   {/* Clickable Mini Preview */}
                   <div 
-                    onClick={() => { setShowLightbox(true); setLightboxZoom(1); }}
+                    onClick={() => { 
+                      if (exportMode === '3d') {
+                        setShow3DPreview(true);
+                      } else {
+                        setShowLightbox(true); 
+                        setLightboxZoom(1); 
+                      }
+                    }}
                     className="cursor-zoom-in group relative rounded-lg overflow-hidden border-2 border-amber-500/50 hover:border-amber-500 transition-colors"
                   >
                     <img 
@@ -1711,11 +1718,24 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
                       <span className="bg-amber-500 text-black px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="11" cy="11" r="8" />
-                          <path d="m21 21-4.35-4.35M11 8v6M8 11h6" />
-                        </svg>
-                        Click to zoom
+                        {exportMode === '3d' ? (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                              <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                            Open 3D View
+                          </>
+                        ) : (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="11" cy="11" r="8" />
+                              <path d="m21 21-4.35-4.35M11 8v6M8 11h6" />
+                            </svg>
+                            Click to zoom
+                          </>
+                        )}
                       </span>
                     </div>
                   </div>
@@ -2078,10 +2098,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 )}
                 {previewUrl && (
                   <button
-                    onClick={(e) => { e.stopPropagation(); setShowLightbox(true); }}
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      if (exportMode === '3d') {
+                        setShow3DPreview(true);
+                      } else {
+                        setShowLightbox(true); 
+                      }
+                    }}
                     className="px-4 py-2 bg-amber-500 text-black rounded-lg font-medium text-sm"
                   >
-                    View
+                    {exportMode === '3d' ? '3D View' : 'View'}
                   </button>
                 )}
               </div>
@@ -2213,10 +2240,22 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 ) : (
                   <>
                     <div 
-                      onClick={() => { setShowLightbox(true); setLightboxZoom(1); }}
+                      onClick={() => { 
+                        if (exportMode === '3d') {
+                          setShow3DPreview(true);
+                        } else {
+                          setShowLightbox(true); 
+                          setLightboxZoom(1); 
+                        }
+                      }}
                       className="cursor-pointer rounded-lg overflow-hidden border-2 border-amber-500/50"
                     >
                       <img src={previewUrl} alt="Preview" className="w-full" />
+                      {exportMode === '3d' && (
+                        <div className="bg-purple-500/20 text-purple-400 text-xs text-center py-1">
+                          Tap for 3D View
+                        </div>
+                      )}
                     </div>
                     <button 
                       onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
@@ -2226,7 +2265,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
                     </button>
                   </>
-                )}
+                )}}
                 
                 {/* Pricing info */}
                 <div className="text-center text-xs text-gray-500">
