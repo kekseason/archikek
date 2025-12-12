@@ -1014,7 +1014,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       
       // Dosya uzantısını belirle
       const safeName = locationName ? locationName.replace(/\s+/g, '_') : 'archikek'
-      let ext = format3D
+      let ext: string = format3D
       
       // OBJ + MTL = ZIP dosyası
       if (format3D === 'obj' && includeMtl) {
