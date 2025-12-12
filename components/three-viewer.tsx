@@ -160,6 +160,7 @@ export default function ThreeViewer({ lat, lng, size = 500, layers }: ThreeViewe
 
         // Create mesh groups for each layer
         const layerConfigs = [
+          { key: 'terrain', color: 0x1a1a1a, data: data.terrain },
           { key: 'buildings', color: 0x666666, data: data.buildings },
           { key: 'roads', color: 0x444444, data: data.roads },
           { key: 'water', color: 0x4a90d9, data: data.water },
