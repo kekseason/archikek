@@ -952,7 +952,7 @@ Rhino's precision and Grasshopper's parametric power make them ideal for site an
 
 ### Organize Layers
 Create a layer structure:
-\`\`\`
+```
 SITE
 ├── CONTEXT
 │   ├── buildings_existing
@@ -964,7 +964,7 @@ SITE
 └── DESIGN
     ├── buildings_proposed
     └── landscape
-\`\`\`
+```
 
 ### Create Building Masses
 From 2D footprints to 3D:
@@ -1003,19 +1003,19 @@ If you have contour data:
 ### Urban Design Tools
 
 **Random Building Heights**
-\`\`\`
+```
 Curves → Extrude → Random(min, max) → Masses
-\`\`\`
+```
 
 **Setback Generation**
-\`\`\`
+```
 Curves → Offset → Extrude → Buildings with setbacks
-\`\`\`
+```
 
 **View Corridor Analysis**
-\`\`\`
+```
 Key viewpoints → Ray intersection → Height limits
-\`\`\`
+```
 
 ## Plugins That Help
 
@@ -1608,10 +1608,10 @@ ArchiKEK now exports 3D models directly to OBJ format—the industry standard fo
 
 ### 2. Download the ZIP
 Your download includes:
-- \`archikek_model.obj\` - The 3D geometry
-- \`archikek.mtl\` - Material definitions
-- \`import_to_rhino.py\` - Automation script
-- \`README.txt\` - Instructions
+- `archikek_model.obj` - The 3D geometry
+- `archikek.mtl` - Material definitions
+- `import_to_rhino.py` - Automation script
+- `README.txt` - Instructions
 
 ### 3. Import to Rhino
 
@@ -1645,7 +1645,7 @@ Choose the right mood for your project:
 ## Tips for Rhino Users
 
 ### Scale Correctly
-Models export in meters. Use \`Scale\` command if you need different units.
+Models export in meters. Use `Scale` command if you need different units.
 
 ### Organize Layers
 The OBJ imports as groups:
@@ -1855,7 +1855,7 @@ Keep defaults, but check:
 
 ### Scene Organization
 GLB imports as a hierarchy:
-\`\`\`
+```
 ArchiKEK_Model
 ├── Buildings
 │   ├── Residential
@@ -1865,7 +1865,7 @@ ArchiKEK_Model
 ├── Water
 ├── Green
 └── Terrain
-\`\`\`
+```
 
 ### Converting Materials
 ArchiKEK exports basic colors. For better renders:
@@ -2169,7 +2169,7 @@ The theme is a starting point—make it yours!
     date: '2024-12-13',
     readTime: '8 min read',
     category: 'Tool Guide',
-    content: \`
+    content: `
 ## What is a Site Plan Generator?
 
 A site plan generator is an online tool that automatically creates architectural site plans from geographic data. Instead of spending hours tracing building footprints in CAD software, you can generate accurate site plans in seconds.
@@ -2227,7 +2227,7 @@ Yes! SVG and PNG exports are completely free. DXF and 3D exports require a Pro s
 ArchiKEK uses OpenStreetMap data, which is continuously updated by a global community.
 
 [Generate Your Site Plan →](/create)
-    \`
+    `
   },
 
   // TARGET: "CAD map download" - 1,900 monthly searches
@@ -2237,7 +2237,7 @@ ArchiKEK uses OpenStreetMap data, which is continuously updated by a global comm
     date: '2024-12-13',
     readTime: '6 min read',
     category: 'Tutorial',
-    content: \`
+    content: `
 ## Download CAD Maps in DXF Format
 
 Need a CAD-ready map for your architecture project? ArchiKEK lets you download professional DXF files with organized layers for any location worldwide.
@@ -2283,7 +2283,7 @@ Your DXF export includes 15+ organized layers:
 DXF export is a Pro feature at $19/month.
 
 [Export DXF Map →](/create)
-    \`
+    `
   },
 
   // TARGET: "3D city model" - 3,600 monthly searches
@@ -2293,7 +2293,7 @@ DXF export is a Pro feature at $19/month.
     date: '2024-12-13',
     readTime: '7 min read',
     category: 'Tool Guide',
-    content: \`
+    content: `
 ## Generate 3D City Models in Seconds
 
 Creating 3D urban context models used to require hours of manual work. With ArchiKEK, you can generate detailed 3D city models with real terrain elevation and building footprints instantly.
@@ -2341,7 +2341,7 @@ Best for: 3D printing
 - AR/VR
 
 [Create 3D Model →](/create)
-    \`
+    `
   },
 
   // TARGET: "urban map SVG" - 720 monthly searches
@@ -2351,7 +2351,7 @@ Best for: 3D printing
     date: '2024-12-13',
     readTime: '5 min read',
     category: 'Tutorial',
-    content: \`
+    content: `
 ## Vector Urban Maps for Designers
 
 SVG (Scalable Vector Graphics) is the ideal format for urban maps in design work. Unlike raster images, SVG maps can be scaled infinitely without losing quality.
@@ -2387,7 +2387,7 @@ ArchiKEK SVGs include organized Inkscape-compatible layers:
 SVG exports are **completely free** with ArchiKEK.
 
 [Download SVG Map →](/create)
-    \`
+    `
   },
 
   // TARGET: "architecture site plan" - 1,300 monthly searches
@@ -2397,7 +2397,7 @@ SVG exports are **completely free** with ArchiKEK.
     date: '2024-12-13',
     readTime: '10 min read',
     category: 'Guide',
-    content: \`
+    content: `
 ## What is an Architecture Site Plan?
 
 An architecture site plan is a scaled drawing showing the horizontal arrangement of a building project and its surrounding context.
@@ -2437,7 +2437,7 @@ Start with an accurate base map from ArchiKEK:
 4. **Style and annotate**
 
 [Create Site Plan →](/create)
-    \`
+    `
   },
 
   // TARGET: "DXF map export" - 480 monthly searches
@@ -2447,7 +2447,7 @@ Start with an accurate base map from ArchiKEK:
     date: '2024-12-13',
     readTime: '5 min read',
     category: 'Tutorial',
-    content: \`
+    content: `
 ## Export Maps to DXF for CAD Software
 
 DXF (Drawing Exchange Format) is the universal format for CAD data exchange. ArchiKEK exports professional DXF files with organized layers.
@@ -2479,7 +2479,7 @@ DXF (Drawing Exchange Format) is the universal format for CAD data exchange. Arc
 4. Download
 
 [Export DXF Map →](/create)
-    \`
+    `
   },
 
   // TARGET: "topographic map maker" - 1,600 monthly searches
@@ -2489,7 +2489,7 @@ DXF (Drawing Exchange Format) is the universal format for CAD data exchange. Arc
     date: '2024-12-13',
     readTime: '6 min read',
     category: 'Tool Guide',
-    content: \`
+    content: `
 ## Create Topographic Maps Online
 
 Topographic maps show terrain elevation through contour lines. ArchiKEK generates topographic maps using real elevation data.
@@ -2526,7 +2526,7 @@ Topographic maps show terrain elevation through contour lines. ArchiKEK generate
 - Flood risk assessment
 
 [Create Topographic Map →](/create)
-    \`
+    `
   },
 
   // TARGET: "OpenStreetMap architecture" - 800 monthly searches
@@ -2536,7 +2536,7 @@ Topographic maps show terrain elevation through contour lines. ArchiKEK generate
     date: '2024-12-13',
     readTime: '8 min read',
     category: 'Guide',
-    content: \`
+    content: `
 ## OpenStreetMap for Architects
 
 OpenStreetMap (OSM) is a free, collaborative map of the world with:
@@ -2572,7 +2572,7 @@ ArchiKEK automates the entire process:
 3. **Download** in your format
 
 [Generate OSM Map →](/create)
-    \`
+    `
   },
 
   // TARGET: "free architecture tools" - 900 monthly searches  
@@ -2582,7 +2582,7 @@ ArchiKEK automates the entire process:
     date: '2024-12-13',
     readTime: '12 min read',
     category: 'Resource',
-    content: \`
+    content: `
 ## Free Tools Every Architect Needs
 
 ### Site Analysis & Mapping
@@ -2617,7 +2617,7 @@ ArchiKEK automates the entire process:
 | Vectors | Inkscape | Illustrator |
 
 [Start with Site Analysis →](/create)
-    \`
+    `
   },
 
   // TARGET: "figure ground map" - 1,100 monthly searches
@@ -2627,7 +2627,7 @@ ArchiKEK automates the entire process:
     date: '2024-12-13',
     readTime: '9 min read',
     category: 'Guide',
-    content: \`
+    content: `
 ## Understanding Figure Ground Maps
 
 The figure ground map is one of the most powerful tools in urban design analysis. Buildings are shown as solid shapes (figure) against a blank background (ground).
@@ -2667,7 +2667,7 @@ In the 1960s-70s, Colin Rowe and Fred Koetter developed figure ground analysis i
 3. Download SVG or DXF
 
 [Create Figure Ground Map →](/create)
-    \`
+    `
   },
 }
 
