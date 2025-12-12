@@ -6,6 +6,56 @@ import { useRouter } from 'next/navigation'
 
 // Blog post data
 const blogPosts = [
+  // 3D EXPORT POSTS (NEW)
+  {
+    slug: '3d-site-model-rhino-obj',
+    title: 'How to Create 3D Site Models for Rhino in Minutes',
+    description: 'Export ready-to-use OBJ files with buildings, roads, water and terrain. Complete guide for Rhino users.',
+    date: '2024-12-12',
+    readTime: '6 min read',
+    category: '3D Export',
+    featured: true,
+    image: '/examples/technical.png',
+  },
+  {
+    slug: '3d-print-city-model',
+    title: '3D Print Your City: STL Export Guide for Architecture Models',
+    description: 'Learn how to export and prepare 3D city models for FDM and SLA printers. Tips for scale and detail.',
+    date: '2024-12-11',
+    readTime: '8 min read',
+    category: '3D Export',
+    featured: true,
+    image: '/examples/barcelona.png',
+  },
+  {
+    slug: 'blender-glb-site-model',
+    title: 'Import ArchiKEK 3D Models into Blender: GLB Workflow',
+    description: 'Step-by-step guide for importing GLB files into Blender. Perfect for rendering and animation.',
+    date: '2024-12-10',
+    readTime: '5 min read',
+    category: '3D Export',
+    featured: true,
+    image: '/examples/warm-sunset.png',
+  },
+  {
+    slug: 'sketchup-obj-import',
+    title: 'SketchUp OBJ Import: Add Real Context to Your Designs',
+    description: 'How to import ArchiKEK OBJ exports into SketchUp with proper materials and layers.',
+    date: '2024-12-09',
+    readTime: '5 min read',
+    category: '3D Export',
+    featured: false,
+  },
+  {
+    slug: '3d-themes-explained',
+    title: '10 3D Themes Explained: From Default to Neon Cyberpunk',
+    description: 'Understand each 3D theme and when to use them. Material colors for different presentation styles.',
+    date: '2024-12-08',
+    readTime: '4 min read',
+    category: '3D Export',
+    featured: false,
+  },
+  // EXISTING 2D POSTS
   {
     slug: 'how-to-create-figure-ground-map',
     title: 'How to Create a Figure Ground Map in 5 Minutes',
@@ -13,7 +63,7 @@ const blogPosts = [
     date: '2024-12-08',
     readTime: '5 min read',
     category: 'Tutorial',
-    featured: true,
+    featured: false,
     image: '/examples/technical.png',
   },
   {
@@ -23,7 +73,7 @@ const blogPosts = [
     date: '2024-12-07',
     readTime: '7 min read',
     category: 'Guide',
-    featured: true,
+    featured: false,
     image: '/examples/barcelona.png',
   },
   {
@@ -33,7 +83,7 @@ const blogPosts = [
     date: '2024-12-09',
     readTime: '8 min read',
     category: 'Case Study',
-    featured: true,
+    featured: false,
     image: '/examples/warm-sunset.png',
   },
   {
@@ -97,7 +147,7 @@ const blogPosts = [
     date: '2024-12-10',
     readTime: '5 min read',
     category: 'Tutorial',
-    featured: true,
+    featured: false,
     image: '/examples/technical.png',
   },
   {
