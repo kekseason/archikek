@@ -81,6 +81,14 @@ const TrainIcon = () => (
   </svg>
 )
 
+const BoxIcon = () => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+    <line x1="12" y1="22.08" x2="12" y2="12"/>
+  </svg>
+)
+
 export default function HomeClient({ discount, country }: HomeClientProps) {
   const [scrolled, setScrolled] = useState(false)
   const { user, profile, signOut } = useAuth()
@@ -98,12 +106,12 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
   }, [])
 
   const features = [
-    { icon: <LayersIcon />, title: 'Layered SVG & DXF', desc: 'Export to SVG for Illustrator or DXF for AutoCAD, Rhino, SketchUp. Every element on its own layer.' },
-    { icon: <PaletteIcon />, title: '24 Analysis Themes', desc: 'Figure Ground, Nolli, Street Hierarchy, Transit, Topographic, Sunset, Gold, and more.' },
+    { icon: <BoxIcon />, title: '3D Model Export', desc: 'Export to OBJ for Rhino, GLB for Blender, or STL for 3D printing. Buildings, roads, water & terrain.' },
+    { icon: <LayersIcon />, title: 'Layered SVG & DXF', desc: 'Export to SVG for Illustrator or DXF for AutoCAD. Every element on its own layer.' },
+    { icon: <PaletteIcon />, title: '34 Total Themes', desc: '24 analysis themes for 2D maps + 10 material themes for 3D models. From Blueprint to Neon.' },
     { icon: <ZapIcon />, title: 'Ready in 30 Seconds', desc: 'No more hours in QGIS or CAD. Select area, pick theme, download. Optimized file sizes.' },
-    { icon: <GlobeIcon />, title: 'Topography Contours', desc: 'Smooth elevation contour lines with customizable intervals. Real terrain data for site analysis.' },
-    { icon: <TrainIcon />, title: 'Smart Transit Icons', desc: 'Metro, tram, bus stops auto-filtered by zoom level. Clean maps at any scale.' },
-    { icon: <MapPinIcon />, title: 'Landmark Labels', desc: 'Important buildings (hospitals, schools, mosques) automatically labeled. Scale bar & north arrow included.' },
+    { icon: <GlobeIcon />, title: 'Real Terrain Data', desc: 'Accurate building heights, topography contours, and ground plane. Ready for site analysis.' },
+    { icon: <MapPinIcon />, title: 'Global Coverage', desc: 'Any location worldwide. OpenStreetMap data with smart filtering and landmark labels.' },
   ]
 
   const themes = [
@@ -235,14 +243,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
 
               {/* Headline */}
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
-                Site analysis maps
+                2D & 3D site maps
                 <br />
                 <span className="text-amber-500 italic font-serif font-medium">in seconds</span>
               </h1>
 
               {/* Subhead */}
               <p className="text-lg md:text-xl text-white/50 mb-10 leading-relaxed">
-                Generate professional, Illustrator-ready site analysis maps for your architecture projects. No GIS skills required.
+                Generate professional SVG maps and 3D models for Rhino, SketchUp & Blender. No GIS skills required.
               </p>
 
               {/* CTA Buttons */}
@@ -267,15 +275,15 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               <div className="flex gap-8 md:gap-12 pt-8 border-t border-white/10">
                 <div>
                   <div className="text-3xl md:text-4xl font-bold text-amber-500">24</div>
-                  <div className="text-white/40 text-sm mt-1">Analysis Themes</div>
+                  <div className="text-white/40 text-sm mt-1">2D Themes</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold">SVG</div>
-                  <div className="text-white/40 text-sm mt-1">Vector Export</div>
+                  <div className="text-3xl md:text-4xl font-bold text-amber-500">10</div>
+                  <div className="text-white/40 text-sm mt-1">3D Themes</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold">&lt;30s</div>
-                  <div className="text-white/40 text-sm mt-1">Generation</div>
+                  <div className="text-3xl md:text-4xl font-bold">OBJ</div>
+                  <div className="text-white/40 text-sm mt-1">Rhino Ready</div>
                 </div>
               </div>
             </div>
