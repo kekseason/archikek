@@ -18,6 +18,13 @@ const CheckIcon = () => (
   </svg>
 )
 
+const XIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+)
+
 const ArrowLeftIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <line x1="19" y1="12" x2="5" y2="12"/>
@@ -38,9 +45,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
   const router = useRouter()
 
   // Calculate discounted prices
-  const baseCreditsPrice = 15
   const baseProPrice = 19
-  const creditsPrice = discount ? Math.round(baseCreditsPrice * (1 - discount.percent / 100)) : baseCreditsPrice
   const proPrice = discount ? Math.round(baseProPrice * (1 - discount.percent / 100)) : baseProPrice
 
   const handlePurchase = async (variantId: string | undefined, planType: string) => {
@@ -55,7 +60,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
     }
 
     // Track TikTok InitiateCheckout event
-    const basePrice = planType === 'subscription' ? 18.99 : 14.99
+    const basePrice = 18.99
     const finalPrice = discount ? basePrice * (1 - discount.percent / 100) : basePrice
     trackInitiateCheckout(finalPrice, 'USD', planType)
 
@@ -103,14 +108,14 @@ export default function PricingClient({ discount, country }: PricingClientProps)
             href="/create" 
             className="px-5 py-2.5 bg-[#1a1a1a] text-white font-medium rounded-lg hover:bg-[#222] transition-colors text-sm"
           >
-            Try Demo
+            Try Free
           </Link>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="pt-32 pb-20">
-        <div className="max-w-5xl mx-auto px-6">
+        <div className="max-w-6xl mx-auto px-6">
           
           {/* Header */}
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -118,16 +123,16 @@ export default function PricingClient({ discount, country }: PricingClientProps)
               Pricing
             </div>
             <h1 className="font-serif text-4xl md:text-5xl font-medium tracking-tight mb-6">
-              Simple, transparent pricing
+              Start free, upgrade when ready
             </h1>
             <p className="text-gray-400 text-lg">
-              Start with credits or go unlimited with Pro. No hidden fees.
+              SVG and PNG exports are always free. Upgrade to Pro for DXF, 3D models, and unlimited access.
             </p>
           </div>
 
           {/* Regional Discount Banner */}
           {discount && (
-            <div className="max-w-3xl mx-auto mb-8 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-center">
+            <div className="max-w-4xl mx-auto mb-8 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-center">
               <p className="text-green-400">
                 🎉 <strong>{discount.percent}% discount</strong> applied for {discount.name}! Prices shown below.
               </p>
@@ -136,74 +141,74 @@ export default function PricingClient({ discount, country }: PricingClientProps)
 
           {/* Error Message */}
           {error && (
-            <div className="max-w-3xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-center">
+            <div className="max-w-4xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-center">
               <p className="text-red-400">{error}</p>
             </div>
           )}
 
-          {/* Pricing Cards */}
-          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          {/* Pricing Cards - 2 columns */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             
-            {/* Starter Pack */}
+            {/* Free Tier */}
             <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 hover:border-[#333] transition-all flex flex-col">
               <div className="mb-6">
-                <h3 className="font-semibold text-lg mb-1">Starter Pack</h3>
-                <p className="text-gray-500 text-sm">5 Map Credits</p>
+                <h3 className="font-semibold text-lg mb-1">Free</h3>
+                <p className="text-gray-500 text-sm">For personal projects</p>
               </div>
               
               <div className="mb-8">
-                {discount ? (
-                  <>
-                    <span className="text-gray-500 line-through text-2xl mr-2">${baseCreditsPrice}</span>
-                    <span className="font-serif text-5xl font-medium text-green-400">${creditsPrice}</span>
-                  </>
-                ) : (
-                  <span className="font-serif text-5xl font-medium">${baseCreditsPrice}</span>
-                )}
-                <span className="text-gray-500 text-lg ml-2">one-time</span>
+                <span className="font-serif text-5xl font-medium">$0</span>
+                <span className="text-gray-500 text-lg ml-2">forever</span>
               </div>
               
               <ul className="space-y-4 mb-8 flex-1">
-                {[
-                  '5 Map Downloads',
-                  'All 12 Analysis Themes',
-                  'Full Color Customization',
-                  'SVG Export (Illustrator-ready)',
-                  'Commercial License',
-                  'Credits Never Expire'
-                ].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-300 text-sm">
-                    <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
-                    {feature}
-                  </li>
-                ))}
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
+                  Unlimited SVG exports
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
+                  Unlimited PNG exports
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
+                  All 34 themes
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
+                  Full color customization
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
+                  Topographic contours
+                </li>
+                <li className="flex items-center gap-3 text-gray-500 text-sm">
+                  <span className="text-gray-600 flex-shrink-0"><XIcon /></span>
+                  DXF export (AutoCAD/Rhino)
+                </li>
+                <li className="flex items-center gap-3 text-gray-500 text-sm">
+                  <span className="text-gray-600 flex-shrink-0"><XIcon /></span>
+                  3D models (OBJ/GLB/STL)
+                </li>
               </ul>
 
-              <button
-                onClick={() => handlePurchase(process.env.NEXT_PUBLIC_LEMONSQUEEZY_CREDITS_VARIANT_ID, 'credits')}
-                disabled={loading === 'credits'}
-                className="w-full py-4 bg-[#1a1a1a] text-white rounded-xl font-medium hover:bg-[#222] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              <Link
+                href="/create"
+                className="w-full py-4 bg-[#1a1a1a] text-white rounded-xl font-medium hover:bg-[#222] transition-all flex items-center justify-center gap-2 text-center"
               >
-                {loading === 'credits' ? (
-                  <>
-                    <LoaderIcon />
-                    Processing...
-                  </>
-                ) : (
-                  'Buy Credits'
-                )}
-              </button>
+                Start Creating →
+              </Link>
             </div>
 
             {/* Pro Subscription */}
             <div className="bg-[#0a0a0a] border-2 border-amber-500 rounded-2xl p-8 relative flex flex-col">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide">
-                Best Value
+                Most Popular
               </div>
               
               <div className="mb-6">
                 <h3 className="font-semibold text-lg mb-1">Pro</h3>
-                <p className="text-gray-500 text-sm">Unlimited maps</p>
+                <p className="text-gray-500 text-sm">For professionals & architects</p>
               </div>
               
               <div className="mb-8">
@@ -219,19 +224,34 @@ export default function PricingClient({ discount, country }: PricingClientProps)
               </div>
               
               <ul className="space-y-4 mb-8 flex-1">
-                {[
-                  'Unlimited Map Downloads',
-                  'All Premium Themes',
-                  'Advanced Customization',
-                  'Priority Support',
-                  'Early Access to New Features',
-                  'Cancel Anytime'
-                ].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-300 text-sm">
-                    <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
-                    {feature}
-                  </li>
-                ))}
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
+                  <span>Everything in Free</span>
+                </li>
+                <li className="flex items-center gap-3 text-white text-sm font-medium">
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
+                  DXF export (AutoCAD/Rhino)
+                </li>
+                <li className="flex items-center gap-3 text-white text-sm font-medium">
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
+                  3D models (OBJ/GLB/STL)
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
+                  Professional DXF with layers
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
+                  Terrain with real elevation
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
+                  Commercial license
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
+                  Cancel anytime
+                </li>
               </ul>
 
               <button
@@ -245,13 +265,79 @@ export default function PricingClient({ discount, country }: PricingClientProps)
                     Processing...
                   </>
                 ) : (
-                  'Subscribe Now'
+                  'Upgrade to Pro'
                 )}
               </button>
             </div>
           </div>
 
-          {/* FAQ / Trust signals */}
+          {/* Feature Comparison */}
+          <div className="mt-20 max-w-4xl mx-auto">
+            <h2 className="font-serif text-2xl font-medium text-center mb-10">
+              Compare Plans
+            </h2>
+            
+            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#1a1a1a]">
+                    <th className="text-left p-4 text-gray-400 font-normal">Feature</th>
+                    <th className="p-4 text-center">Free</th>
+                    <th className="p-4 text-center text-amber-400">Pro</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  <tr className="border-b border-[#1a1a1a]">
+                    <td className="p-4 text-gray-300">SVG Export</td>
+                    <td className="p-4 text-center text-green-400">Unlimited</td>
+                    <td className="p-4 text-center text-green-400">Unlimited</td>
+                  </tr>
+                  <tr className="border-b border-[#1a1a1a]">
+                    <td className="p-4 text-gray-300">PNG Export</td>
+                    <td className="p-4 text-center text-green-400">Unlimited</td>
+                    <td className="p-4 text-center text-green-400">Unlimited</td>
+                  </tr>
+                  <tr className="border-b border-[#1a1a1a]">
+                    <td className="p-4 text-gray-300">DXF Export (CAD)</td>
+                    <td className="p-4 text-center text-gray-500">—</td>
+                    <td className="p-4 text-center text-green-400">✓</td>
+                  </tr>
+                  <tr className="border-b border-[#1a1a1a]">
+                    <td className="p-4 text-gray-300">3D Models (OBJ/GLB/STL)</td>
+                    <td className="p-4 text-center text-gray-500">—</td>
+                    <td className="p-4 text-center text-green-400">✓</td>
+                  </tr>
+                  <tr className="border-b border-[#1a1a1a]">
+                    <td className="p-4 text-gray-300">All 34 Themes</td>
+                    <td className="p-4 text-center text-green-400">✓</td>
+                    <td className="p-4 text-center text-green-400">✓</td>
+                  </tr>
+                  <tr className="border-b border-[#1a1a1a]">
+                    <td className="p-4 text-gray-300">Color Customization</td>
+                    <td className="p-4 text-center text-green-400">✓</td>
+                    <td className="p-4 text-center text-green-400">✓</td>
+                  </tr>
+                  <tr className="border-b border-[#1a1a1a]">
+                    <td className="p-4 text-gray-300">Topographic Contours</td>
+                    <td className="p-4 text-center text-green-400">✓</td>
+                    <td className="p-4 text-center text-green-400">✓</td>
+                  </tr>
+                  <tr className="border-b border-[#1a1a1a]">
+                    <td className="p-4 text-gray-300">3D Terrain Elevation</td>
+                    <td className="p-4 text-center text-gray-500">—</td>
+                    <td className="p-4 text-center text-green-400">✓</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 text-gray-300">Commercial License</td>
+                    <td className="p-4 text-center text-gray-500">Personal only</td>
+                    <td className="p-4 text-center text-green-400">Full commercial</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Trust signals */}
           <div className="mt-16 text-center">
             <p className="text-gray-500 text-sm mb-8">
               Secure payments powered by Lemon Squeezy. VAT may apply.
@@ -290,24 +376,24 @@ export default function PricingClient({ discount, country }: PricingClientProps)
             <div className="space-y-6">
               {[
                 {
-                  q: 'What do I get with each map credit?',
-                  a: 'Each credit allows you to generate and download one SVG map with all customization options, any theme, and full commercial license.'
+                  q: 'Is the free plan really free forever?',
+                  a: 'Yes! SVG and PNG exports are completely free with no limits. Create as many maps as you want.'
                 },
                 {
-                  q: 'Do credits expire?',
-                  a: 'No! Your credits never expire. Use them whenever you need them.'
+                  q: 'What\'s included in the DXF export?',
+                  a: 'Professional DXF files with organized layers for buildings, roads, water, green areas, and contours. Fully compatible with AutoCAD, Rhino, and other CAD software.'
+                },
+                {
+                  q: 'What 3D formats do you support?',
+                  a: 'We export OBJ (with MTL materials), GLB (for web/Blender), and STL (for 3D printing). All include real terrain elevation data.'
                 },
                 {
                   q: 'Can I cancel my Pro subscription?',
                   a: 'Yes, you can cancel anytime. Your access continues until the end of your billing period.'
                 },
                 {
-                  q: 'What payment methods do you accept?',
-                  a: 'We accept all major credit cards, PayPal, and Apple Pay through our secure payment provider.'
-                },
-                {
                   q: 'Can I use the maps commercially?',
-                  a: 'Yes! All plans include a commercial license. Use your maps in client presentations, publications, and projects.'
+                  a: 'Free plan is for personal use only. Pro includes full commercial license for client projects, publications, and products.'
                 }
               ].map((faq, i) => (
                 <div key={i} className="border-b border-[#1a1a1a] pb-6">

@@ -753,9 +753,20 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             const centerLat = (bounds.south + bounds.north) / 2
             const latMeters = (bounds.north - bounds.south) * 111000
             const lngMeters = (bounds.east - bounds.west) * 111000 * Math.cos(centerLat * Math.PI / 180)
-            const avgSize = Math.round((latMeters + lngMeters) / 2)
+            let avgSize = Math.round((latMeters + lngMeters) / 2)
             
-            if (avgSize > 50) {
+            // Enforce max size limits based on export mode
+            // 2D: max 3000m, 3D: max 2000m
+            const maxSize = exportMode === '3d' ? 2000 : 3000
+            const minSize = 100
+            
+            if (avgSize > maxSize) {
+              avgSize = maxSize
+              setError(`Maximum area is ${maxSize}m × ${maxSize}m for ${exportMode === '3d' ? '3D models' : '2D maps'}`)
+              setTimeout(() => setError(''), 3000)
+            }
+            
+            if (avgSize >= minSize) {
               setSelection({
                 mode: 'rectangle',
                 center: { lat: centerLat, lng: centerLng },
@@ -764,7 +775,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               })
               
               const areaKm = (latMeters * lngMeters) / 1000000
-              setLocation(`${latMeters.toFixed(0)}m × ${lngMeters.toFixed(0)}m (${areaKm.toFixed(2)} km²)`)
+              setLocation(`${Math.min(latMeters, avgSize).toFixed(0)}m × ${Math.min(lngMeters, avgSize).toFixed(0)}m`)
             }
             
             drawStartRef.current = null
@@ -1169,10 +1180,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
       const colors = useCustomColors ? customColors : selectedTheme.colors
 
+      // Request format based on export format
+      // DXF gets CAD-style preview, others get regular SVG
+      const previewFormat = exportFormat === 'dxf' ? 'dxf-preview' : 'svg'
+
       // Full quality preview with /generate
       const requestBody = {
         theme: selectedTheme.id,
-        format: 'svg',
+        format: previewFormat,
         resolution: 800,
         show_transit: showTransit,
         show_scale: showScale,
@@ -1383,9 +1398,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   <input
                     type="range"
                     min={250}
-                    max={2000}
+                    max={exportMode === '3d' ? 2000 : 3000}
                     step={50}
-                    value={selection.size || size}
+                    value={Math.min(selection.size || size, exportMode === '3d' ? 2000 : 3000)}
                     onChange={(e) => {
                       const newSize = Number(e.target.value)
                       setSize(newSize)
@@ -1395,7 +1410,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   />
                   <div className="flex justify-between text-[10px] text-gray-600 mt-1">
                     <span>250m</span>
-                    <span>2000m</span>
+                    <span>{exportMode === '3d' ? '2000m' : '3000m'}</span>
                   </div>
                 </div>
 
@@ -1802,52 +1817,38 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                         </div>
                       </div>
                     ) : exportFormat === 'dxf' ? (
-                      /* DXF CAD-style Preview */
-                      <div className="w-full aspect-square bg-[#1a1a2e] p-2 relative">
+                      /* DXF CAD-style Preview - Real map data with CAD overlay */
+                      <div className="w-full aspect-square bg-[#1a1a2e] relative overflow-hidden">
                         {/* CAD grid background */}
-                        <div className="absolute inset-0 opacity-30" style={{
-                          backgroundImage: `linear-gradient(#334 1px, transparent 1px), linear-gradient(90deg, #334 1px, transparent 1px)`,
-                          backgroundSize: '20px 20px'
+                        <div className="absolute inset-0 opacity-20" style={{
+                          backgroundImage: `linear-gradient(#445 1px, transparent 1px), linear-gradient(90deg, #445 1px, transparent 1px)`,
+                          backgroundSize: '15px 15px'
                         }} />
                         
-                        {/* DXF Wireframe preview */}
-                        <svg viewBox="0 0 200 200" className="w-full h-full relative z-10">
-                          {/* Frame */}
-                          <rect x="10" y="10" width="180" height="180" fill="none" stroke="#666" strokeWidth="0.5"/>
-                          
-                          {/* Buildings - white outlines */}
-                          <rect x="30" y="40" width="40" height="50" fill="none" stroke="#fff" strokeWidth="1"/>
-                          <rect x="90" y="30" width="60" height="40" fill="none" stroke="#fff" strokeWidth="1"/>
-                          <rect x="120" y="90" width="50" height="60" fill="none" stroke="#fff" strokeWidth="1"/>
-                          <rect x="40" y="120" width="35" height="45" fill="none" stroke="#fff" strokeWidth="1"/>
-                          
-                          {/* Roads - yellow lines */}
-                          <line x1="10" y1="100" x2="190" y2="100" stroke="#ff0" strokeWidth="2"/>
-                          <line x1="100" y1="10" x2="100" y2="190" stroke="#ff0" strokeWidth="1.5"/>
-                          <line x1="30" y1="150" x2="170" y2="150" stroke="#ff0" strokeWidth="1"/>
-                          
-                          {/* Water - cyan */}
-                          <path d="M 150 160 Q 170 170 160 185 Q 140 190 130 175 Q 140 160 150 160" fill="none" stroke="#0ff" strokeWidth="1"/>
-                          
-                          {/* Green - green outlines */}
-                          <ellipse cx="50" cy="180" rx="25" ry="12" fill="none" stroke="#0f0" strokeWidth="1"/>
-                          
-                          {/* Contours - gray dashed */}
-                          <path d="M 20 60 Q 60 50 100 55 Q 140 60 180 50" fill="none" stroke="#888" strokeWidth="0.5" strokeDasharray="4,2"/>
-                          <path d="M 20 80 Q 60 70 100 75 Q 140 80 180 70" fill="none" stroke="#888" strokeWidth="0.5" strokeDasharray="4,2"/>
-                          
-                          {/* Dimension text */}
-                          <text x="100" y="198" fill="#888" fontSize="6" textAnchor="middle">{selection?.size || size}m</text>
-                        </svg>
+                        {/* Actual preview image with CAD filter */}
+                        <img 
+                          src={previewUrl} 
+                          alt="DXF Preview" 
+                          className={`w-full h-full object-cover ${previewLoading ? 'opacity-50' : ''}`}
+                          style={{
+                            filter: 'saturate(0.3) brightness(0.9) contrast(1.2)',
+                            mixBlendMode: 'screen'
+                          }}
+                        />
                         
                         {/* DXF Badge */}
-                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-blue-500/30 border border-blue-500/50 rounded text-[9px] text-blue-300 font-mono">
+                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-blue-500/40 border border-blue-400/50 rounded text-[9px] text-blue-200 font-mono">
                           DXF/CAD
                         </div>
                         
                         {/* Layer info */}
-                        <div className="absolute bottom-2 right-2 text-[8px] text-gray-500 font-mono">
+                        <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/50 rounded text-[8px] text-gray-400 font-mono">
                           15 Layers
+                        </div>
+                        
+                        {/* Size info */}
+                        <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-black/50 rounded text-[8px] text-gray-400 font-mono">
+                          {selection?.size || size}m
                         </div>
                       </div>
                     ) : (
@@ -1898,17 +1899,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       {!user ? (
                         // Not logged in
                         <>
-                          <p className="text-xs text-green-400 font-medium">🎉 First map is FREE!</p>
-                          <p className="text-[10px] text-gray-400">No credit card required</p>
-                          <div className="border-t border-[#222] pt-2 mt-2">
-                            <p className="text-[10px] text-gray-500">
-                              Then: 5 maps for {discount ? (
-                                <><span className="line-through">${baseCreditsPrice}</span> <span className="text-amber-400">${creditsPrice}</span></>
-                              ) : (
-                                <span className="text-white">${baseCreditsPrice}</span>
-                              )}
-                            </p>
-                          </div>
+                          {exportFormat === 'dxf' ? (
+                            <p className="text-xs text-amber-400 font-medium">✨ DXF requires Pro</p>
+                          ) : (
+                            <p className="text-xs text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</p>
+                          )}
+                          <Link href="/pricing" className="text-[10px] text-amber-400 hover:underline">View all plans →</Link>
                         </>
                       ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
                         // Pro user
@@ -2338,9 +2334,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     <input
                       type="range"
                       min={250}
-                      max={2000}
+                      max={exportMode === '3d' ? 2000 : 3000}
                       step={50}
-                      value={selection.size || size}
+                      value={Math.min(selection.size || size, exportMode === '3d' ? 2000 : 3000)}
                       onChange={(e) => {
                         const newSize = Number(e.target.value)
                         setSize(newSize)
@@ -2350,7 +2346,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     />
                     <div className="flex justify-between text-[10px] text-gray-600 mt-1">
                       <span>250m</span>
-                      <span>2000m</span>
+                      <span>{exportMode === '3d' ? '2000m' : '3000m'}</span>
                     </div>
                   </div>
                 </div>
@@ -2441,12 +2437,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 
                 {/* Pricing info */}
                 <div className="text-center text-xs text-gray-500">
-                  {!user ? (
-                    <span>🎉 First map free • No credit card needed</span>
-                  ) : profile?.credits && profile.credits > 0 ? (
-                    <span><span className="text-amber-400">{profile.credits}</span> credits available</span>
+                  {exportMode === '3d' || exportFormat === 'dxf' ? (
+                    <span className="text-amber-400">✨ Pro required</span>
                   ) : (
-                    <span className="text-red-400">No credits • <Link href="/pricing" className="text-amber-400">Buy more</Link></span>
+                    <span className="text-green-400">✓ {exportFormat.toUpperCase()} is free</span>
                   )}
                 </div>
               </div>
@@ -2818,20 +2812,15 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               
               {/* Pricing Info - Context Aware */}
               <div className="flex items-center gap-2 text-xs flex-wrap justify-center">
-                {!user ? (
-                  // Not logged in
+                {exportFormat === 'dxf' ? (
+                  // DXF requires Pro
+                  <span className="text-amber-400 font-medium">✨ DXF requires Pro</span>
+                ) : !user ? (
+                  // Not logged in - SVG/PNG free
                   <>
-                    <span className="text-green-400 font-medium">🎉 First map FREE</span>
+                    <span className="text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</span>
                     <span className="text-white/30">•</span>
-                    <span className="text-white/50">No credit card needed</span>
-                    <span className="text-white/30">•</span>
-                    <span className="text-white/50">
-                      Then {discount ? (
-                        <><span className="text-amber-400">${creditsPrice}</span> <span className="line-through text-white/30">${baseCreditsPrice}</span></>
-                      ) : (
-                        <span className="text-white">${baseCreditsPrice}</span>
-                      )} for 5 maps
-                    </span>
+                    <span className="text-white/50">Sign in to download</span>
                   </>
                 ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
                   // Pro user
@@ -3083,7 +3072,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   </svg>
-                  1 Free Map
+                  SVG/PNG Free
                 </span>
                 <span className="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
