@@ -2270,7 +2270,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
                     </button>
                   </>
-                )}}
+                )}
                 
                 {/* Pricing info */}
                 <div className="text-center text-xs text-gray-500">
