@@ -309,67 +309,82 @@ const THEME_CATEGORIES = ['Classic', 'Minimal', 'Analysis', 'Environment', 'Aest
 // ============================================================
 
 const THEMES_3D = [
+  // ============ REALISTIC ============
   {
     id: 'default',
     name: 'Default',
+    category: 'Realistic',
     description: 'Natural realistic colors',
     preview: { terrain: '#404040', building: '#b3ae9f', road: '#8c8c8c', water: '#3373bf', green: '#4da64d' }
   },
   {
-    id: 'dark',
-    name: 'Dark Mode',
-    description: 'Dark background, bright objects',
-    preview: { terrain: '#141419', building: '#a6a6b3', road: '#47474d', water: '#1a5999', green: '#267333' }
-  },
-  {
-    id: 'light',
-    name: 'Light Mode',
-    description: 'Clean white aesthetic',
-    preview: { terrain: '#ebe6e0', building: '#fff9f2', road: '#cccccc', water: '#a6d1f2', green: '#b3e0b3' }
-  },
-  {
-    id: 'blueprint',
-    name: 'Blueprint',
-    description: 'Architectural drawing style',
-    preview: { terrain: '#1f2e59', building: '#739ad9', road: '#527ab3', water: '#2e5280', green: '#4d8c99' }
-  },
-  {
     id: 'satellite',
     name: 'Satellite',
+    category: 'Realistic',
     description: 'Earth tone colors',
     preview: { terrain: '#594d40', building: '#a6998c', road: '#595959', water: '#26598c', green: '#407338' }
   },
   {
+    id: 'autumn',
+    name: 'Autumn',
+    category: 'Realistic',
+    description: 'Warm fall colors',
+    preview: { terrain: '#735940', building: '#e6cc99', road: '#806b59', water: '#5980a6', green: '#d98c40' }
+  },
+  // ============ MINIMAL ============
+  {
+    id: 'light',
+    name: 'Light Mode',
+    category: 'Minimal',
+    description: 'Clean white aesthetic',
+    preview: { terrain: '#ebe6e0', building: '#fff9f2', road: '#cccccc', water: '#a6d1f2', green: '#b3e0b3' }
+  },
+  {
+    id: 'dark',
+    name: 'Dark Mode',
+    category: 'Minimal',
+    description: 'Dark background, bright objects',
+    preview: { terrain: '#141419', building: '#a6a6b3', road: '#47474d', water: '#1a5999', green: '#267333' }
+  },
+  {
+    id: 'minimal',
+    name: 'Minimal',
+    category: 'Minimal',
+    description: 'White buildings, dark roads',
+    preview: { terrain: '#fafafa', building: '#ffffff', road: '#666666', water: '#cce0f2', green: '#d9e6d9' }
+  },
+  // ============ ARTISTIC ============
+  {
+    id: 'blueprint',
+    name: 'Blueprint',
+    category: 'Artistic',
+    description: 'Architectural drawing style',
+    preview: { terrain: '#1f2e59', building: '#739ad9', road: '#527ab3', water: '#2e5280', green: '#4d8c99' }
+  },
+  {
     id: 'vintage',
     name: 'Vintage',
+    category: 'Artistic',
     description: 'Retro sepia tones',
     preview: { terrain: '#b8ad99', building: '#e0d1b8', road: '#a6997f', water: '#809eb3', green: '#8ca67a' }
   },
   {
     id: 'neon',
-    name: 'Neon Cyberpunk',
+    name: 'Neon',
+    category: 'Artistic',
     description: 'Bright neon colors',
     preview: { terrain: '#0d0514', building: '#bf73cc', road: '#1ab3cc', water: '#4d33cc', green: '#33e666' }
   },
   {
-    id: 'minimal',
-    name: 'Minimal',
-    description: 'White buildings, dark roads',
-    preview: { terrain: '#fafafa', building: '#ffffff', road: '#666666', water: '#cce0f2', green: '#d9e6d9' }
-  },
-  {
-    id: 'autumn',
-    name: 'Autumn',
-    description: 'Warm fall colors',
-    preview: { terrain: '#735940', building: '#e6cc99', road: '#806b59', water: '#5980a6', green: '#d98c40' }
-  },
-  {
     id: 'ocean',
     name: 'Ocean',
+    category: 'Artistic',
     description: 'Cool blue-green tones',
     preview: { terrain: '#335973', building: '#cce0eb', road: '#618099', water: '#2673b3', green: '#59a68c' }
   },
 ]
+
+const THEME_3D_CATEGORIES = ['Realistic', 'Minimal', 'Artistic']
 
 // --- ICONS ---
 const ArrowLeftIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -426,6 +441,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [exportMode, setExportMode] = useState<'2d' | '3d'>('2d')
   const [format3D, setFormat3D] = useState<'obj' | 'glb' | 'stl'>('obj')
   const [theme3D, setTheme3D] = useState(THEMES_3D[0])
+  const [active3DCategory, setActive3DCategory] = useState('Realistic')
   const [includeTerrain, setIncludeTerrain] = useState(true)
   const [includeMtl, setIncludeMtl] = useState(true)  // OBJ için MTL dosyası
   const [raftThickness, setRaftThickness] = useState(2.0)  // STL için raft (mm)
@@ -1278,8 +1294,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       <div className="flex flex-1 pt-12 md:pt-14 h-screen overflow-hidden">
         
         {/* Sidebar - Hidden on mobile */}
-        <aside className="hidden md:block w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] overflow-y-auto flex-shrink-0">
-          <div className="p-4 space-y-4">
+        <aside className="hidden md:flex md:flex-col w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] flex-shrink-0 h-[calc(100vh-56px)]">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             
             {/* Location Search - Compact */}
             <div className="relative">
@@ -1467,11 +1483,68 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 {/* ═══════════════════════════════════════════════════════ */}
                 {exportMode === '3d' && (
                   <>
-                    {/* 3D Theme Selection - Same style as 2D */}
+                    {/* 3D Aksonometrik Preview */}
                     <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
-                      <p className="text-xs text-gray-500 mb-2">3D Theme</p>
-                      <div className="grid grid-cols-5 gap-1.5">
-                        {THEMES_3D.map((theme) => (
+                      <p className="text-xs text-gray-500 mb-2">Preview: {theme3D.name}</p>
+                      <div className="relative rounded-lg overflow-hidden" style={{ background: theme3D.preview.terrain }}>
+                        <svg viewBox="0 0 200 120" className="w-full h-auto">
+                          {/* Ground plane */}
+                          <polygon points="100,100 20,70 100,40 180,70" fill={theme3D.preview.terrain} stroke={theme3D.preview.road} strokeWidth="0.5"/>
+                          
+                          {/* Roads */}
+                          <line x1="60" y1="55" x2="140" y2="85" stroke={theme3D.preview.road} strokeWidth="4"/>
+                          <line x1="100" y1="70" x2="100" y2="40" stroke={theme3D.preview.road} strokeWidth="3"/>
+                          
+                          {/* Building 1 - Tall (left) */}
+                          <g>
+                            <polygon points="40,60 40,25 55,18 55,53" fill={theme3D.preview.building} stroke={theme3D.preview.terrain} strokeWidth="0.5"/>
+                            <polygon points="40,25 70,35 70,70 40,60" fill={theme3D.preview.building} opacity="0.85"/>
+                            <polygon points="40,25 55,18 85,28 70,35" fill={theme3D.preview.building} opacity="0.7"/>
+                          </g>
+                          
+                          {/* Building 2 - Medium (center) */}
+                          <g>
+                            <polygon points="85,72 85,50 100,43 100,65" fill={theme3D.preview.building} stroke={theme3D.preview.terrain} strokeWidth="0.5"/>
+                            <polygon points="85,50 115,60 115,82 85,72" fill={theme3D.preview.building} opacity="0.85"/>
+                            <polygon points="85,50 100,43 130,53 115,60" fill={theme3D.preview.building} opacity="0.7"/>
+                          </g>
+                          
+                          {/* Building 3 - Wide (right) */}
+                          <g>
+                            <polygon points="130,80 130,60 145,53 145,73" fill={theme3D.preview.building} stroke={theme3D.preview.terrain} strokeWidth="0.5"/>
+                            <polygon points="130,60 165,72 165,92 130,80" fill={theme3D.preview.building} opacity="0.85"/>
+                            <polygon points="130,60 145,53 180,65 165,72" fill={theme3D.preview.building} opacity="0.7"/>
+                          </g>
+                          
+                          {/* Water */}
+                          <ellipse cx="155" cy="95" rx="18" ry="8" fill={theme3D.preview.water} opacity="0.8"/>
+                          
+                          {/* Green areas */}
+                          <circle cx="35" cy="75" r="6" fill={theme3D.preview.green} opacity="0.8"/>
+                          <circle cx="95" cy="88" r="4" fill={theme3D.preview.green} opacity="0.8"/>
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* 3D Theme Selection - Same style as 2D with categories */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {THEME_3D_CATEGORIES.map(cat => (
+                          <button 
+                            key={cat} 
+                            onClick={() => setActive3DCategory(cat)} 
+                            className={`px-2 py-1 text-xs rounded-md transition-all ${
+                              active3DCategory === cat 
+                                ? 'bg-amber-500 text-black font-medium' 
+                                : 'bg-[#1a1a1a] text-gray-500 hover:text-gray-300'
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {THEMES_3D.filter(t => t.category === active3DCategory).map((theme) => (
                           <button 
                             key={theme.id} 
                             onClick={() => setTheme3D(theme)} 
@@ -1483,12 +1556,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                             style={{ background: theme.preview.terrain }}
                             title={theme.name}
                           >
-                            <div className="w-full h-full p-0.5 flex flex-col gap-0.5">
+                            <div className="w-full h-full p-1 flex flex-col gap-0.5">
                               <div className="flex-1 rounded-sm" style={{ background: theme.preview.building }} />
-                              <div className="flex gap-0.5">
-                                <div className="flex-1 h-1.5 rounded-sm" style={{ background: theme.preview.road }} />
-                                <div className="w-2 h-1.5 rounded-sm" style={{ background: theme.preview.water }} />
-                              </div>
+                              <div className="h-1 rounded-sm" style={{ background: theme.preview.road }} />
                             </div>
                           </button>
                         ))}
