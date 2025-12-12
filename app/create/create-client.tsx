@@ -1483,49 +1483,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 {/* ═══════════════════════════════════════════════════════ */}
                 {exportMode === '3d' && (
                   <>
-                    {/* 3D Aksonometrik Preview */}
-                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
-                      <p className="text-xs text-gray-500 mb-2">Preview: {theme3D.name}</p>
-                      <div className="relative rounded-lg overflow-hidden" style={{ background: theme3D.preview.terrain }}>
-                        <svg viewBox="0 0 200 120" className="w-full h-auto">
-                          {/* Ground plane */}
-                          <polygon points="100,100 20,70 100,40 180,70" fill={theme3D.preview.terrain} stroke={theme3D.preview.road} strokeWidth="0.5"/>
-                          
-                          {/* Roads */}
-                          <line x1="60" y1="55" x2="140" y2="85" stroke={theme3D.preview.road} strokeWidth="4"/>
-                          <line x1="100" y1="70" x2="100" y2="40" stroke={theme3D.preview.road} strokeWidth="3"/>
-                          
-                          {/* Building 1 - Tall (left) */}
-                          <g>
-                            <polygon points="40,60 40,25 55,18 55,53" fill={theme3D.preview.building} stroke={theme3D.preview.terrain} strokeWidth="0.5"/>
-                            <polygon points="40,25 70,35 70,70 40,60" fill={theme3D.preview.building} opacity="0.85"/>
-                            <polygon points="40,25 55,18 85,28 70,35" fill={theme3D.preview.building} opacity="0.7"/>
-                          </g>
-                          
-                          {/* Building 2 - Medium (center) */}
-                          <g>
-                            <polygon points="85,72 85,50 100,43 100,65" fill={theme3D.preview.building} stroke={theme3D.preview.terrain} strokeWidth="0.5"/>
-                            <polygon points="85,50 115,60 115,82 85,72" fill={theme3D.preview.building} opacity="0.85"/>
-                            <polygon points="85,50 100,43 130,53 115,60" fill={theme3D.preview.building} opacity="0.7"/>
-                          </g>
-                          
-                          {/* Building 3 - Wide (right) */}
-                          <g>
-                            <polygon points="130,80 130,60 145,53 145,73" fill={theme3D.preview.building} stroke={theme3D.preview.terrain} strokeWidth="0.5"/>
-                            <polygon points="130,60 165,72 165,92 130,80" fill={theme3D.preview.building} opacity="0.85"/>
-                            <polygon points="130,60 145,53 180,65 165,72" fill={theme3D.preview.building} opacity="0.7"/>
-                          </g>
-                          
-                          {/* Water */}
-                          <ellipse cx="155" cy="95" rx="18" ry="8" fill={theme3D.preview.water} opacity="0.8"/>
-                          
-                          {/* Green areas */}
-                          <circle cx="35" cy="75" r="6" fill={theme3D.preview.green} opacity="0.8"/>
-                          <circle cx="95" cy="88" r="4" fill={theme3D.preview.green} opacity="0.8"/>
-                        </svg>
-                      </div>
-                    </div>
-
                     {/* 3D Theme Selection - Same style as 2D with categories */}
                     <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
                       <div className="flex flex-wrap gap-1 mb-3">
@@ -2489,27 +2446,91 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             </p>
           </div>
           
-          {/* Theme preview widget - hidden on mobile */}
+          {/* Theme preview widget - hidden on mobile - Shows 2D or 3D based on export mode */}
           <div className="hidden md:block absolute bottom-4 left-4 bg-[#161616]/95 backdrop-blur border border-[#222] rounded-xl p-4 z-10">
-            <p className="text-xs text-gray-500 mb-2 font-medium">Preview: {selectedTheme.name}</p>
-            <div className="w-48 h-32 rounded-lg overflow-hidden" style={{ background: customColors.Zemin }}>
-              <svg viewBox="0 0 200 130" className="w-full h-full">
-                <ellipse cx="160" cy="100" rx="30" ry="20" fill={customColors.Su} />
-                <path d="M 10 80 Q 30 60 60 75 L 70 130 L 10 130 Z" fill={customColors.Yesil} />
-                <path d="M 0 70 Q 100 65 200 75" fill="none" stroke={customColors.Yol_Otoyol} strokeWidth={strokeWidths.highway * 0.8} strokeLinecap="round" />
-                <line x1="100" y1="0" x2="95" y2="130" stroke={customColors.Yol_Birincil} strokeWidth={strokeWidths.primary * 0.8} />
-                <line x1="50" y1="90" x2="150" y2="95" stroke={customColors.Yol_Konut} strokeWidth={strokeWidths.residential * 0.8} />
-                <rect x="20" y="20" width="35" height="30" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
-                <rect x="70" y="25" width="45" height="25" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
-                <rect x="130" y="15" width="30" height="40" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
-                {showTransit && (
-                  <>
-                    <circle cx="45" cy="55" r="6" fill={customColors.Metro} stroke="white" strokeWidth="1.5" />
-                    <text x="45" y="58" textAnchor="middle" fontSize="7" fontWeight="bold" fill="white">M</text>
-                  </>
+            {exportMode === '2d' ? (
+              <>
+                <p className="text-xs text-gray-500 mb-2 font-medium">Preview: {selectedTheme.name}</p>
+                <div className="w-48 h-32 rounded-lg overflow-hidden" style={{ background: customColors.Zemin }}>
+                  <svg viewBox="0 0 200 130" className="w-full h-full">
+                    <ellipse cx="160" cy="100" rx="30" ry="20" fill={customColors.Su} />
+                    <path d="M 10 80 Q 30 60 60 75 L 70 130 L 10 130 Z" fill={customColors.Yesil} />
+                    <path d="M 0 70 Q 100 65 200 75" fill="none" stroke={customColors.Yol_Otoyol} strokeWidth={strokeWidths.highway * 0.8} strokeLinecap="round" />
+                    <line x1="100" y1="0" x2="95" y2="130" stroke={customColors.Yol_Birincil} strokeWidth={strokeWidths.primary * 0.8} />
+                    <line x1="50" y1="90" x2="150" y2="95" stroke={customColors.Yol_Konut} strokeWidth={strokeWidths.residential * 0.8} />
+                    <rect x="20" y="20" width="35" height="30" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
+                    <rect x="70" y="25" width="45" height="25" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
+                    <rect x="130" y="15" width="30" height="40" fill={customColors.Binalar} stroke={customColors.Bina_Stroke} strokeWidth={strokeWidths.building} />
+                    {showTransit && (
+                      <>
+                        <circle cx="45" cy="55" r="6" fill={customColors.Metro} stroke="white" strokeWidth="1.5" />
+                        <text x="45" y="58" textAnchor="middle" fontSize="7" fontWeight="bold" fill="white">M</text>
+                      </>
+                    )}
+                  </svg>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-gray-500 mb-2 font-medium">3D Preview: {theme3D.name}</p>
+                <div className="w-48 h-32 rounded-lg overflow-hidden" style={{ background: `linear-gradient(180deg, ${theme3D.preview.terrain}88 0%, ${theme3D.preview.terrain} 100%)` }}>
+                  <svg viewBox="0 0 200 130" className="w-full h-full">
+                    {/* Ground/Terrain */}
+                    <polygon points="100,120 10,85 100,50 190,85" fill={theme3D.preview.terrain} opacity="0.8"/>
+                    <polygon points="100,120 10,85 100,50 190,85" fill="none" stroke={theme3D.preview.road} strokeWidth="0.5" opacity="0.5"/>
+                    
+                    {/* Main Road */}
+                    <path d="M 30,72 L 170,98" stroke={theme3D.preview.road} strokeWidth="6" strokeLinecap="round" opacity="0.9"/>
+                    <path d="M 100,85 L 100,50" stroke={theme3D.preview.road} strokeWidth="4" strokeLinecap="round" opacity="0.7"/>
+                    
+                    {/* Building 1 - Left Tall */}
+                    <g>
+                      {/* Left face */}
+                      <polygon points="35,75 35,30 50,22 50,67" fill={theme3D.preview.building}/>
+                      {/* Front face */}
+                      <polygon points="35,30 75,42 75,87 35,75" fill={theme3D.preview.building} opacity="0.85"/>
+                      {/* Top face */}
+                      <polygon points="35,30 50,22 90,34 75,42" fill={theme3D.preview.building} opacity="0.65"/>
+                    </g>
+                    
+                    {/* Building 2 - Center Medium */}
+                    <g>
+                      <polygon points="85,82 85,55 100,48 100,75" fill={theme3D.preview.building}/>
+                      <polygon points="85,55 120,67 120,94 85,82" fill={theme3D.preview.building} opacity="0.85"/>
+                      <polygon points="85,55 100,48 135,60 120,67" fill={theme3D.preview.building} opacity="0.65"/>
+                    </g>
+                    
+                    {/* Building 3 - Right Wide */}
+                    <g>
+                      <polygon points="130,92 130,68 145,61 145,85" fill={theme3D.preview.building}/>
+                      <polygon points="130,68 175,82 175,106 130,92" fill={theme3D.preview.building} opacity="0.85"/>
+                      <polygon points="130,68 145,61 190,75 175,82" fill={theme3D.preview.building} opacity="0.65"/>
+                    </g>
+                    
+                    {/* Water - Ellipse */}
+                    <ellipse cx="160" cy="112" rx="22" ry="10" fill={theme3D.preview.water} opacity="0.85"/>
+                    <ellipse cx="160" cy="112" rx="18" ry="7" fill={theme3D.preview.water} opacity="0.5"/>
+                    
+                    {/* Trees/Green */}
+                    <ellipse cx="25" cy="90" rx="12" ry="8" fill={theme3D.preview.green} opacity="0.9"/>
+                    <ellipse cx="105" cy="105" rx="8" ry="5" fill={theme3D.preview.green} opacity="0.8"/>
+                  </svg>
+                </div>
+                {selection && (
+                  <button
+                    onClick={() => setShow3DPreview(true)}
+                    className="mt-2 w-full py-1.5 bg-purple-500/20 border border-purple-500/50 text-purple-400 text-xs rounded-lg hover:bg-purple-500/30 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                      <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                    Open 3D Viewer
+                  </button>
                 )}
-              </svg>
-            </div>
+              </>
+            )}
           </div>
         </main>
       </div>
