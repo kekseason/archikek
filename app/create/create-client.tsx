@@ -465,6 +465,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [generating, setGenerating] = useState(false)
   const [generated, setGenerated] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const [showProModal, setShowProModal] = useState(false)
   const [error, setError] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [showResults, setShowResults] = useState(false)
@@ -880,10 +881,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
-    // Check credits (unless pro)
+    // Check if Pro required for DXF
     const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
     
-    if (!isPro && (!profile?.credits || profile.credits <= 0)) {
+    if (exportFormat === 'dxf' && !isPro) {
+      setShowProModal(true)
+      return
+    }
+
+    // Check credits for non-Pro SVG/PNG (free formats don't need credits)
+    if (!isPro && (exportFormat === 'svg' || exportFormat === 'png')) {
+      // SVG and PNG are free, no credit check needed
+    } else if (!isPro && (!profile?.credits || profile.credits <= 0)) {
       setError('No credits remaining. Please purchase more credits.')
       return
     }
@@ -892,24 +901,27 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     setError('')
     
     try {
-      // Use credit first
-      const creditResponse = await fetch('/api/use-credit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          theme: selectedTheme.id,
-          location: location,
-          size: selection.size || size
+      // Use credit only for paid formats (DXF) - but DXF is Pro only now
+      // SVG/PNG are free, so skip credit usage
+      if (exportFormat !== 'svg' && exportFormat !== 'png') {
+        const creditResponse = await fetch('/api/use-credit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            theme: selectedTheme.id,
+            location: location,
+            size: selection.size || size
+          })
         })
-      })
 
-      const creditData = await creditResponse.json()
+        const creditData = await creditResponse.json()
 
-      if (!creditResponse.ok) {
-        setError(creditData.error || 'Failed to use credit')
-        setGenerating(false)
-        return
+        if (!creditResponse.ok) {
+          setError(creditData.error || 'Failed to use credit')
+          setGenerating(false)
+          return
+        }
       }
 
       // Generate the map
@@ -1055,6 +1067,20 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const generate3DModel = async () => {
     if (!selection || !selection.center) {
       setError('Please select a location first')
+      return
+    }
+
+    // Check if user is logged in
+    if (!user) {
+      setShowLoginModal(true)
+      return
+    }
+
+    // Check if Pro - 3D is Pro only
+    const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
+    
+    if (!isPro) {
+      setShowProModal(true)
       return
     }
 
@@ -1694,22 +1720,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        {selection ? 'Preview (Free)' : 'Select location first'}
+                        {selection ? 'Preview' : 'Select location first'}
                       </>
                     )}
                   </button>
                   
-                  {/* Quick info when no preview - only for 2D */}
+                  {/* Format info - 2D only */}
                   {exportMode === '2d' && (
                     <div className="text-center text-[10px] text-gray-500">
-                      {!user ? (
-                        <span>🎉 First map free • No credit card needed</span>
-                      ) : profile?.is_pro ? (
-                        <span className="text-amber-400">✨ Unlimited Pro</span>
-                      ) : profile?.credits && profile.credits > 0 ? (
-                        <span><span className="text-amber-400">{profile.credits}</span> credits available</span>
+                      {exportFormat === 'dxf' ? (
+                        <span className="text-amber-400">✨ DXF requires Pro</span>
                       ) : (
-                        <span className="text-red-400">No credits • <Link href="/pricing" className="text-amber-400 hover:underline">Buy more</Link></span>
+                        <span className="text-green-400">✓ {exportFormat.toUpperCase()} is free</span>
                       )}
                     </div>
                   )}
@@ -1777,6 +1799,55 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                         {/* Theme name overlay */}
                         <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-[10px] text-white/70">
                           {theme3D.name}
+                        </div>
+                      </div>
+                    ) : exportFormat === 'dxf' ? (
+                      /* DXF CAD-style Preview */
+                      <div className="w-full aspect-square bg-[#1a1a2e] p-2 relative">
+                        {/* CAD grid background */}
+                        <div className="absolute inset-0 opacity-30" style={{
+                          backgroundImage: `linear-gradient(#334 1px, transparent 1px), linear-gradient(90deg, #334 1px, transparent 1px)`,
+                          backgroundSize: '20px 20px'
+                        }} />
+                        
+                        {/* DXF Wireframe preview */}
+                        <svg viewBox="0 0 200 200" className="w-full h-full relative z-10">
+                          {/* Frame */}
+                          <rect x="10" y="10" width="180" height="180" fill="none" stroke="#666" strokeWidth="0.5"/>
+                          
+                          {/* Buildings - white outlines */}
+                          <rect x="30" y="40" width="40" height="50" fill="none" stroke="#fff" strokeWidth="1"/>
+                          <rect x="90" y="30" width="60" height="40" fill="none" stroke="#fff" strokeWidth="1"/>
+                          <rect x="120" y="90" width="50" height="60" fill="none" stroke="#fff" strokeWidth="1"/>
+                          <rect x="40" y="120" width="35" height="45" fill="none" stroke="#fff" strokeWidth="1"/>
+                          
+                          {/* Roads - yellow lines */}
+                          <line x1="10" y1="100" x2="190" y2="100" stroke="#ff0" strokeWidth="2"/>
+                          <line x1="100" y1="10" x2="100" y2="190" stroke="#ff0" strokeWidth="1.5"/>
+                          <line x1="30" y1="150" x2="170" y2="150" stroke="#ff0" strokeWidth="1"/>
+                          
+                          {/* Water - cyan */}
+                          <path d="M 150 160 Q 170 170 160 185 Q 140 190 130 175 Q 140 160 150 160" fill="none" stroke="#0ff" strokeWidth="1"/>
+                          
+                          {/* Green - green outlines */}
+                          <ellipse cx="50" cy="180" rx="25" ry="12" fill="none" stroke="#0f0" strokeWidth="1"/>
+                          
+                          {/* Contours - gray dashed */}
+                          <path d="M 20 60 Q 60 50 100 55 Q 140 60 180 50" fill="none" stroke="#888" strokeWidth="0.5" strokeDasharray="4,2"/>
+                          <path d="M 20 80 Q 60 70 100 75 Q 140 80 180 70" fill="none" stroke="#888" strokeWidth="0.5" strokeDasharray="4,2"/>
+                          
+                          {/* Dimension text */}
+                          <text x="100" y="198" fill="#888" fontSize="6" textAnchor="middle">{selection?.size || size}m</text>
+                        </svg>
+                        
+                        {/* DXF Badge */}
+                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-blue-500/30 border border-blue-500/50 rounded text-[9px] text-blue-300 font-mono">
+                          DXF/CAD
+                        </div>
+                        
+                        {/* Layer info */}
+                        <div className="absolute bottom-2 right-2 text-[8px] text-gray-500 font-mono">
+                          15 Layers
                         </div>
                       </div>
                     ) : (
@@ -3048,6 +3119,84 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               >
                 Sign In
               </button>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Pro Required Modal */}
+      {showProModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowProModal(false)} />
+          
+          <div className="relative bg-[#0a0a0a] border border-amber-500/30 rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+            <button 
+              onClick={() => setShowProModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Pro Icon */}
+            <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </div>
+
+            <h3 className="text-2xl font-semibold text-center mb-2">
+              Pro Feature ✨
+            </h3>
+            <p className="text-gray-400 text-center text-sm mb-6">
+              {exportMode === '3d' 
+                ? '3D Model export (OBJ, GLB, STL) requires Pro subscription'
+                : 'DXF export for AutoCAD/Rhino requires Pro subscription'
+              }
+            </p>
+
+            {/* What's included */}
+            <div className="bg-[#111] border border-[#222] rounded-xl p-4 mb-6">
+              <p className="text-amber-400 text-sm font-medium mb-3">Pro includes:</p>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Unlimited SVG & PNG exports
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  DXF export (AutoCAD, Rhino)
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  3D Models (OBJ, GLB, STL)
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  All 34 themes & customization
+                </li>
+              </ul>
+            </div>
+
+            <Link
+              href="/pricing"
+              className="block w-full px-4 py-3.5 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-colors text-center"
+            >
+              Upgrade to Pro →
+            </Link>
+
+            {/* Free option reminder */}
+            <p className="text-center text-gray-500 text-xs mt-4">
+              SVG and PNG exports are always free
             </p>
           </div>
         </div>
