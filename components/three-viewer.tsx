@@ -108,19 +108,9 @@ export default function ThreeViewer({ lat, lng, size = 500, layers, themeColors 
     directionalLight.shadow.camera.bottom = -size
     scene.add(directionalLight)
 
-    // Ground plane
-    const groundGeometry = new THREE.PlaneGeometry(size * 2, size * 2)
-    const groundMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x1a1a1a,
-      roughness: 0.9
-    })
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial)
-    ground.rotation.x = -Math.PI / 2
-    ground.receiveShadow = true
-    scene.add(ground)
-
-    // Grid helper
+    // Grid helper only (no ground plane - terrain data will serve as ground)
     const gridHelper = new THREE.GridHelper(size * 2, 20, 0x333333, 0x222222)
+    gridHelper.position.y = -1 // Slightly below terrain to avoid z-fighting
     scene.add(gridHelper)
 
     // Animation loop
