@@ -250,7 +250,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
 
               {/* Subhead */}
               <p className="text-lg md:text-xl text-white/50 mb-10 leading-relaxed">
-                Generate professional SVG maps and 3D models for Rhino, SketchUp & Blender. No GIS skills required.
+                Generate layered SVG maps for Illustrator and 3D models for Rhino, SketchUp & Blender. No GIS skills required.
               </p>
 
               {/* CTA Buttons */}
@@ -282,17 +282,78 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                   <div className="text-white/40 text-sm mt-1">3D Themes</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold">OBJ</div>
-                  <div className="text-white/40 text-sm mt-1">Rhino Ready</div>
+                  <div className="text-3xl md:text-4xl font-bold">SVG</div>
+                  <div className="text-white/40 text-sm mt-1">Illustrator Ready</div>
                 </div>
               </div>
             </div>
 
-            {/* Right - Create Screen Mockup with Tutorial */}
+            {/* Right - 3D Model on top, Create Screen below */}
             <div className="relative hidden lg:block">
               <div className="relative">
                 {/* Glow effect */}
                 <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/10 via-transparent to-amber-500/5 rounded-3xl blur-2xl" />
+                
+                {/* 3D Model Preview - Aksonometrik */}
+                <div className="relative mb-4 bg-gradient-to-br from-[#1a1a2e] to-[#0f0f1a] border border-white/10 rounded-2xl p-6 overflow-hidden">
+                  {/* 3D Aksonometrik City Model */}
+                  <svg viewBox="0 0 400 200" className="w-full h-auto">
+                    {/* Ground plane */}
+                    <polygon points="200,180 50,130 200,80 350,130" fill="#1a1a1a" stroke="#333" strokeWidth="1"/>
+                    
+                    {/* Roads */}
+                    <line x1="125" y1="105" x2="275" y2="155" stroke="#444" strokeWidth="8"/>
+                    <line x1="200" y1="130" x2="200" y2="80" stroke="#444" strokeWidth="6"/>
+                    
+                    {/* Building 1 - Tall */}
+                    <g>
+                      <polygon points="80,110 80,50 110,35 110,95" fill="#f59e0b" stroke="#d97706" strokeWidth="1"/>
+                      <polygon points="80,50 130,65 130,125 80,110" fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
+                      <polygon points="80,50 110,35 160,50 130,65" fill="#fcd34d" stroke="#d97706" strokeWidth="1"/>
+                    </g>
+                    
+                    {/* Building 2 - Medium */}
+                    <g>
+                      <polygon points="140,125 140,85 165,72 165,112" fill="#666" stroke="#555" strokeWidth="1"/>
+                      <polygon points="140,85 185,100 185,140 140,125" fill="#888" stroke="#555" strokeWidth="1"/>
+                      <polygon points="140,85 165,72 210,87 185,100" fill="#999" stroke="#555" strokeWidth="1"/>
+                    </g>
+                    
+                    {/* Building 3 - Wide */}
+                    <g>
+                      <polygon points="220,140 220,110 250,97 250,127" fill="#555" stroke="#444" strokeWidth="1"/>
+                      <polygon points="220,110 290,130 290,160 220,140" fill="#777" stroke="#444" strokeWidth="1"/>
+                      <polygon points="220,110 250,97 320,117 290,130" fill="#888" stroke="#444" strokeWidth="1"/>
+                    </g>
+                    
+                    {/* Building 4 - Small accent */}
+                    <g>
+                      <polygon points="300,145 300,120 320,110 320,135" fill="#f59e0b" stroke="#d97706" strokeWidth="1"/>
+                      <polygon points="300,120 340,132 340,157 300,145" fill="#fbbf24" stroke="#d97706" strokeWidth="1"/>
+                      <polygon points="300,120 320,110 360,122 340,132" fill="#fcd34d" stroke="#d97706" strokeWidth="1"/>
+                    </g>
+                    
+                    {/* Water */}
+                    <ellipse cx="320" cy="170" rx="35" ry="15" fill="#3b82f6" opacity="0.6"/>
+                    
+                    {/* Trees */}
+                    <circle cx="70" cy="135" r="8" fill="#22c55e" opacity="0.8"/>
+                    <circle cx="180" cy="155" r="6" fill="#22c55e" opacity="0.8"/>
+                    <circle cx="260" cy="165" r="7" fill="#22c55e" opacity="0.8"/>
+                  </svg>
+                  
+                  {/* 3D Badge */}
+                  <div className="absolute top-3 left-3 px-2 py-1 bg-purple-500/20 border border-purple-500/40 rounded-lg">
+                    <span className="text-purple-400 text-[10px] font-bold">3D MODEL</span>
+                  </div>
+                  
+                  {/* Format badges */}
+                  <div className="absolute bottom-3 right-3 flex gap-1">
+                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60">OBJ</span>
+                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60">GLB</span>
+                    <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] text-white/60">STL</span>
+                  </div>
+                </div>
                 
                 {/* Create screen container */}
                 <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
@@ -313,12 +374,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                         <span>🔍</span> Search location...
                       </div>
                       
+                      {/* 2D/3D Toggle */}
+                      <div className="flex gap-1 p-1 bg-[#111] rounded-lg">
+                        <div className="flex-1 py-1.5 bg-amber-500 text-black text-[10px] font-bold rounded text-center">2D</div>
+                        <div className="flex-1 py-1.5 text-gray-500 text-[10px] rounded text-center">3D</div>
+                      </div>
+                      
                       {/* Theme selector */}
                       <div className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-2">
-                        <div className="flex gap-1 mb-2">
-                          <span className="px-1.5 py-0.5 bg-amber-500 text-black rounded text-[8px] font-medium">Analysis</span>
-                          <span className="px-1.5 py-0.5 bg-[#1a1a1a] text-gray-500 rounded text-[8px]">Classic</span>
-                        </div>
                         <div className="grid grid-cols-4 gap-1">
                           {[
                             { bg: '#fff', fg: '#1a1a1a' },
@@ -346,45 +409,45 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                     </div>
                     
                     {/* Map area mockup */}
-                    <div className="w-64 h-56 bg-[#1a1a2e] relative">
+                    <div className="w-64 h-44 bg-[#1a1a2e] relative">
                       {/* Simple map representation */}
-                      <svg viewBox="0 0 256 224" className="w-full h-full">
-                        <rect fill="#1a1a2e" width="256" height="224"/>
-                        <path d="M0 80 L256 75" stroke="#333" strokeWidth="6"/>
-                        <path d="M0 150 L256 145" stroke="#333" strokeWidth="4"/>
-                        <path d="M80 0 L85 224" stroke="#333" strokeWidth="4"/>
-                        <path d="M180 0 L175 224" stroke="#333" strokeWidth="4"/>
+                      <svg viewBox="0 0 256 176" className="w-full h-full">
+                        <rect fill="#1a1a2e" width="256" height="176"/>
+                        <path d="M0 60 L256 55" stroke="#333" strokeWidth="6"/>
+                        <path d="M0 120 L256 115" stroke="#333" strokeWidth="4"/>
+                        <path d="M80 0 L85 176" stroke="#333" strokeWidth="4"/>
+                        <path d="M180 0 L175 176" stroke="#333" strokeWidth="4"/>
                         
                         {/* Selection box */}
-                        <rect x="100" y="85" width="80" height="70" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,4">
+                        <rect x="100" y="65" width="70" height="55" fill="none" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,4">
                           <animate attributeName="stroke-dashoffset" from="0" to="8" dur="1s" repeatCount="indefinite"/>
                         </rect>
                         
                         {/* Center point */}
-                        <circle cx="140" cy="120" r="4" fill="#f59e0b"/>
+                        <circle cx="135" cy="92" r="4" fill="#f59e0b"/>
                       </svg>
                       
                       {/* Tutorial overlay */}
-                      <div className="absolute top-2 left-2 bg-black/80 backdrop-blur px-3 py-2 rounded-lg">
-                        <p className="text-white text-[10px]">🎯 Click to select area</p>
+                      <div className="absolute top-2 left-2 bg-black/80 backdrop-blur px-2 py-1.5 rounded-lg">
+                        <p className="text-white text-[9px]">🎯 Click to select area</p>
                       </div>
                     </div>
                   </div>
                 </div>
                 
                 {/* Tutorial steps floating */}
-                <div className="absolute -right-4 top-4 flex flex-col gap-2 max-w-[140px]">
+                <div className="absolute -right-4 top-32 flex flex-col gap-2 max-w-[140px]">
                   <div className="bg-amber-500 text-black px-3 py-2 rounded-lg shadow-lg">
                     <p className="text-[10px] font-bold">1. Search Location</p>
                     <p className="text-[8px] opacity-80">Type any city or address</p>
                   </div>
                   <div className="bg-[#111] border border-white/20 text-white px-3 py-2 rounded-lg">
-                    <p className="text-[10px] font-medium">2. Pick Theme</p>
-                    <p className="text-[8px] opacity-60">24 professional styles</p>
+                    <p className="text-[10px] font-medium">2. Pick 2D or 3D</p>
+                    <p className="text-[8px] opacity-60">34 total themes</p>
                   </div>
                   <div className="bg-[#111] border border-white/20 text-white px-3 py-2 rounded-lg">
                     <p className="text-[10px] font-medium">3. Download</p>
-                    <p className="text-[8px] opacity-60">SVG or DXF format</p>
+                    <p className="text-[8px] opacity-60">SVG, DXF, OBJ, GLB</p>
                   </div>
                 </div>
               </div>
@@ -579,7 +642,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               </div>
               
               <ul className="space-y-4 mb-8">
-                {['5 Map Downloads', 'All 24 Themes', 'Full Customization', 'SVG Export', 'Commercial License'].map((f, i) => (
+                {[
+                  '5 Map Downloads (2D or 3D)',
+                  'All 24 2D Themes',
+                  'All 10 3D Themes',
+                  'SVG, DXF, PNG Export',
+                  'OBJ, GLB, STL Export',
+                  'Commercial License'
+                ].map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-white/70">
                     <span className="text-green-500"><CheckIcon /></span>
                     {f}
@@ -619,7 +689,14 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               </div>
               
               <ul className="space-y-4 mb-8">
-                {['Unlimited Downloads', 'All Premium Themes', 'Priority Support', 'Early Access Features', 'Cancel Anytime'].map((f, i) => (
+                {[
+                  'Unlimited 2D & 3D Downloads',
+                  '34 Total Themes',
+                  'Rhino-Ready OBJ with Materials',
+                  'Layered SVG for Illustrator',
+                  'Priority Support',
+                  'Early Access Features'
+                ].map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-white/70">
                     <span className="text-amber-500"><CheckIcon /></span>
                     {f}
@@ -646,18 +723,21 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
         
         <div className="relative max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-            Ready to create your first map?
+            Ready to create your first site model?
           </h2>
           <p className="text-white/50 text-xl mb-10 max-w-xl mx-auto">
-            Join architects worldwide using ArchiKEK for their site analysis projects.
+            Generate 2D maps & 3D models in seconds. Export to Illustrator, Rhino, Blender, and more.
           </p>
-          <Link 
-            href="/create" 
-            className="inline-flex items-center gap-3 px-10 py-5 bg-amber-500 text-black font-bold rounded-full text-lg hover:bg-amber-400 transition-all hover:scale-105 hover:shadow-xl hover:shadow-amber-500/25"
-          >
-            Create Your Map — Free
-            <ArrowRightIcon />
-          </Link>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link 
+              href="/create" 
+              className="inline-flex items-center gap-3 px-10 py-5 bg-amber-500 text-black font-bold rounded-full text-lg hover:bg-amber-400 transition-all hover:scale-105 hover:shadow-xl hover:shadow-amber-500/25"
+            >
+              Start Creating — Free
+              <ArrowRightIcon />
+            </Link>
+          </div>
+          <p className="text-white/30 text-sm mt-6">No credit card required • 1 free credit to start</p>
         </div>
       </section>
 

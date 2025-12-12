@@ -4,6 +4,14 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
+interface ThemeColors {
+  terrain: string
+  building: string
+  road: string
+  water: string
+  green: string
+}
+
 interface ThreeViewerProps {
   lat?: number
   lng?: number
@@ -14,9 +22,15 @@ interface ThreeViewerProps {
     water: boolean
     green: boolean
   }
+  themeColors?: ThemeColors
 }
 
-export default function ThreeViewer({ lat, lng, size = 500, layers }: ThreeViewerProps) {
+// Convert hex to THREE.Color number
+function hexToNumber(hex: string): number {
+  return parseInt(hex.replace('#', ''), 16)
+}
+
+export default function ThreeViewer({ lat, lng, size = 500, layers, themeColors }: ThreeViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
   const sceneRef = useRef<THREE.Scene | null>(null)
@@ -28,13 +42,24 @@ export default function ThreeViewer({ lat, lng, size = 500, layers }: ThreeViewe
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Default colors if no theme provided
+  const colors = themeColors || {
+    terrain: '#1a1a1a',
+    building: '#666666',
+    road: '#444444',
+    water: '#4a90d9',
+    green: '#228b22'
+  }
+
   // Initialize Three.js scene
   useEffect(() => {
     if (!containerRef.current) return
 
     // Scene
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x0a0a0a)
+    // Use terrain color for background, darkened slightly
+    const bgColor = themeColors ? hexToNumber(themeColors.terrain) : 0x0a0a0a
+    scene.background = new THREE.Color(bgColor).multiplyScalar(0.5)
     sceneRef.current = scene
 
     // Camera
@@ -160,11 +185,11 @@ export default function ThreeViewer({ lat, lng, size = 500, layers }: ThreeViewe
 
         // Create mesh groups for each layer
         const layerConfigs = [
-          { key: 'terrain', color: 0x1a1a1a, data: data.terrain },
-          { key: 'buildings', color: 0x666666, data: data.buildings },
-          { key: 'roads', color: 0x444444, data: data.roads },
-          { key: 'water', color: 0x4a90d9, data: data.water },
-          { key: 'green', color: 0x228b22, data: data.green },
+          { key: 'terrain', color: hexToNumber(colors.terrain), data: data.terrain },
+          { key: 'buildings', color: hexToNumber(colors.building), data: data.buildings },
+          { key: 'roads', color: hexToNumber(colors.road), data: data.roads },
+          { key: 'water', color: hexToNumber(colors.water), data: data.water },
+          { key: 'green', color: hexToNumber(colors.green), data: data.green },
         ]
 
         layerConfigs.forEach(({ key, color, data: layerData }) => {
@@ -216,7 +241,7 @@ export default function ThreeViewer({ lat, lng, size = 500, layers }: ThreeViewe
     }
 
     fetchData()
-  }, [lat, lng, size])
+  }, [lat, lng, size, colors])
 
   // Update layer visibility
   useEffect(() => {

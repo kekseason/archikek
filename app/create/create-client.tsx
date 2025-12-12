@@ -1346,6 +1346,255 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     <span>2000m</span>
                   </div>
                 </div>
+
+                {/* ═══════════════════════════════════════════════════════ */}
+                {/* 2D / 3D MODE SELECTION - With Format Info */}
+                {/* ═══════════════════════════════════════════════════════ */}
+                <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                  <p className="text-xs text-gray-500 mb-2">Export Type</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setExportMode('2d')}
+                      className={`p-3 rounded-xl border-2 transition-all text-left ${
+                        exportMode === '2d'
+                          ? 'border-amber-500 bg-amber-500/10'
+                          : 'border-[#222] bg-[#111] hover:border-[#333]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
+                        </svg>
+                        <span className={`font-semibold ${exportMode === '2d' ? 'text-amber-400' : 'text-white'}`}>2D Map</span>
+                      </div>
+                      <p className="text-[10px] text-gray-500">SVG · PNG · DXF</p>
+                    </button>
+                    <button
+                      onClick={() => setExportMode('3d')}
+                      className={`p-3 rounded-xl border-2 transition-all text-left ${
+                        exportMode === '3d'
+                          ? 'border-amber-500 bg-amber-500/10'
+                          : 'border-[#222] bg-[#111] hover:border-[#333]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <span className={`font-semibold ${exportMode === '3d' ? 'text-amber-400' : 'text-white'}`}>3D Model</span>
+                      </div>
+                      <p className="text-[10px] text-gray-500">OBJ · GLB · STL</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* ═══════════════════════════════════════════════════════ */}
+                {/* 2D OPTIONS */}
+                {/* ═══════════════════════════════════════════════════════ */}
+                {exportMode === '2d' && (
+                  <>
+                    {/* 2D Theme Selection */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {THEME_CATEGORIES.map(cat => (
+                          <button 
+                            key={cat} 
+                            onClick={() => setActiveCategory(cat)} 
+                            className={`px-2 py-1 text-xs rounded-md transition-all ${
+                              activeCategory === cat 
+                                ? 'bg-amber-500 text-black font-medium' 
+                                : 'bg-[#1a1a1a] text-gray-500 hover:text-gray-300'
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {ANALYSIS_THEMES.filter(t => t.category === activeCategory).map((theme) => (
+                          <button 
+                            key={theme.id} 
+                            onClick={() => { setSelectedTheme(theme); setUseCustomColors(false) }} 
+                            className={`aspect-square rounded-lg border-2 transition-all relative group overflow-hidden ${
+                              selectedTheme.id === theme.id 
+                                ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                                : 'border-[#333] hover:border-[#555]'
+                            }`} 
+                            style={{ background: theme.colors.Zemin }}
+                            title={theme.name}
+                          >
+                            <div className="w-full h-full p-1 flex flex-col gap-0.5">
+                              <div className="flex-1 rounded-sm" style={{ background: theme.colors.Binalar }} />
+                              <div className="h-1 rounded-sm" style={{ background: theme.colors.Yol_Otoyol }} />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-center mt-2 text-amber-500 font-medium">{selectedTheme.name}</p>
+                    </div>
+
+                    {/* 2D Format Selection */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <p className="text-xs text-gray-500 mb-2">Format</p>
+                      <div className="flex gap-2">
+                        {[
+                          { id: 'svg', label: 'SVG', desc: 'Illustrator' },
+                          { id: 'png', label: 'PNG', desc: 'Image' },
+                          { id: 'dxf', label: 'DXF', desc: 'AutoCAD' },
+                        ].map(fmt => (
+                          <button
+                            key={fmt.id}
+                            onClick={() => setExportFormat(fmt.id as 'svg' | 'dxf' | 'png')}
+                            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
+                              exportFormat === fmt.id
+                                ? 'bg-amber-500 text-black'
+                                : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            <span className="font-bold">{fmt.label}</span>
+                            <span className={`text-[10px] ${exportFormat === fmt.id ? 'text-black/60' : 'text-gray-600'}`}>
+                              {fmt.desc}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* ═══════════════════════════════════════════════════════ */}
+                {/* 3D OPTIONS */}
+                {/* ═══════════════════════════════════════════════════════ */}
+                {exportMode === '3d' && (
+                  <>
+                    {/* 3D Theme Selection - Same style as 2D */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <p className="text-xs text-gray-500 mb-2">3D Theme</p>
+                      <div className="grid grid-cols-5 gap-1.5">
+                        {THEMES_3D.map((theme) => (
+                          <button 
+                            key={theme.id} 
+                            onClick={() => setTheme3D(theme)} 
+                            className={`aspect-square rounded-lg border-2 transition-all relative group overflow-hidden ${
+                              theme3D.id === theme.id 
+                                ? 'border-amber-500 ring-2 ring-amber-500/30' 
+                                : 'border-[#333] hover:border-[#555]'
+                            }`} 
+                            style={{ background: theme.preview.terrain }}
+                            title={theme.name}
+                          >
+                            <div className="w-full h-full p-0.5 flex flex-col gap-0.5">
+                              <div className="flex-1 rounded-sm" style={{ background: theme.preview.building }} />
+                              <div className="flex gap-0.5">
+                                <div className="flex-1 h-1.5 rounded-sm" style={{ background: theme.preview.road }} />
+                                <div className="w-2 h-1.5 rounded-sm" style={{ background: theme.preview.water }} />
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-center mt-2 text-amber-500 font-medium">{theme3D.name}</p>
+                    </div>
+
+                    {/* 3D Format Selection */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <p className="text-xs text-gray-500 mb-2">Format</p>
+                      <div className="flex gap-2">
+                        {[
+                          { id: 'obj', label: 'OBJ', desc: 'Rhino, SketchUp' },
+                          { id: 'glb', label: 'GLB', desc: 'Blender, Web' },
+                          { id: 'stl', label: 'STL', desc: '3D Print' },
+                        ].map(fmt => (
+                          <button
+                            key={fmt.id}
+                            onClick={() => setFormat3D(fmt.id as 'obj' | 'glb' | 'stl')}
+                            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
+                              format3D === fmt.id
+                                ? 'bg-amber-500 text-black'
+                                : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            <span className="font-bold">{fmt.label}</span>
+                            <span className={`text-[10px] ${format3D === fmt.id ? 'text-black/60' : 'text-gray-600'}`}>
+                              {fmt.desc}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 3D Layer Toggles */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <p className="text-xs text-gray-500 mb-2">Layers</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { key: 'buildings', label: 'Buildings', icon: '🏢' },
+                          { key: 'roads', label: 'Roads', icon: '🛣️' },
+                          { key: 'water', label: 'Water', icon: '💧' },
+                          { key: 'green', label: 'Green', icon: '🌳' },
+                        ].map(layer => (
+                          <button
+                            key={layer.key}
+                            onClick={() => setLayers3D(prev => ({ ...prev, [layer.key]: !prev[layer.key as keyof typeof prev] }))}
+                            className={`py-1.5 px-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                              layers3D[layer.key as keyof typeof layers3D]
+                                ? 'bg-amber-500/20 border border-amber-500/50 text-amber-400'
+                                : 'bg-[#1a1a1a] border border-transparent text-gray-500'
+                            }`}
+                          >
+                            <span>{layer.icon}</span>
+                            <span>{layer.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                      
+                      {/* Terrain Toggle */}
+                      <label className="flex items-center justify-between mt-2 px-2 py-1.5 bg-[#1a1a1a] rounded-lg cursor-pointer hover:bg-[#222] transition-colors">
+                        <div className="flex items-center gap-2">
+                          <span>⛰️</span>
+                          <span className="text-xs text-gray-300">Include Terrain</span>
+                        </div>
+                        <div className={`w-8 h-4 rounded-full transition-colors ${includeTerrain ? 'bg-amber-500' : 'bg-[#333]'}`}>
+                          <div className={`w-3 h-3 bg-white rounded-full m-0.5 transition-transform ${includeTerrain ? 'translate-x-4' : ''}`} />
+                        </div>
+                        <input type="checkbox" checked={includeTerrain} onChange={(e) => setIncludeTerrain(e.target.checked)} className="hidden" />
+                      </label>
+
+                      {/* OBJ-specific: MTL Toggle */}
+                      {format3D === 'obj' && (
+                        <label className="flex items-center justify-between mt-2 px-2 py-1.5 bg-[#1a1a1a] rounded-lg cursor-pointer hover:bg-[#222] transition-colors">
+                          <div className="flex items-center gap-2">
+                            <span>🎨</span>
+                            <span className="text-xs text-gray-300">Include Materials (.mtl)</span>
+                          </div>
+                          <div className={`w-8 h-4 rounded-full transition-colors ${includeMtl ? 'bg-amber-500' : 'bg-[#333]'}`}>
+                            <div className={`w-3 h-3 bg-white rounded-full m-0.5 transition-transform ${includeMtl ? 'translate-x-4' : ''}`} />
+                          </div>
+                          <input type="checkbox" checked={includeMtl} onChange={(e) => setIncludeMtl(e.target.checked)} className="hidden" />
+                        </label>
+                      )}
+
+                      {/* STL-specific: Raft Thickness */}
+                      {format3D === 'stl' && (
+                        <div className="mt-2 px-2 py-1.5 bg-[#1a1a1a] rounded-lg">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-300">🧱 Raft Thickness</span>
+                            <span className="text-amber-400">{raftThickness}mm</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={0}
+                            max={5}
+                            step={0.5}
+                            value={raftThickness}
+                            onChange={(e) => setRaftThickness(Number(e.target.value))}
+                            className="w-full accent-amber-500 h-1"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <div className="flex gap-2">
@@ -1371,48 +1620,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 </button>
               </div>
             )}
-
-            {/* ═══════════════════════════════════════════════════════ */}
-            {/* THEMES - PRIMARY SECTION (Always Visible) */}
-            {/* ═══════════════════════════════════════════════════════ */}
-            <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
-              <div className="flex flex-wrap gap-1 mb-3">
-                {THEME_CATEGORIES.map(cat => (
-                  <button 
-                    key={cat} 
-                    onClick={() => setActiveCategory(cat)} 
-                    className={`px-2 py-1 text-xs rounded-md transition-all ${
-                      activeCategory === cat 
-                        ? 'bg-amber-500 text-black font-medium' 
-                        : 'bg-[#1a1a1a] text-gray-500 hover:text-gray-300'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-              <div className="grid grid-cols-4 gap-1.5">
-                {ANALYSIS_THEMES.filter(t => t.category === activeCategory).map((theme) => (
-                  <button 
-                    key={theme.id} 
-                    onClick={() => { setSelectedTheme(theme); setUseCustomColors(false) }} 
-                    className={`aspect-square rounded-lg border-2 transition-all relative group overflow-hidden ${
-                      selectedTheme.id === theme.id 
-                        ? 'border-amber-500 ring-2 ring-amber-500/30' 
-                        : 'border-[#333] hover:border-[#555]'
-                    }`} 
-                    style={{ background: theme.colors.Zemin }}
-                    title={theme.name}
-                  >
-                    <div className="w-full h-full p-1 flex flex-col gap-0.5">
-                      <div className="flex-1 rounded-sm" style={{ background: theme.colors.Binalar }} />
-                      <div className="h-1 rounded-sm" style={{ background: theme.colors.Yol_Otoyol }} />
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-center mt-2 text-amber-500 font-medium">{selectedTheme.name}</p>
-            </div>
 
             {/* ═══════════════════════════════════════════════════════ */}
             {/* PREVIEW & GENERATE - PRIMARY SECTION */}
@@ -1722,274 +1929,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   ))}
                 </div>
 
-                {/* Export Mode - 2D/3D Toggle */}
-                <div>
-                  <p className="text-xs text-gray-500 mb-2">Export Mode</p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setExportMode('2d')}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-1.5 ${
-                        exportMode === '2d'
-                          ? 'bg-amber-500 text-black'
-                          : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
-                      </svg>
-                      2D
-                    </button>
-                    <button
-                      onClick={() => setExportMode('3d')}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-1.5 ${
-                        exportMode === '3d'
-                          ? 'bg-amber-500 text-black'
-                          : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                      </svg>
-                      3D
-                    </button>
-                  </div>
-                </div>
-
-                {/* 2D Format Options */}
-                {exportMode === '2d' && (
-                  <div>
-                    <p className="text-xs text-gray-500 mb-2">Format</p>
-                    <div className="flex gap-2">
-                      {['svg', 'dxf', 'png'].map(fmt => (
-                        <button
-                          key={fmt}
-                          onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
-                          className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                            exportFormat === fmt 
-                              ? 'bg-amber-500 text-black' 
-                              : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
-                          }`}
-                        >
-                          {fmt.toUpperCase()}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* 3D Format Options + Layers */}
-                {exportMode === '3d' && (
-                  <div className="space-y-3">
-                    {/* 3D Theme Selector */}
-                    <div>
-                      <p className="text-xs text-gray-500 mb-2">3D Theme</p>
-                      <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-1 scrollbar-thin">
-                        {THEMES_3D.map(theme => (
-                          <button
-                            key={theme.id}
-                            onClick={() => setTheme3D(theme)}
-                            className={`p-2 rounded-lg text-left transition-all ${
-                              theme3D.id === theme.id
-                                ? 'ring-2 ring-amber-500 bg-amber-500/10'
-                                : 'bg-[#1a1a1a] hover:bg-[#222]'
-                            }`}
-                          >
-                            {/* Theme Preview Colors */}
-                            <div className="flex gap-0.5 mb-1.5">
-                              <div 
-                                className="w-4 h-4 rounded-sm" 
-                                style={{ backgroundColor: theme.preview.terrain }}
-                                title="Terrain"
-                              />
-                              <div 
-                                className="w-4 h-4 rounded-sm" 
-                                style={{ backgroundColor: theme.preview.building }}
-                                title="Building"
-                              />
-                              <div 
-                                className="w-4 h-4 rounded-sm" 
-                                style={{ backgroundColor: theme.preview.road }}
-                                title="Road"
-                              />
-                              <div 
-                                className="w-4 h-4 rounded-sm" 
-                                style={{ backgroundColor: theme.preview.water }}
-                                title="Water"
-                              />
-                              <div 
-                                className="w-4 h-4 rounded-sm" 
-                                style={{ backgroundColor: theme.preview.green }}
-                                title="Green"
-                              />
-                            </div>
-                            <p className={`text-xs font-medium ${theme3D.id === theme.id ? 'text-amber-400' : 'text-white'}`}>
-                              {theme.name}
-                            </p>
-                            <p className="text-[10px] text-gray-500 truncate">{theme.description}</p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className="text-xs text-gray-500 mb-2">3D Format</p>
-                      <div className="flex gap-2">
-                        {[
-                          { id: 'obj', label: 'OBJ', desc: 'Rhino, SketchUp' },
-                          { id: 'glb', label: 'GLB', desc: 'Web, Blender' },
-                          { id: 'stl', label: 'STL', desc: '3D Print' },
-                        ].map(fmt => (
-                          <button
-                            key={fmt.id}
-                            onClick={() => setFormat3D(fmt.id as 'obj' | 'glb' | 'stl')}
-                            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
-                              format3D === fmt.id
-                                ? 'bg-amber-500 text-black'
-                                : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
-                            }`}
-                          >
-                            <span className="font-bold">{fmt.label}</span>
-                            <span className={`text-[10px] ${format3D === fmt.id ? 'text-black/60' : 'text-gray-600'}`}>
-                              {fmt.desc}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Layer Toggles */}
-                    <div>
-                      <p className="text-xs text-gray-500 mb-2">Layers</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          { key: 'buildings', label: 'Buildings', icon: '🏢' },
-                          { key: 'roads', label: 'Roads', icon: '🛣️' },
-                          { key: 'water', label: 'Water', icon: '💧' },
-                          { key: 'green', label: 'Green', icon: '🌳' },
-                        ].map(layer => (
-                          <button
-                            key={layer.key}
-                            onClick={() => setLayers3D(prev => ({ ...prev, [layer.key]: !prev[layer.key as keyof typeof prev] }))}
-                            className={`py-1.5 px-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
-                              layers3D[layer.key as keyof typeof layers3D]
-                                ? 'bg-amber-500/20 border border-amber-500/50 text-amber-400'
-                                : 'bg-[#1a1a1a] border border-transparent text-gray-500'
-                            }`}
-                          >
-                            <span>{layer.icon}</span>
-                            <span>{layer.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Terrain Toggle */}
-                    <label className="flex items-center justify-between px-3 py-2 bg-[#111] rounded-lg cursor-pointer hover:bg-[#161616] transition-colors">
-                      <div className="flex items-center gap-2">
-                        <span>⛰️</span>
-                        <span className="text-sm text-gray-300">Include Terrain</span>
-                      </div>
-                      <div className={`w-10 h-5 rounded-full transition-colors ${includeTerrain ? 'bg-amber-500' : 'bg-[#333]'}`}>
-                        <div className={`w-4 h-4 bg-white rounded-full m-0.5 transition-transform ${includeTerrain ? 'translate-x-5' : ''}`} />
-                      </div>
-                      <input 
-                        type="checkbox" 
-                        checked={includeTerrain} 
-                        onChange={(e) => setIncludeTerrain(e.target.checked)} 
-                        className="hidden" 
-                      />
-                    </label>
-                    
-                    {/* OBJ-specific: MTL Toggle */}
-                    {format3D === 'obj' && (
-                      <label className="flex items-center justify-between px-3 py-2 bg-[#111] rounded-lg cursor-pointer hover:bg-[#161616] transition-colors">
-                        <div className="flex items-center gap-2">
-                          <span>🎨</span>
-                          <div>
-                            <span className="text-sm text-gray-300">Include Materials</span>
-                            <p className="text-[10px] text-gray-500">MTL file with colors</p>
-                          </div>
-                        </div>
-                        <div className={`w-10 h-5 rounded-full transition-colors ${includeMtl ? 'bg-amber-500' : 'bg-[#333]'}`}>
-                          <div className={`w-4 h-4 bg-white rounded-full m-0.5 transition-transform ${includeMtl ? 'translate-x-5' : ''}`} />
-                        </div>
-                        <input 
-                          type="checkbox" 
-                          checked={includeMtl} 
-                          onChange={(e) => setIncludeMtl(e.target.checked)} 
-                          className="hidden" 
-                        />
-                      </label>
-                    )}
-                    
-                    {/* STL-specific: Raft Thickness */}
-                    {format3D === 'stl' && (
-                      <div className="px-3 py-2 bg-[#111] rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span>📐</span>
-                            <span className="text-sm text-gray-300">Print Raft</span>
-                          </div>
-                          <span className="text-xs text-amber-400 font-mono">
-                            {raftThickness === 0 ? 'OFF' : `${raftThickness}mm`}
-                          </span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="5"
-                          step="0.5"
-                          value={raftThickness}
-                          onChange={(e) => setRaftThickness(parseFloat(e.target.value))}
-                          className="w-full h-1 bg-[#333] rounded-lg appearance-none cursor-pointer
-                                     [&::-webkit-slider-thumb]:appearance-none
-                                     [&::-webkit-slider-thumb]:w-4
-                                     [&::-webkit-slider-thumb]:h-4
-                                     [&::-webkit-slider-thumb]:bg-amber-500
-                                     [&::-webkit-slider-thumb]:rounded-full
-                                     [&::-webkit-slider-thumb]:cursor-pointer"
-                        />
-                        <p className="text-[10px] text-gray-500 mt-1">
-                          Base plate for stable 3D printing
-                        </p>
-                      </div>
-                    )}
-                    
-                    {/* 3D Preview Button */}
-                    {selection && (
-                      <button
-                        onClick={() => setShow3DPreview(true)}
-                        className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        Preview 3D Model
-                      </button>
-                    )}
-                    
-                    {/* Format-specific tips */}
-                    <div className="p-2 bg-[#111] rounded-lg">
-                      <p className="text-[10px] text-gray-500">
-                        {format3D === 'obj' && (
-                          <>💡 OBJ exports separate layers (Buildings, Roads, Water, Green) {includeMtl ? 'with material colors in ZIP' : 'without materials'}</>
-                        )}
-                        {format3D === 'glb' && (
-                          <>💡 GLB is a single binary file, perfect for web viewers and Blender</>
-                        )}
-                        {format3D === 'stl' && (
-                          <>💡 STL is ideal for 3D printing{raftThickness > 0 ? ` with ${raftThickness}mm base plate` : ''}</>
-                        )}
-                      </p>
-                    </div>
-                    
-                    {/* Robust 3D Badge */}
-                    <div className="flex items-center justify-center gap-1.5 py-1">
-                      <span className="text-[10px] text-gray-600">Powered by</span>
-                      <span className="text-[10px] text-amber-500/80 font-medium">Robust 3D v7.0</span>
-                      <span className="text-[10px] text-green-500">✓</span>
-                    </div>
-                  </div>
+                {/* 3D Preview Button - Only show in 3D mode */}
+                {exportMode === '3d' && selection && (
+                  <button
+                    onClick={() => setShow3DPreview(true)}
+                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    Preview 3D Model
+                  </button>
                 )}
               </div>
             </details>
@@ -2055,6 +2005,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 lng={selection.center?.lng || 0}
                 size={selection.size || size}
                 layers={layers3D}
+                themeColors={theme3D.preview}
               />
             </div>
           </div>
