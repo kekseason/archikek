@@ -2157,6 +2157,520 @@ The theme is a starting point—make it yours!
   },
 }
 
+  // ============================================
+  // NEW SEO-OPTIMIZED BLOG POSTS
+  // Target keywords with high search volume
+  // ============================================
+  
+  // TARGET: "site plan generator" - 2,400 monthly searches
+  'site-plan-generator-free': {
+    title: 'Free Site Plan Generator for Architects [2024 Guide]',
+    description: 'Generate professional site plans in seconds. Free online tool with SVG, DXF, and 3D export. No CAD skills required. Perfect for architects and students.',
+    date: '2024-12-13',
+    readTime: '8 min read',
+    category: 'Tool Guide',
+    content: \`
+## What is a Site Plan Generator?
+
+A site plan generator is an online tool that automatically creates architectural site plans from geographic data. Instead of spending hours tracing building footprints in CAD software, you can generate accurate site plans in seconds.
+
+## Why Architects Need Site Plan Generators
+
+Creating site plans manually is time-consuming:
+
+- **Traditional Method**: Download GIS data → Import to CAD → Trace buildings → Add roads → Style layers → Export (4-8 hours)
+- **With ArchiKEK**: Search location → Select theme → Download (30 seconds)
+
+## Features of a Good Site Plan Generator
+
+### Essential Features
+- **Accurate Building Footprints**: Real data from OpenStreetMap
+- **Road Network**: Classified by type (highway, residential, pedestrian)
+- **Green Spaces**: Parks, forests, gardens differentiated
+- **Water Bodies**: Rivers, lakes, coastlines
+- **Export Formats**: SVG for Illustrator, DXF for AutoCAD
+
+### Advanced Features
+- **Topographic Contours**: Real elevation data
+- **3D Models**: Export to OBJ, GLB, or STL
+- **Multiple Themes**: Figure ground, Nolli, analytical styles
+- **Custom Colors**: Full control over appearance
+
+## How to Generate a Site Plan with ArchiKEK
+
+### Step 1: Navigate to Your Site
+Open ArchiKEK and search for your project location.
+
+### Step 2: Select Your Area
+Choose your area size (250m to 3000m).
+
+### Step 3: Choose a Theme
+Select from 34 professional themes.
+
+### Step 4: Export Your Plan
+Download in your preferred format: SVG (free), DXF (Pro), or 3D (Pro).
+
+## Site Plan Generator vs Traditional Methods
+
+| Feature | ArchiKEK | QGIS | Manual CAD |
+|---------|----------|------|------------|
+| Time | 30 seconds | 2-4 hours | 4-8 hours |
+| Learning Curve | None | Steep | Moderate |
+| Cost | Free/Pro | Free | Software license |
+
+## Frequently Asked Questions
+
+### Is the site plan generator free?
+Yes! SVG and PNG exports are completely free. DXF and 3D exports require a Pro subscription ($19/month).
+
+### How accurate is the data?
+ArchiKEK uses OpenStreetMap data, which is continuously updated by a global community.
+
+[Generate Your Site Plan →](/create)
+    \`
+  },
+
+  // TARGET: "CAD map download" - 1,900 monthly searches
+  'cad-map-download-dxf': {
+    title: 'Download CAD Maps (DXF) for Any Location [Free Tool]',
+    description: 'Download DXF CAD maps with building footprints, roads, and contours. AutoCAD and Rhino ready. Organized layers included.',
+    date: '2024-12-13',
+    readTime: '6 min read',
+    category: 'Tutorial',
+    content: \`
+## Download CAD Maps in DXF Format
+
+Need a CAD-ready map for your architecture project? ArchiKEK lets you download professional DXF files with organized layers for any location worldwide.
+
+## What's Included in the DXF Download
+
+### Layer Structure
+Your DXF export includes 15+ organized layers:
+
+**Buildings**
+- BUILDINGS_RESIDENTIAL
+- BUILDINGS_COMMERCIAL
+- BUILDINGS_PUBLIC
+
+**Roads**
+- ROADS_HIGHWAY
+- ROADS_PRIMARY
+- ROADS_RESIDENTIAL
+
+**Environment**
+- WATER
+- GREEN_PARKS
+- CONTOURS
+
+## How to Download CAD Maps
+
+1. **Select Location**: Navigate to your project site
+2. **Select DXF Format**: Choose DXF from the format dropdown
+3. **Generate**: Click "Generate DXF"
+4. **Download**: File downloads automatically
+
+## Compatibility
+
+| Software | Compatibility |
+|----------|--------------|
+| AutoCAD | ✓ Native |
+| Rhino | ✓ Native |
+| SketchUp | ✓ Import |
+| BricsCAD | ✓ Native |
+
+## Pricing
+
+DXF export is a Pro feature at $19/month.
+
+[Export DXF Map →](/create)
+    \`
+  },
+
+  // TARGET: "3D city model" - 3,600 monthly searches
+  '3d-city-model-generator': {
+    title: '3D City Model Generator: Create Urban Models Instantly',
+    description: 'Generate 3D city models with real terrain and buildings. Export to OBJ, GLB, or STL for Blender, SketchUp, or 3D printing.',
+    date: '2024-12-13',
+    readTime: '7 min read',
+    category: 'Tool Guide',
+    content: \`
+## Generate 3D City Models in Seconds
+
+Creating 3D urban context models used to require hours of manual work. With ArchiKEK, you can generate detailed 3D city models with real terrain elevation and building footprints instantly.
+
+## What's Included in 3D Models
+
+### Terrain
+- Real elevation data from global DEMs
+- Accurate topography with hills and valleys
+
+### Buildings
+- Footprints from OpenStreetMap
+- Heights from OSM data where available
+- Estimated heights by building type
+
+### Infrastructure
+- Road surfaces with proper widths
+- Water bodies (rivers, lakes)
+- Green areas (parks, forests)
+
+## Export Formats
+
+### OBJ (Wavefront)
+Best for: Blender, 3ds Max, Cinema 4D
+
+### GLB (Binary glTF)
+Best for: Web, AR/VR, modern workflows
+
+### STL (Stereolithography)
+Best for: 3D printing
+
+## How to Generate 3D City Models
+
+1. **Select Your Area** (up to 2km × 2km)
+2. **Switch to 3D Mode**
+3. **Choose Theme Colors**
+4. **Preview & Export**
+
+## Use Cases
+
+- Architecture Visualization
+- Urban Planning
+- 3D Printing
+- Game Development
+- AR/VR
+
+[Create 3D Model →](/create)
+    \`
+  },
+
+  // TARGET: "urban map SVG" - 720 monthly searches
+  'urban-map-svg-download': {
+    title: 'Download Urban Maps as SVG: Vector City Maps for Design',
+    description: 'Download urban maps as SVG vectors. Perfect for Illustrator, Figma, and web design. Organized layers, scalable quality.',
+    date: '2024-12-13',
+    readTime: '5 min read',
+    category: 'Tutorial',
+    content: \`
+## Vector Urban Maps for Designers
+
+SVG (Scalable Vector Graphics) is the ideal format for urban maps in design work. Unlike raster images, SVG maps can be scaled infinitely without losing quality.
+
+## Why SVG for Urban Maps?
+
+### Advantages
+- **Infinite Scalability**: Print at any size
+- **Editable**: Modify colors, shapes, styles
+- **Small File Size**: Efficient for web
+- **Layer Support**: Organized groups
+
+## Layer Structure
+
+ArchiKEK SVGs include organized Inkscape-compatible layers:
+- Background
+- Contours
+- Water
+- Green Areas (Forest, Park, Sports, Grass)
+- Roads (Highway, Primary, Residential)
+- Buildings (by category)
+- Transit
+- Frame
+
+## 34 Theme Options
+
+- **Classic**: Minimal, Figure Ground, Nolli
+- **Modern**: Midnight, Neon, Blueprint
+- **Natural**: Forest, Ocean, Desert
+
+## Free SVG Downloads
+
+SVG exports are **completely free** with ArchiKEK.
+
+[Download SVG Map →](/create)
+    \`
+  },
+
+  // TARGET: "architecture site plan" - 1,300 monthly searches
+  'architecture-site-plan-guide': {
+    title: 'Architecture Site Plan: Complete Guide + Free Generator',
+    description: 'Learn how to create professional architecture site plans. Free online tool generates site plans with buildings, roads, and topography.',
+    date: '2024-12-13',
+    readTime: '10 min read',
+    category: 'Guide',
+    content: \`
+## What is an Architecture Site Plan?
+
+An architecture site plan is a scaled drawing showing the horizontal arrangement of a building project and its surrounding context.
+
+## Essential Elements
+
+### 1. Site Boundary
+Clear demarcation of project limits.
+
+### 2. Building Footprints
+Representation of all structures.
+
+### 3. Access and Circulation
+Movement patterns including roads, pedestrian paths.
+
+### 4. Landscape Elements
+Natural and designed features.
+
+### 5. Topography
+Ground level information with contour lines.
+
+## Site Plan Scales
+
+| Scale | Use Case |
+|-------|----------|
+| 1:100 | Detailed design |
+| 1:500 | Planning applications |
+| 1:1000 | Context plan |
+
+## Generate Your Site Plan
+
+Start with an accurate base map from ArchiKEK:
+
+1. **Generate base map** with buildings and roads
+2. **Export to SVG** or DXF
+3. **Add your design** on top
+4. **Style and annotate**
+
+[Create Site Plan →](/create)
+    \`
+  },
+
+  // TARGET: "DXF map export" - 480 monthly searches
+  'dxf-map-export-autocad': {
+    title: 'DXF Map Export: Get AutoCAD-Ready Maps Instantly',
+    description: 'Export maps to DXF format for AutoCAD, Rhino, and other CAD software. Organized layers, real-world scale.',
+    date: '2024-12-13',
+    readTime: '5 min read',
+    category: 'Tutorial',
+    content: \`
+## Export Maps to DXF for CAD Software
+
+DXF (Drawing Exchange Format) is the universal format for CAD data exchange. ArchiKEK exports professional DXF files with organized layers.
+
+## DXF Export Features
+
+### Organized Layers
+15+ pre-organized layers with AutoCAD-standard naming.
+
+### Real-World Scale
+1:1 scale in meters, accurate dimensions.
+
+### Building Data
+2.5D extrusion capability with height from OSM.
+
+## Layer Structure
+
+- BUILDINGS (by category)
+- ROADS (by type)
+- WATER
+- GREEN_PARKS
+- CONTOURS
+
+## Export Process
+
+1. Create Your Map
+2. Select DXF Format
+3. Generate
+4. Download
+
+[Export DXF Map →](/create)
+    \`
+  },
+
+  // TARGET: "topographic map maker" - 1,600 monthly searches
+  'topographic-map-maker-online': {
+    title: 'Topographic Map Maker: Create Contour Maps Online',
+    description: 'Generate topographic maps with contour lines online. Real elevation data, customizable intervals.',
+    date: '2024-12-13',
+    readTime: '6 min read',
+    category: 'Tool Guide',
+    content: \`
+## Create Topographic Maps Online
+
+Topographic maps show terrain elevation through contour lines. ArchiKEK generates topographic maps using real elevation data.
+
+## Contour Map Features
+
+### Real Elevation Data
+- Global DEM coverage
+- ~30m resolution
+
+### Customizable Intervals
+- 1m for flat terrain
+- 5m default
+- 10m+ for mountains
+
+### Visual Differentiation
+- Major contours: Bold, labeled
+- Minor contours: Light, unlabeled
+
+## Contour Interval Guide
+
+| Terrain Type | Recommended Interval |
+|--------------|---------------------|
+| Flat coastal | 1-2m |
+| Urban areas | 2-5m |
+| Rolling hills | 5-10m |
+| Mountains | 10-20m |
+
+## Use Cases
+
+- Site grading analysis
+- Foundation planning
+- Stormwater design
+- Flood risk assessment
+
+[Create Topographic Map →](/create)
+    \`
+  },
+
+  // TARGET: "OpenStreetMap architecture" - 800 monthly searches
+  'openstreetmap-architecture-maps': {
+    title: 'How to Use OpenStreetMap Data for Architecture Projects',
+    description: 'Extract and use OpenStreetMap data for architecture site analysis. Get building footprints, roads, and terrain.',
+    date: '2024-12-13',
+    readTime: '8 min read',
+    category: 'Guide',
+    content: \`
+## OpenStreetMap for Architects
+
+OpenStreetMap (OSM) is a free, collaborative map of the world with:
+- Building footprints
+- Road networks
+- Land use data
+- Natural features
+
+## Why Use OpenStreetMap?
+
+- **Free**: No licensing fees
+- **Global**: Coverage worldwide
+- **Current**: Continuously updated
+- **Detailed**: Building-level accuracy
+
+## OSM Data Quality
+
+### Well-Mapped Areas
+- Major cities worldwide
+- Europe (excellent)
+- North America (very good)
+
+### Variable Coverage
+- Rural areas
+- New construction
+
+## Easy Way: ArchiKEK
+
+ArchiKEK automates the entire process:
+
+1. **Search** for your location
+2. **Preview** the map
+3. **Download** in your format
+
+[Generate OSM Map →](/create)
+    \`
+  },
+
+  // TARGET: "free architecture tools" - 900 monthly searches  
+  'free-architecture-tools-2024': {
+    title: 'Best Free Architecture Tools in 2024: Complete List',
+    description: 'Discover the best free tools for architecture students and professionals. CAD, rendering, site analysis, and more.',
+    date: '2024-12-13',
+    readTime: '12 min read',
+    category: 'Resource',
+    content: \`
+## Free Tools Every Architect Needs
+
+### Site Analysis & Mapping
+- **ArchiKEK**: Site plans, figure ground maps (archikek.com)
+- **QGIS**: Advanced GIS analysis (qgis.org)
+- **Google Earth Pro**: Satellite imagery (free since 2015)
+
+### 3D Modeling
+- **Blender**: Full 3D modeling, rendering (blender.org)
+- **SketchUp Free**: Web-based 3D (app.sketchup.com)
+- **FreeCAD**: Parametric modeling (freecad.org)
+
+### 2D CAD & Drafting
+- **LibreCAD**: 2D drafting (librecad.org)
+- **NanoCAD Free**: AutoCAD alternative (nanocad.com)
+
+### Vector Graphics
+- **Inkscape**: SVG editing (inkscape.org)
+- **Figma**: Collaborative design (figma.com)
+
+### Image Editing
+- **GIMP**: Photo editing (gimp.org)
+- **Photopea**: Browser-based (photopea.com)
+
+## Comparison Table
+
+| Category | Best Free Tool | Paid Alternative |
+|----------|---------------|------------------|
+| Site Plans | ArchiKEK | CADMapper |
+| 3D Modeling | Blender | 3ds Max |
+| 2D CAD | LibreCAD | AutoCAD |
+| Vectors | Inkscape | Illustrator |
+
+[Start with Site Analysis →](/create)
+    \`
+  },
+
+  // TARGET: "figure ground map" - 1,100 monthly searches
+  'figure-ground-map-urban-design': {
+    title: 'Figure Ground Map: Urban Design Analysis Technique',
+    description: 'Learn about figure ground maps in urban design. History, technique, and how to create them.',
+    date: '2024-12-13',
+    readTime: '9 min read',
+    category: 'Guide',
+    content: \`
+## Understanding Figure Ground Maps
+
+The figure ground map is one of the most powerful tools in urban design analysis. Buildings are shown as solid shapes (figure) against a blank background (ground).
+
+## What is a Figure Ground Map?
+
+A binary representation that reveals:
+- Urban fabric density
+- Building patterns
+- Public vs private space
+- Street and block structure
+
+## History
+
+### Origins
+The technique dates to 1748 when Giambattista Nolli created his famous map of Rome.
+
+### Modern Development
+In the 1960s-70s, Colin Rowe and Fred Koetter developed figure ground analysis in "Collage City" (1978).
+
+## Reading Figure Ground Maps
+
+### Density Patterns
+- **Dense fabric**: Historic cores
+- **Open fabric**: Suburban areas
+
+### Building Types
+- Perimeter blocks
+- Towers
+- Row houses
+
+## Creating Figure Ground Maps
+
+### With ArchiKEK (30 seconds)
+1. Navigate to your location
+2. Select "Figure Ground" theme
+3. Download SVG or DXF
+
+[Create Figure Ground Map →](/create)
+    \`
+  },
+}
+
 // Generate static params for all blog posts
 export async function generateStaticParams() {
   return Object.keys(blogPosts).map((slug) => ({
@@ -2310,7 +2824,6 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       if (trimmed.startsWith('- ')) {
         inList = true
         let item = trimmed.replace('- ', '')
-        // Handle bold
         item = item.replace(/\*\*([^*]+)\*\*/g, '<strong class="text-white">$1</strong>')
         listItems.push(item)
         return

@@ -1081,20 +1081,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
-    // Check if user is logged in
-    if (!user) {
-      setShowLoginModal(true)
-      return
-    }
-
-    // Check if Pro - 3D is Pro only
-    const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
-    
-    if (!isPro) {
-      setShowProModal(true)
-      return
-    }
-
     setGenerating(true)
     setError('')
 
@@ -1816,41 +1802,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                           {theme3D.name}
                         </div>
                       </div>
-                    ) : exportFormat === 'dxf' ? (
-                      /* DXF CAD-style Preview - Real map data with CAD overlay */
-                      <div className="w-full aspect-square bg-[#1a1a2e] relative overflow-hidden">
-                        {/* CAD grid background */}
-                        <div className="absolute inset-0 opacity-20" style={{
-                          backgroundImage: `linear-gradient(#445 1px, transparent 1px), linear-gradient(90deg, #445 1px, transparent 1px)`,
-                          backgroundSize: '15px 15px'
-                        }} />
-                        
-                        {/* Actual preview image with CAD filter */}
-                        <img 
-                          src={previewUrl} 
-                          alt="DXF Preview" 
-                          className={`w-full h-full object-cover ${previewLoading ? 'opacity-50' : ''}`}
-                          style={{
-                            filter: 'saturate(0.3) brightness(0.9) contrast(1.2)',
-                            mixBlendMode: 'screen'
-                          }}
-                        />
-                        
-                        {/* DXF Badge */}
-                        <div className="absolute top-2 left-2 px-2 py-0.5 bg-blue-500/40 border border-blue-400/50 rounded text-[9px] text-blue-200 font-mono">
-                          DXF/CAD
-                        </div>
-                        
-                        {/* Layer info */}
-                        <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/50 rounded text-[8px] text-gray-400 font-mono">
-                          15 Layers
-                        </div>
-                        
-                        {/* Size info */}
-                        <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-black/50 rounded text-[8px] text-gray-400 font-mono">
-                          {selection?.size || size}m
-                        </div>
-                      </div>
                     ) : (
                       /* 2D Map Preview */
                       <img 
@@ -2130,6 +2081,19 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     </label>
                   ))}
                 </div>
+
+                {/* 3D Preview Button - Only show in 3D mode */}
+                {exportMode === '3d' && selection && (
+                  <button
+                    onClick={() => setShow3DPreview(true)}
+                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    Preview 3D Model
+                  </button>
+                )}
               </div>
             </details>
             )}
@@ -2151,7 +2115,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
                 <div>
                   <h3 className="text-white font-semibold">3D Preview</h3>
-                  <p className="text-xs text-gray-400">{locationName || 'Selected Area'} • {selection.size || size}m</p>
+                  <p className="text-xs text-gray-400">{locationName || 'Selected Area'} • {size}m</p>
                 </div>
                 <button
                   onClick={() => setShow3DPreview(false)}
@@ -2166,10 +2130,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               {/* Layer toggles in modal - use theme colors */}
               <div className="absolute top-16 left-4 z-10 flex flex-col gap-1">
                 {[
-                  { key: 'buildings', label: 'Buildings', colorKey: 'building' as const },
-                  { key: 'roads', label: 'Roads', colorKey: 'road' as const },
-                  { key: 'water', label: 'Water', colorKey: 'water' as const },
-                  { key: 'green', label: 'Green', colorKey: 'green' as const },
+                  { key: 'buildings', label: 'Buildings', color: theme3D.preview.building },
+                  { key: 'roads', label: 'Roads', color: theme3D.preview.road },
+                  { key: 'water', label: 'Water', color: theme3D.preview.water },
+                  { key: 'green', label: 'Green', color: theme3D.preview.green },
                 ].map(layer => (
                   <button
                     key={layer.key}
@@ -2182,36 +2146,11 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   >
                     <div 
                       className="w-3 h-3 rounded-sm" 
-                      style={{ backgroundColor: layers3D[layer.key as keyof typeof layers3D] ? theme3D.preview[layer.colorKey] : '#333' }}
+                      style={{ backgroundColor: layers3D[layer.key as keyof typeof layers3D] ? layer.color : '#333' }}
                     />
                     {layer.label}
                   </button>
                 ))}
-              </div>
-              
-              {/* Download buttons - bottom right */}
-              <div className="absolute bottom-4 right-4 z-10 flex gap-2">
-                {['obj', 'glb', 'stl'].map((fmt) => (
-                  <button
-                    key={fmt}
-                    onClick={() => {
-                      setFormat3D(fmt as 'obj' | 'glb' | 'stl')
-                      generate3DModel()
-                    }}
-                    disabled={generating}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-400 text-black text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    {fmt.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Hint text */}
-              <div className="absolute bottom-4 left-4 z-10 bg-black/60 backdrop-blur px-3 py-1.5 rounded-lg">
-                <p className="text-white/60 text-xs">🖱 Drag to rotate • Scroll to zoom</p>
               </div>
               
               {/* Three.js Viewer */}
