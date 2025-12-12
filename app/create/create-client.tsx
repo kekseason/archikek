@@ -376,6 +376,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   // Drawing state refs
   const isDrawingRef = useRef(false)
   const drawStartRef = useRef<{lng: number, lat: number} | null>(null)
+  const selectionModeRef = useRef<SelectionMode>('point')
 
   // Track TikTok ViewContent event
   useEffect(() => {
@@ -438,6 +439,64 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         if (state.showContours !== undefined) setShowContours(state.showContours)
         if (state.showFrame !== undefined) setShowFrame(state.showFrame)
         if (state.exportFormat) setExportFormat(state.exportFormat)
+        
+        // Restore visual on map after map is ready
+        const restoreMapVisual = () => {
+          if (!mapInstanceRef.current || !state.selection?.center) return
+          
+          const map = mapInstanceRef.current
+          const { lat, lng } = state.selection.center
+          
+          // Fly to location
+          map.flyTo({ center: [lng, lat], zoom: 14 })
+          
+          // Add marker for point mode
+          if (state.selection.mode === 'point') {
+            import('mapbox-gl').then(({ default: mapboxgl }) => {
+              if (markerRef.current) {
+                markerRef.current.remove()
+              }
+              const el = document.createElement('div')
+              el.innerHTML = `<div style="width:28px;height:28px;background:#f59e0b;border:3px solid white;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;"></div>`
+              markerRef.current = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map)
+            })
+          }
+          
+          // Draw rectangle for rectangle mode
+          if (state.selection.mode === 'rectangle' && state.selection.bounds) {
+            const bounds = state.selection.bounds
+            const geojson = {
+              type: 'FeatureCollection' as const,
+              features: [{
+                type: 'Feature' as const,
+                properties: {},
+                geometry: {
+                  type: 'Polygon' as const,
+                  coordinates: [[
+                    [bounds.west, bounds.south],
+                    [bounds.east, bounds.south],
+                    [bounds.east, bounds.north],
+                    [bounds.west, bounds.north],
+                    [bounds.west, bounds.south]
+                  ]]
+                }
+              }]
+            }
+            const source = map.getSource('draw-rectangle') as any
+            if (source) source.setData(geojson)
+          }
+        }
+        
+        // Wait for map to be ready
+        const checkMapReady = setInterval(() => {
+          if (mapInstanceRef.current && mapInstanceRef.current.isStyleLoaded()) {
+            clearInterval(checkMapReady)
+            restoreMapVisual()
+          }
+        }, 200)
+        
+        // Clear after 10 seconds max
+        setTimeout(() => clearInterval(checkMapReady), 10000)
         
         // Clear saved state after restoring
         localStorage.removeItem('archikek_pending_map')
@@ -580,7 +639,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           // --- MOUSE EVENTS FOR DRAWING ---
           map.on('mousedown', (e) => {
-            if (selectionMode !== 'rectangle') return
+            if (selectionModeRef.current !== 'rectangle') return
             
             isDrawingRef.current = true
             drawStartRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat }
@@ -667,7 +726,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           // --- CLICK EVENT (Point Mode) ---
           map.on('click', (e) => {
-            if (selectionMode !== 'point') return
+            if (selectionModeRef.current !== 'point') return
             
             const { lng, lat } = e.lngLat
             
@@ -709,6 +768,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
   // Update selection mode behavior
   useEffect(() => {
+    selectionModeRef.current = selectionMode
+    
     if (!mapInstanceRef.current) return
     
     const map = mapInstanceRef.current
@@ -1117,9 +1178,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       {/* Main Content */}
       <div className="flex flex-1 pt-12 md:pt-14 h-screen overflow-hidden">
         
-        {/* Sidebar - Hidden on mobile */}
-        <aside className="hidden md:block w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] overflow-y-auto flex-shrink-0">
-          <div className="p-4 space-y-4">
+        {/* Sidebar - Hidden on mobile, fixed height with scroll */}
+        <aside className="hidden md:flex md:flex-col w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] flex-shrink-0 h-[calc(100vh-56px)] overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             
             {/* Location Search - Compact */}
             <div className="relative">
@@ -1397,13 +1458,25 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     )}
                   </div>
                   
-                  {/* New Preview */}
+                  {/* Update Preview Button */}
                   <button
                     onClick={previewMap}
                     disabled={previewLoading}
-                    className="w-full py-2 text-xs text-gray-400 hover:text-amber-400 transition-colors flex items-center justify-center gap-1"
+                    className="w-full py-2.5 bg-[#1a1a1a] border border-[#333] text-gray-300 hover:text-amber-400 hover:border-amber-500/50 rounded-lg transition-all flex items-center justify-center gap-2 text-sm font-medium"
                   >
-                    {previewLoading ? 'Updating...' : '↻ Update preview'}
+                    {previewLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                        </svg>
+                        Update Preview
+                      </>
+                    )}
                   </button>
                 </div>
               )}
@@ -1878,9 +1951,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
           </div>
           
           {/* Theme preview widget - hidden on mobile */}
-          <div className="hidden md:block absolute bottom-4 left-4 bg-[#161616]/95 backdrop-blur border border-[#222] rounded-xl p-4 z-10">
-            <p className="text-xs text-gray-500 mb-2 font-medium">Preview: {selectedTheme.name}</p>
-            <div className="w-48 h-32 rounded-lg overflow-hidden" style={{ background: customColors.Zemin }}>
+          <div className="hidden md:block absolute bottom-4 left-4 bg-[#161616]/95 backdrop-blur border border-[#222] rounded-xl p-4 z-10 pointer-events-none select-none">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-gray-500 font-medium">{selectedTheme.name}</p>
+              <span className="text-[10px] text-gray-600 bg-[#222] px-2 py-0.5 rounded">Theme Preview</span>
+            </div>
+            <div className="w-48 h-32 rounded-lg overflow-hidden border border-[#333]" style={{ background: customColors.Zemin }}>
               <svg viewBox="0 0 200 130" className="w-full h-full">
                 <ellipse cx="160" cy="100" rx="30" ry="20" fill={customColors.Su} />
                 <path d="M 10 80 Q 30 60 60 75 L 70 130 L 10 130 Z" fill={customColors.Yesil} />
