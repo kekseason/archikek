@@ -2121,6 +2121,33 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 ))}
               </div>
               
+              {/* Download Buttons - Bottom Right */}
+              <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-2">
+                <p className="text-[10px] text-gray-500 text-right mb-1">Download As</p>
+                <div className="flex gap-2">
+                  {[
+                    { id: 'glb', label: 'GLB', desc: 'Blender' },
+                    { id: 'stl', label: 'STL', desc: '3D Print' },
+                    { id: '3dm', label: '3DM', desc: 'Rhino' },
+                    { id: 'dae', label: 'DAE', desc: 'SketchUp' },
+                  ].map(fmt => (
+                    <button
+                      key={fmt.id}
+                      onClick={() => {
+                        setFormat3D(fmt.id as 'glb' | 'stl' | '3dm' | 'dae')
+                        setShow3DPreview(false)
+                        setTimeout(() => generate3DModel(), 100)
+                      }}
+                      disabled={generating}
+                      className="flex flex-col items-center px-3 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-gray-600 text-black rounded-lg transition-all"
+                    >
+                      <span className="text-xs font-bold">{fmt.label}</span>
+                      <span className="text-[9px] opacity-70">{fmt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
               {/* Three.js Viewer */}
               <ThreeViewer
                 lat={selection.center?.lat || 0}
