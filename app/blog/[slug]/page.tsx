@@ -2494,6 +2494,535 @@ Site analysis uses figure ground to understand context. Urban studies analyze ci
 [Create Figure Ground Map →](/create)
     `
   },
+  'archikek-vs-cadmapper-free-alternative': {
+    title: 'ArchiKEK vs Cadmapper: Best Free Alternative for Architects (2025)',
+    description: 'Detailed comparison of ArchiKEK and Cadmapper. Features, pricing, export formats, and why architects are switching to ArchiKEK in 2025.',
+    date: '2024-12-13',
+    readTime: '8 min read',
+    category: 'Comparison',
+    content: `
+## TL;DR - Quick Comparison
+
+| Feature | ArchiKEK | Cadmapper |
+|---------|----------|-----------|
+| **Free Tier** | ✅ Unlimited SVG/PNG | ❌ Very limited |
+| **Price** | Free / $19 Pro | $29-99+ |
+| **2D Formats** | SVG, DXF, PNG | DXF, PDF |
+| **3D Formats** | GLB, STL, 3DM, DAE | OBJ, STL |
+| **Rhino Native** | ✅ 3DM | ❌ OBJ only |
+| **SketchUp Native** | ✅ DAE | ❌ OBJ only |
+| **Themes** | 34 themes | ~5 styles |
+| **Real-time Preview** | ✅ Yes | ❌ No |
+| **Contour Lines** | ✅ Included | 💰 Extra cost |
+
+## What is Cadmapper?
+
+Cadmapper has been the go-to tool for architects needing quick CAD maps. It pulls data from OpenStreetMap and exports to DXF format for AutoCAD and Rhino.
+
+**Cadmapper Pros:**
+- Established platform (years in market)
+- Reliable DXF export
+- Good for basic site plans
+
+**Cadmapper Cons:**
+- Expensive ($29+ for small areas)
+- Limited free tier (tiny areas only)
+- No real-time preview
+- Basic styling options
+- 3D export only in OBJ format
+- No native Rhino (3DM) or SketchUp (DAE) support
+
+## Why Architects Are Switching to ArchiKEK
+
+### 1. Actually Free
+
+Cadmapper's free tier is essentially a demo - you get a tiny area that's not useful for real projects. ArchiKEK gives you **unlimited SVG and PNG exports for free**, forever.
+
+### 2. Native 3D Formats
+
+This is huge. Cadmapper exports OBJ files which require manual material assignment in Rhino or SketchUp. ArchiKEK exports:
+
+- **3DM** - Opens directly in Rhino with materials and layers
+- **DAE** - Opens directly in SketchUp with materials
+- **GLB** - Perfect for Blender and web viewers
+- **STL** - Ready for 3D printing
+
+### 3. 34 Professional Themes
+
+Cadmapper gives you basic black and white maps. ArchiKEK offers 34 carefully designed themes:
+
+- **Classic**: Figure Ground, Nolli, Technical
+- **Analysis**: Street Hierarchy, Transit, Land Use
+- **Aesthetic**: Gold Edition, Neon City, Blueprint
+- **Presentation**: Warm Sunset, Arctic, Terracotta
+
+Each theme is designed by architects, for architects.
+
+### 4. Real-Time Preview
+
+With ArchiKEK, you see your map instantly as you adjust settings. No waiting, no surprises. Cadmapper requires you to pay before seeing the full result.
+
+### 5. Topographic Contours Included
+
+Cadmapper charges extra for elevation data. ArchiKEK includes contour lines in every export at no additional cost.
+
+## Pricing Comparison
+
+### Cadmapper Pricing (2025)
+- Free: ~200m x 200m only
+- Small: $29 (1km²)
+- Medium: $49 (4km²)
+- Large: $99 (16km²)
+- Per-download pricing adds up fast
+
+### ArchiKEK Pricing
+- **Free Forever**: Unlimited SVG/PNG, all themes, up to 3km areas
+- **Pro ($19/month)**: DXF, 3D exports, commercial license
+
+**Bottom line**: One month of ArchiKEK Pro costs less than a single Cadmapper download, and you get unlimited exports.
+
+## Feature Deep Dive
+
+### 2D Export Quality
+
+**ArchiKEK SVG:**
+- Organized layers (Buildings, Roads, Water, Green, etc.)
+- Proper grouping for each element
+- Opens perfectly in Illustrator, Figma, Affinity
+- Stroke widths optimized for print
+
+**Cadmapper DXF:**
+- Basic layer structure
+- Sometimes requires cleanup
+- Good AutoCAD compatibility
+
+**Verdict**: ArchiKEK wins for design software (Illustrator, Figma). Cadmapper is fine for pure CAD workflows.
+
+### 3D Model Quality
+
+**ArchiKEK 3D:**
+- Native 3DM with Rhino materials and layers
+- Native DAE with SketchUp materials
+- Accurate building heights from OSM data
+- Terrain mesh included
+- Roads, water, green areas as separate layers
+
+**Cadmapper 3D:**
+- OBJ format only
+- Requires manual material setup
+- Basic geometry
+
+**Verdict**: ArchiKEK wins decisively. Native format support saves hours of work.
+
+## Real User Workflow Comparison
+
+### Typical Cadmapper Workflow
+1. Go to Cadmapper
+2. Navigate to location
+3. Select area
+4. Pay $29-99
+5. Wait for processing
+6. Download DXF/OBJ
+7. Open in Rhino/SketchUp
+8. Manually assign materials
+9. Organize layers
+10. **Total time: 30-60 minutes + cost**
+
+### ArchiKEK Workflow
+1. Go to archikek.com/create
+2. Search location
+3. Select area and theme
+4. Preview instantly
+5. Download (free SVG or Pro 3DM/DAE)
+6. Open in Rhino/SketchUp - ready to render
+7. **Total time: 2-5 minutes**
+
+## When to Use Each
+
+### Use Cadmapper If:
+- You only need DXF for AutoCAD
+- You have a corporate account
+- You're used to the workflow
+
+### Use ArchiKEK If:
+- You want free exports
+- You use Rhino, SketchUp, or Blender
+- You need styled maps for presentations
+- You want 3D models with materials
+- You're a student or small practice
+- You need multiple maps frequently
+
+## Conclusion
+
+Cadmapper was groundbreaking when it launched, but it hasn't evolved. ArchiKEK offers:
+
+- ✅ Free unlimited SVG exports
+- ✅ Native Rhino 3DM format
+- ✅ Native SketchUp DAE format
+- ✅ 34 professional themes
+- ✅ Real-time preview
+- ✅ Included contour lines
+- ✅ Better value ($19 vs $29-99 per download)
+
+**Ready to try?** 
+
+[Create your first map free →](/create)
+    `
+  },
+  'how-to-import-3dm-rhino': {
+    title: 'How to Import 3DM City Models into Rhino (Step-by-Step)',
+    description: 'Complete guide to importing ArchiKEK 3DM files into Rhino. Layers, materials, and rendering setup explained.',
+    date: '2024-12-13',
+    readTime: '4 min read',
+    category: 'Tutorial',
+    content: `
+## Why 3DM Format?
+
+3DM is Rhino's native format. Unlike OBJ imports, 3DM files open with:
+
+- ✅ Pre-organized layers (Buildings, Roads, Water, Green, Terrain)
+- ✅ Materials already assigned
+- ✅ Correct scale and units
+- ✅ Ready for rendering
+
+## Step 1: Download Your 3DM
+
+1. Go to [archikek.com/create](/create)
+2. Search your location
+3. Switch to **3D Mode**
+4. Select **3DM** format
+5. Choose your theme colors
+6. Click **Generate 3DM**
+
+## Step 2: Open in Rhino
+
+Simply double-click the .3dm file or:
+
+1. Open Rhino
+2. File → Open
+3. Select your downloaded .3dm file
+
+That's it! No import settings needed.
+
+## Step 3: Check Your Layers
+
+In the Layers panel, you'll see:
+
+- **Terrain** - Ground plane
+- **Buildings** - All structures with heights
+- **Roads** - Street network
+- **Water** - Rivers, lakes, sea
+- **Green** - Parks, forests, gardens
+
+Toggle visibility as needed for your presentation.
+
+## Step 4: Render
+
+The materials are already set up. Just:
+
+1. Set your view angle
+2. Choose a render engine (V-Ray, Enscape, or Rhino Render)
+3. Hit render
+
+### Recommended Render Settings
+
+**For quick preview:**
+- Rhino Render
+- Resolution: 1920x1080
+- Quality: Good
+
+**For presentation:**
+- V-Ray or Enscape
+- Add HDRI environment
+- Enable shadows
+
+## Pro Tips
+
+### Adjust Building Colors
+
+1. Select Buildings layer
+2. Open Materials panel
+3. Modify diffuse color
+
+### Add Context
+
+- Import your building model
+- Place on the terrain
+- Buildings provide instant context
+
+### Section Views
+
+- Use ClippingPlane for site sections
+- Great for site analysis diagrams
+
+## Troubleshooting
+
+**Model too small?**
+Check units: File → Properties → Units. Should be Meters.
+
+**Materials not showing?**
+Switch to Rendered viewport mode (not Wireframe).
+
+**Performance slow?**
+Hide layers you don't need. Water and Green are often not needed for massing studies.
+
+[Download your first 3DM model →](/create)
+    `
+  },
+  'sketchup-dae-city-model-tutorial': {
+    title: 'How to Import DAE City Models into SketchUp',
+    description: 'Step-by-step guide to importing ArchiKEK Collada DAE files into SketchUp with materials and layers.',
+    date: '2024-12-13',
+    readTime: '4 min read',
+    category: 'Tutorial',
+    content: `
+## Why DAE/Collada Format for SketchUp?
+
+DAE (Collada) is SketchUp's preferred exchange format. Unlike OBJ:
+
+- ✅ Materials import automatically
+- ✅ Proper scale and orientation
+- ✅ Component structure preserved
+- ✅ Ready for rendering with V-Ray or Enscape
+
+## Step 1: Generate Your DAE Model
+
+1. Go to [archikek.com/create](/create)
+2. Search for your project location
+3. Click **3D** mode toggle
+4. Select **DAE** from format options
+5. Customize colors if needed
+6. Click **Generate DAE**
+
+## Step 2: Import into SketchUp
+
+1. Open SketchUp
+2. File → Import
+3. Select "COLLADA Files (*.dae)" from dropdown
+4. Navigate to your downloaded file
+5. Click Import
+
+The model appears at origin with correct scale.
+
+## Step 3: Organize Your Model
+
+After import, you'll have geometry organized by type:
+
+- Buildings (with heights)
+- Roads
+- Water bodies
+- Green areas
+- Terrain
+
+### Create Groups/Components
+
+For easier editing:
+1. Triple-click to select all connected geometry
+2. Right-click → Make Group
+3. Name appropriately (e.g., "Context Buildings")
+
+## Step 4: Adjust Materials
+
+Materials come pre-applied. To modify:
+
+1. Open Materials panel (Window → Materials)
+2. Use eyedropper on existing material
+3. Click Edit tab
+4. Adjust color/texture as needed
+
+### Recommended Material Settings
+
+**Buildings:**
+- Matte white or light gray
+- No reflection for clean diagrams
+
+**Terrain:**
+- Darker gray or contextual color
+- Slight texture optional
+
+## Rendering Tips
+
+### With V-Ray
+
+1. Add V-Ray Sun or HDRI
+2. Use "Material Override" for white model look
+3. Enable ambient occlusion for depth
+
+### With Enscape
+
+1. One-click start
+2. Adjust time of day for shadows
+3. Export high-res images
+
+## Common Issues & Fixes
+
+**Model is tiny or huge?**
+- Check import units match your template
+- Use Tape Measure tool to rescale if needed
+
+**Materials look wrong?**
+- Check face orientation (View → Face Style → Monochrome)
+- Reverse faces if needed (Right-click → Reverse Faces)
+
+**SketchUp is slow?**
+- Simplify distant geometry
+- Hide layers not needed for current view
+- Use Outliner to manage visibility
+
+## Pro Workflow
+
+1. Import DAE as context
+2. Create new group for your design
+3. Model your building within context
+4. Use scenes for different views
+5. Export to renderer for final images
+
+[Create your SketchUp model →](/create)
+    `
+  },
+  'best-free-architecture-site-analysis-tools-2025': {
+    title: 'Best Free Site Analysis Tools for Architects in 2025',
+    description: 'Compare the top free tools for architecture site analysis including ArchiKEK, QGIS, Google Earth, and more.',
+    date: '2024-12-12',
+    readTime: '6 min read',
+    category: 'Guide',
+    content: `
+## Why Site Analysis Matters
+
+Every architecture project starts with understanding the site. Good site analysis reveals:
+
+- Urban context and building patterns
+- Transportation and accessibility
+- Topography and terrain
+- Sun path and shadows
+- Existing vegetation and water
+
+## Top Free Tools Compared
+
+### 1. ArchiKEK (Best for Quick Maps)
+
+**What it does:** Generates styled site plans and 3D city models from any location instantly.
+
+**Pros:**
+- 30-second workflow
+- 34 professional themes
+- SVG export with organized layers
+- Free unlimited exports
+- No GIS knowledge needed
+
+**Cons:**
+- Requires internet connection
+- Limited to OpenStreetMap data
+
+**Best for:** Figure ground maps, context models, presentation graphics
+
+[Try ArchiKEK Free →](/create)
+
+### 2. QGIS (Best for Deep Analysis)
+
+**What it does:** Full-featured GIS software for complex spatial analysis.
+
+**Pros:**
+- Extremely powerful
+- Handles any data format
+- Advanced analysis tools
+- Completely free and open source
+
+**Cons:**
+- Steep learning curve
+- Time-consuming setup
+- Requires data sourcing
+
+**Best for:** Complex urban analysis, research projects, custom data visualization
+
+### 3. Google Earth Pro (Best for Quick 3D Context)
+
+**What it does:** 3D globe with terrain, imagery, and basic measurement tools.
+
+**Pros:**
+- Free download
+- Global coverage
+- Historical imagery
+- Easy to use
+
+**Cons:**
+- Limited export options
+- No styled maps
+- Basic analysis only
+
+**Best for:** Initial site reconnaissance, client presentations, sun studies
+
+### 4. Mapbox Studio (Best for Custom Web Maps)
+
+**What it does:** Design custom map styles for web applications.
+
+**Pros:**
+- Beautiful cartography
+- Highly customizable
+- Free tier available
+
+**Cons:**
+- Focused on web maps
+- No CAD export
+- Learning curve for styling
+
+**Best for:** Interactive site maps, web presentations
+
+### 5. OpenStreetMap + Overpass (Best for Raw Data)
+
+**What it does:** Direct access to OSM data through queries.
+
+**Pros:**
+- Access to all OSM data
+- Highly specific queries
+- Completely free
+
+**Cons:**
+- Requires technical knowledge
+- No visualization built-in
+- Manual post-processing needed
+
+**Best for:** Data extraction for further processing in GIS/CAD
+
+## Recommended Workflow
+
+### For Quick Site Plans
+
+1. **ArchiKEK** for styled figure ground / context
+2. Export SVG to Illustrator
+3. Add site boundary and annotations
+4. 5 minutes total
+
+### For Detailed Analysis
+
+1. **QGIS** for data processing
+2. **Google Earth** for terrain reference
+3. **ArchiKEK** for final presentation graphics
+4. 2-4 hours total
+
+### For 3D Context Models
+
+1. **ArchiKEK** 3DM/DAE export
+2. Import to Rhino/SketchUp
+3. Add your building design
+4. 10 minutes for context
+
+## Summary Table
+
+| Tool | Speed | Quality | Learning Curve | Best For |
+|------|-------|---------|----------------|----------|
+| ArchiKEK | ⚡ Fast | High | Easy | Quick maps |
+| QGIS | Slow | Very High | Hard | Analysis |
+| Google Earth | Fast | Medium | Easy | 3D recon |
+| Mapbox | Medium | High | Medium | Web maps |
+
+## Conclusion
+
+For most architecture site analysis needs, start with ArchiKEK for quick, professional results. Use QGIS when you need deep analysis. Combine tools for comprehensive site understanding.
+
+[Start Your Site Analysis →](/create)
+    `
+  },
 }
 
 // Generate static params for all blog posts
