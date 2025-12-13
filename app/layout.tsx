@@ -208,6 +208,22 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }}
         />
         
+        {/* Google Analytics 4 */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-ZZ7S8086G0"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-ZZ7S8086G0', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
+        
         {/* TikTok Pixel */}
         <Script id="tiktok-pixel" strategy="afterInteractive">
           {`
