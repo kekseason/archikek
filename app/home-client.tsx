@@ -106,7 +106,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
   }, [])
 
   const features = [
-    { icon: <BoxIcon />, title: '3D Model Export', desc: 'Export to OBJ for Rhino, GLB for Blender, or STL for 3D printing. Buildings, roads, water & terrain.' },
+    { icon: <BoxIcon />, title: '3D Model Export', desc: 'Native 3DM for Rhino, DAE for SketchUp, GLB for Blender, STL for 3D printing. Full city models.' },
     { icon: <LayersIcon />, title: 'Layered SVG & DXF', desc: 'Export to SVG for Illustrator or DXF for AutoCAD. Every element on its own layer.' },
     { icon: <PaletteIcon />, title: '34 Total Themes', desc: '24 analysis themes for 2D maps + 10 material themes for 3D models. From Blueprint to Neon.' },
     { icon: <ZapIcon />, title: 'Ready in 30 Seconds', desc: 'No more hours in QGIS or CAD. Select area, pick theme, download. Optimized file sizes.' },
@@ -302,41 +302,77 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                     backgroundSize: '20px 20px'
                   }} />
                   
-                  {/* 3D Isometric City - Compact proper closed cubes */}
-                  <svg viewBox="0 0 300 120" className="w-full h-full relative z-10">
-                    {/* Ground plane */}
-                    <polygon points="150,110 20,70 150,30 280,70" fill="#1a1a1a" stroke="#333" strokeWidth="0.5"/>
+                  {/* 3D Isometric City - Proper solid buildings with depth */}
+                  <svg viewBox="0 0 300 130" className="w-full h-full relative z-10">
+                    <defs>
+                      {/* Gradients for depth effect */}
+                      <linearGradient id="amberGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#fbbf24"/>
+                        <stop offset="100%" stopColor="#f59e0b"/>
+                      </linearGradient>
+                      <linearGradient id="grayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#555"/>
+                        <stop offset="100%" stopColor="#333"/>
+                      </linearGradient>
+                    </defs>
                     
-                    {/* Roads */}
-                    <line x1="85" y1="50" x2="215" y2="90" stroke="#2a2a2a" strokeWidth="6" strokeLinecap="round"/>
+                    {/* Ground plane with subtle gradient */}
+                    <polygon points="150,118 10,75 150,32 290,75" fill="#141414"/>
+                    <polygon points="150,118 10,75 150,32 290,75" fill="url(#grayGradient)" opacity="0.3"/>
+                    <polygon points="150,118 10,75 150,32 290,75" stroke="#2a2a2a" strokeWidth="1" fill="none"/>
                     
-                    {/* Building 1 - Tall (Amber) */}
-                    <polygon points="45,65 45,25 65,17 65,57" fill="#b45309"/>
-                    <polygon points="65,17 95,28 95,68 65,57" fill="#f59e0b"/>
-                    <polygon points="45,25 65,17 95,28 75,36" fill="#fbbf24"/>
+                    {/* Main Road */}
+                    <path d="M80,52 Q150,75 220,92" stroke="#252525" strokeWidth="8" fill="none" strokeLinecap="round"/>
+                    <path d="M80,52 Q150,75 220,92" stroke="#333" strokeWidth="1" strokeDasharray="4,4" fill="none"/>
                     
-                    {/* Building 2 - Medium (Gray) */}
-                    <polygon points="110,78 110,50 128,42 128,70" fill="#333"/>
-                    <polygon points="128,42 158,54 158,82 128,70" fill="#444"/>
-                    <polygon points="110,50 128,42 158,54 140,62" fill="#555"/>
+                    {/* Building 1 - Tall Tower (Amber) - Left side */}
+                    <g>
+                      {/* Left face */}
+                      <polygon points="40,72 40,28 60,20 60,64" fill="#b45309"/>
+                      {/* Right face */}
+                      <polygon points="60,20 92,32 92,76 60,64" fill="#f59e0b"/>
+                      {/* Top face */}
+                      <polygon points="40,28 60,20 92,32 72,40" fill="#fcd34d"/>
+                      {/* Roof detail */}
+                      <polygon points="52,30 60,27 80,33 72,36" fill="#fbbf24" opacity="0.8"/>
+                    </g>
                     
-                    {/* Building 3 - Wide (Gray) */}
-                    <polygon points="170,88 170,68 195,58 195,78" fill="#2a2a2a"/>
-                    <polygon points="195,58 240,73 240,93 195,78" fill="#3a3a3a"/>
-                    <polygon points="170,68 195,58 240,73 215,83" fill="#4a4a4a"/>
+                    {/* Building 2 - Medium Office (Gray) */}
+                    <g>
+                      <polygon points="105,82 105,52 125,44 125,74" fill="#2a2a2a"/>
+                      <polygon points="125,44 160,58 160,88 125,74" fill="#404040"/>
+                      <polygon points="105,52 125,44 160,58 140,66" fill="#505050"/>
+                      {/* Windows */}
+                      <rect x="130" y="52" width="4" height="6" fill="#1a1a1a" opacity="0.5"/>
+                      <rect x="138" y="56" width="4" height="6" fill="#1a1a1a" opacity="0.5"/>
+                      <rect x="146" y="60" width="4" height="6" fill="#1a1a1a" opacity="0.5"/>
+                    </g>
                     
-                    {/* Building 4 - Small (Amber) */}
-                    <polygon points="250,85 250,68 265,62 265,79" fill="#b45309"/>
-                    <polygon points="265,62 285,69 285,86 265,79" fill="#f59e0b"/>
-                    <polygon points="250,68 265,62 285,69 270,75" fill="#fbbf24"/>
+                    {/* Building 3 - Wide Complex (Dark Gray) */}
+                    <g>
+                      <polygon points="168,94 168,70 198,58 198,82" fill="#1f1f1f"/>
+                      <polygon points="198,58 248,76 248,100 198,82" fill="#333"/>
+                      <polygon points="168,70 198,58 248,76 218,88" fill="#444"/>
+                    </g>
                     
-                    {/* Water */}
-                    <ellipse cx="60" cy="85" rx="15" ry="7" fill="#3b82f6" opacity="0.6"/>
+                    {/* Building 4 - Small Tower (Amber accent) - Right side */}
+                    <g>
+                      <polygon points="252,90 252,70 268,64 268,84" fill="#92400e"/>
+                      <polygon points="268,64 290,72 290,92 268,84" fill="#d97706"/>
+                      <polygon points="252,70 268,64 290,72 274,78" fill="#fbbf24"/>
+                    </g>
                     
-                    {/* Trees */}
-                    <circle cx="40" cy="78" r="4" fill="#22c55e" opacity="0.8"/>
-                    <circle cx="135" cy="95" r="3" fill="#22c55e" opacity="0.7"/>
-                    <circle cx="220" cy="100" r="4" fill="#22c55e" opacity="0.8"/>
+                    {/* Water feature */}
+                    <ellipse cx="58" cy="92" rx="18" ry="8" fill="#2563eb" opacity="0.5"/>
+                    <ellipse cx="58" cy="91" rx="14" ry="6" fill="#3b82f6" opacity="0.6"/>
+                    
+                    {/* Trees/Green areas */}
+                    <ellipse cx="35" cy="85" rx="6" ry="3" fill="#166534" opacity="0.8"/>
+                    <circle cx="35" cy="82" r="5" fill="#22c55e" opacity="0.9"/>
+                    <ellipse cx="132" cy="100" rx="5" ry="2.5" fill="#166534" opacity="0.7"/>
+                    <circle cx="132" cy="98" r="4" fill="#16a34a" opacity="0.8"/>
+                    <ellipse cx="225" cy="106" rx="6" ry="3" fill="#166534" opacity="0.8"/>
+                    <circle cx="225" cy="103" r="5" fill="#22c55e" opacity="0.9"/>
                   </svg>
                   
                   {/* 3D Badge */}
@@ -344,10 +380,11 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                     <span className="text-amber-400 text-[9px] font-bold tracking-wide">3D MODEL</span>
                   </div>
                   
-                  {/* Format badges */}
+                  {/* Format badges - Updated */}
                   <div className="absolute bottom-2 right-2 flex gap-1">
-                    <span className="px-1.5 py-0.5 bg-white/10 rounded text-[8px] text-white/60 font-medium">OBJ</span>
+                    <span className="px-1.5 py-0.5 bg-amber-500/20 rounded text-[8px] text-amber-400 font-medium">3DM</span>
                     <span className="px-1.5 py-0.5 bg-white/10 rounded text-[8px] text-white/60 font-medium">GLB</span>
+                    <span className="px-1.5 py-0.5 bg-white/10 rounded text-[8px] text-white/60 font-medium">DAE</span>
                   </div>
                 </div>
                 
@@ -443,7 +480,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                   </div>
                   <div className="bg-[#111] border border-amber-500/30 text-white px-3 py-2 rounded-lg">
                     <p className="text-[10px] font-medium">3. Download</p>
-                    <p className="text-[8px] opacity-60">SVG, DXF, OBJ, GLB</p>
+                    <p className="text-[8px] opacity-60">SVG, DXF, 3DM, GLB, DAE</p>
                   </div>
                 </div>
               </div>
@@ -643,7 +680,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                   'All 24 2D Themes',
                   'All 10 3D Themes',
                   'SVG, DXF, PNG Export',
-                  'OBJ, GLB, STL Export',
+                  '3DM, GLB, STL, DAE Export',
                   'Commercial License'
                 ].map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-white/70">
@@ -688,7 +725,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                 {[
                   'Unlimited 2D & 3D Downloads',
                   '34 Total Themes',
-                  'Rhino-Ready OBJ with Materials',
+                  'Native 3DM for Rhino',
                   'Layered SVG for Illustrator',
                   'Priority Support',
                   'Early Access Features'
