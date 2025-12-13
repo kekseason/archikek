@@ -10,21 +10,25 @@ export const metadata: Metadata = {
     default: 'ArchiKEK - Site Plan Generator | Free SVG & DXF Maps for Architects',
     template: '%s | ArchiKEK'
   },
-  description: 'Generate site plans, figure ground maps, and 3D city models instantly. Free SVG export, DXF for AutoCAD, 3D for Blender. 34 themes, real terrain data. No GIS skills needed.',
+  description: 'Generate site plans, figure ground maps, and 3D city models instantly. Free SVG export, DXF for AutoCAD, 3DM for Rhino, DAE for SketchUp. 34 themes, real terrain data. Best free Cadmapper alternative.',
   keywords: [
     // Primary keywords (high volume)
     'site plan generator', 'CAD map download', '3D city model', 'figure ground map',
     'architecture site plan', 'DXF map export', 'topographic map maker',
+    // Competitor keywords
+    'cadmapper alternative', 'cadmapper free', 'free cadmapper alternative',
+    'snazzy maps alternative', 'better than cadmapper',
     // Secondary keywords
     'urban map SVG', 'building footprint map', 'city map generator',
-    'AutoCAD site plan', 'Rhino map import', 'architecture map',
+    'AutoCAD site plan', 'Rhino 3DM map', 'architecture map',
     // Long-tail keywords
     'free architecture tools', 'site analysis map generator', 'OpenStreetMap architecture',
     'SVG map download', 'vector city map', 'urban design map',
     'contour map generator', 'elevation map maker', '3D terrain model',
-    // Tool-specific
-    'Illustrator site plan', 'Figma city map', 'SketchUp terrain',
-    'Blender city model', '3D printing city', 'STL city model',
+    // Tool-specific (updated with 3DM/DAE)
+    'Illustrator site plan', 'Figma city map', 'SketchUp DAE import',
+    'Blender city model', 'Rhino 3DM city model', '3D printing city',
+    'STL city model', 'GLB 3D model', 'Collada DAE architecture',
     // Use case keywords
     'architecture student tools', 'urban planning map', 'competition site plan',
     'portfolio site analysis', 'nolli map generator', 'context map architecture'
@@ -103,7 +107,7 @@ const jsonLdSoftware = {
   applicationCategory: 'DesignApplication',
   applicationSubCategory: 'Architecture Software',
   operatingSystem: 'Web Browser',
-  description: 'Generate professional site plans, figure ground maps, and 3D city models instantly. Export to SVG, DXF, OBJ, GLB, and STL formats.',
+  description: 'Generate professional site plans, figure ground maps, and 3D city models instantly. Export to SVG, DXF, 3DM, DAE, GLB, and STL formats.',
   url: 'https://archikek.com',
   offers: [
     {
@@ -119,7 +123,7 @@ const jsonLdSoftware = {
       price: '19',
       priceCurrency: 'USD',
       priceValidUntil: '2025-12-31',
-      description: 'DXF export, 3D models, commercial license',
+      description: 'DXF export, 3D models (3DM, DAE, GLB, STL), commercial license',
     }
   ],
   aggregateRating: {
@@ -142,7 +146,10 @@ const jsonLdSoftware = {
     '34 professional themes',
     'SVG export with organized layers',
     'DXF export for AutoCAD and Rhino',
-    'OBJ/GLB/STL 3D export',
+    '3DM native Rhino format',
+    'DAE Collada for SketchUp',
+    'GLB for Blender and web',
+    'STL for 3D printing',
     'Real terrain elevation data',
     'Topographic contour lines',
     'Building classification by type',
@@ -150,7 +157,7 @@ const jsonLdSoftware = {
     'Transit stops overlay'
   ],
   softwareRequirements: 'Modern web browser',
-  releaseNotes: 'Version 7.0 - 3D terrain, enhanced DXF export, 34 themes'
+  releaseNotes: 'Version 8.0 - Native 3DM/DAE export, 34 themes, improved 3D rendering'
 }
 
 const jsonLdOrganization = {
