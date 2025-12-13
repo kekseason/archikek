@@ -1933,12 +1933,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 {exportMode === '3d' && selection && (
                   <button
                     onClick={() => setShow3DPreview(true)}
-                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                    className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-black rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
-                    Preview 3D Model
+                    Preview 3D • {theme3D.name}
                   </button>
                 )}
               </div>
@@ -2030,10 +2030,15 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {/* Collapsed view - Quick actions */}
             {!showMobilePanel && (
               <div className="px-4 pb-4 flex items-center gap-2">
-                {/* Location indicator or search prompt */}
+                {/* Location + Mode indicator */}
                 <div className="flex-1 bg-[#111] border border-[#222] rounded-lg px-3 py-2 text-sm">
                   {selection ? (
-                    <span className="text-amber-400 truncate block">✓ {location || 'Location selected'}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-amber-400 truncate flex-1">✓ {location || 'Location selected'}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#222] text-gray-400">
+                        {exportMode === '2d' ? selectedTheme.name : theme3D.name}
+                      </span>
+                    </div>
                   ) : (
                     <span className="text-gray-500">🔍 Tap to search location</span>
                   )}
@@ -2042,11 +2047,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 {/* Quick preview/generate button */}
                 {selection && !previewUrl && (
                   <button
-                    onClick={(e) => { e.stopPropagation(); previewMap(); }}
-                    disabled={previewLoading}
-                    className="px-4 py-2 bg-amber-500 text-black rounded-lg font-medium text-sm"
+                    onClick={(e) => { e.stopPropagation(); setShowMobilePanel(true); }}
+                    className="px-4 py-2 bg-amber-500 text-black rounded-lg font-medium text-sm flex items-center gap-1"
                   >
-                    {previewLoading ? '...' : 'Preview'}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    Options
                   </button>
                 )}
                 {previewUrl && (
@@ -2227,61 +2234,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 </div>
               )}
 
-              {/* Preview & Generate */}
-              <div className="space-y-3">
-                {!previewUrl ? (
-                  <button
-                    onClick={previewMap}
-                    disabled={previewLoading || !selection}
-                    className={`w-full py-3.5 rounded-lg font-medium flex items-center justify-center gap-2 ${
-                      selection 
-                        ? 'bg-amber-500 text-black' 
-                        : 'bg-[#1a1a1a] text-gray-500'
-                    }`}
-                  >
-                    {previewLoading ? 'Creating preview...' : selection ? 'Preview (Free)' : 'Select location first'}
-                  </button>
-                ) : (
-                  <>
-                    <div 
-                      onClick={() => { setShowLightbox(true); setLightboxZoom(1); }}
-                      className="cursor-pointer rounded-lg overflow-hidden border-2 border-amber-500/50"
-                    >
-                      <img src={previewUrl} alt="Preview" className="w-full" />
-                    </div>
-                    <button 
-                      onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
-                      disabled={generating}
-                      className="w-full py-3.5 bg-amber-500 text-black rounded-lg font-semibold flex items-center justify-center gap-2"
-                    >
-                      {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
-                    </button>
-                  </>
-                )}
-                
-                {/* Pricing info */}
-                <div className="text-center text-xs text-gray-500">
-                  {!user ? (
-                    <span>🎉 First map free • No credit card needed</span>
-                  ) : profile?.credits && profile.credits > 0 ? (
-                    <span><span className="text-amber-400">{profile.credits}</span> credits available</span>
-                  ) : (
-                    <span className="text-red-400">No credits • <Link href="/pricing" className="text-amber-400">Buy more</Link></span>
-                  )}
-                </div>
-              </div>
-
-              {/* Map Title - Mobile */}
-              <div>
-                <input
-                  type="text"
-                  value={locationName}
-                  onChange={(e) => setLocationName(e.target.value)}
-                  placeholder="Map title (optional)"
-                  className="w-full px-3 py-2 bg-[#111] border border-[#222] rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
-                />
-              </div>
-
               {/* Quick Options - Only for 2D mode */}
               {exportMode === '2d' && (
                 <div className="flex flex-wrap gap-2">
@@ -2430,21 +2382,152 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       />
                     </div>
                   )}
-                  
-                  {/* 3D Preview Button - Mobile */}
-                  {selection && (
-                    <button
-                      onClick={() => setShow3DPreview(true)}
-                      className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                      </svg>
-                      Preview 3D Model
-                    </button>
-                  )}
                 </div>
               )}
+
+              {/* Map Title - Mobile */}
+              <div>
+                <input
+                  type="text"
+                  value={locationName}
+                  onChange={(e) => setLocationName(e.target.value)}
+                  placeholder="Map title (optional)"
+                  className="w-full px-3 py-2 bg-[#111] border border-[#222] rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
+                />
+              </div>
+
+              {/* Preview & Generate - At the end after all options */}
+              <div className="space-y-3 pt-2 border-t border-[#222]">
+                {/* 2D Mode - Normal preview flow */}
+                {exportMode === '2d' && (
+                  <>
+                    {!previewUrl ? (
+                      <button
+                        onClick={previewMap}
+                        disabled={previewLoading || !selection}
+                        className={`w-full py-3.5 rounded-lg font-medium flex items-center justify-center gap-2 ${
+                          selection 
+                            ? 'bg-amber-500 text-black' 
+                            : 'bg-[#1a1a1a] text-gray-500'
+                        }`}
+                      >
+                        {previewLoading ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                            Creating preview...
+                          </>
+                        ) : selection ? (
+                          <>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Preview {selectedTheme.name}
+                          </>
+                        ) : 'Select location first'}
+                      </button>
+                    ) : (
+                      <>
+                        <div 
+                          onClick={() => { setShowLightbox(true); setLightboxZoom(1); }}
+                          className="cursor-pointer rounded-lg overflow-hidden border-2 border-amber-500/50 relative group"
+                        >
+                          <img src={previewUrl} alt="Preview" className="w-full" />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span className="text-white text-sm">Tap to zoom</span>
+                          </div>
+                        </div>
+                        
+                        {/* Update Preview button */}
+                        <button
+                          onClick={previewMap}
+                          disabled={previewLoading}
+                          className="w-full py-2 text-xs text-gray-400 hover:text-amber-400 transition-colors flex items-center justify-center gap-1"
+                        >
+                          {previewLoading ? 'Updating...' : '↻ Update preview'}
+                        </button>
+                        
+                        <button 
+                          onClick={() => generateMap()} 
+                          disabled={generating}
+                          className="w-full py-3.5 bg-amber-500 text-black rounded-lg font-semibold flex items-center justify-center gap-2"
+                        >
+                          {generating ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              Generate {exportFormat.toUpperCase()}
+                            </>
+                          )}
+                        </button>
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* 3D Mode - Preview opens 3D viewer */}
+                {exportMode === '3d' && (
+                  <>
+                    <button
+                      onClick={() => setShow3DPreview(true)}
+                      disabled={!selection}
+                      className={`w-full py-3.5 rounded-lg font-medium flex items-center justify-center gap-2 ${
+                        selection 
+                          ? 'bg-amber-500 hover:bg-amber-400 text-black' 
+                          : 'bg-[#1a1a1a] text-gray-500'
+                      }`}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                      {selection ? `Preview 3D • ${theme3D.name}` : 'Select location first'}
+                    </button>
+                    
+                    <button 
+                      onClick={() => generate3DModel()} 
+                      disabled={generating || !selection}
+                      className={`w-full py-3.5 rounded-lg font-semibold flex items-center justify-center gap-2 ${
+                        selection
+                          ? 'bg-amber-500 text-black'
+                          : 'bg-[#1a1a1a] text-gray-500'
+                      }`}
+                    >
+                      {generating ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          Generate {format3D.toUpperCase()}
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
+                
+                {/* Pricing info */}
+                <div className="text-center text-xs text-gray-500">
+                  {!user ? (
+                    <span>🎉 First map free • No credit card needed</span>
+                  ) : profile?.is_pro ? (
+                    <span className="text-amber-400">✨ Unlimited Pro Access</span>
+                  ) : profile?.credits && profile.credits > 0 ? (
+                    <span><span className="text-amber-400">{profile.credits}</span> credits available</span>
+                  ) : (
+                    <span className="text-red-400">No credits • <Link href="/pricing" className="text-amber-400">Buy more</Link></span>
+                  )}
+                </div>
+              </div>
 
               {/* Error */}
               {error && (
