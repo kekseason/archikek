@@ -424,10 +424,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [locationName, setLocationName] = useState('')
   const [exportFormat, setExportFormat] = useState<'svg' | 'dxf' | 'png'>('svg')
   const [exportMode, setExportMode] = useState<'2d' | '3d'>('2d')
-  const [format3D, setFormat3D] = useState<'obj' | 'glb' | 'stl'>('obj')
+  const [format3D, setFormat3D] = useState<'glb' | 'stl' | '3dm' | 'dae'>('glb')
   const [theme3D, setTheme3D] = useState(THEMES_3D[0])
   const [includeTerrain, setIncludeTerrain] = useState(true)
-  const [includeMtl, setIncludeMtl] = useState(true)  // OBJ için MTL dosyası
   const [raftThickness, setRaftThickness] = useState(2.0)  // STL için raft (mm)
   const [show3DPreview, setShow3DPreview] = useState(false)
   const [layers3D, setLayers3D] = useState({
@@ -1058,7 +1057,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         include_roads: layers3D.roads,
         include_water: layers3D.water,
         include_green: layers3D.green,
-        include_mtl: format3D === 'obj' ? includeMtl : false,
         raft_thickness: format3D === 'stl' ? raftThickness : 0,
         location_name: locationName || undefined
       }
@@ -1083,12 +1081,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       
       // Dosya uzantısını belirle
       const safeName = locationName ? locationName.replace(/\s+/g, '_') : 'archikek'
-      let ext: string = format3D
-      
-      // OBJ + MTL = ZIP dosyası
-      if (format3D === 'obj' && includeMtl) {
-        ext = 'zip'
-      }
+      const ext: string = format3D
       
       a.download = `${safeName}_3d_${requestBody.size}m.${ext}`
       document.body.appendChild(a)
@@ -1501,13 +1494,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       <p className="text-xs text-gray-500 mb-2">Format</p>
                       <div className="flex gap-2">
                         {[
-                          { id: 'obj', label: 'OBJ', desc: 'Rhino, SketchUp' },
                           { id: 'glb', label: 'GLB', desc: 'Blender, Web' },
+                          { id: '3dm', label: '3DM', desc: 'Rhino' },
+                          { id: 'dae', label: 'DAE', desc: 'SketchUp' },
                           { id: 'stl', label: 'STL', desc: '3D Print' },
                         ].map(fmt => (
                           <button
                             key={fmt.id}
-                            onClick={() => setFormat3D(fmt.id as 'obj' | 'glb' | 'stl')}
+                            onClick={() => setFormat3D(fmt.id as 'glb' | 'stl' | '3dm' | 'dae')}
                             className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
                               format3D === fmt.id
                                 ? 'bg-amber-500 text-black'
@@ -1559,20 +1553,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                         </div>
                         <input type="checkbox" checked={includeTerrain} onChange={(e) => setIncludeTerrain(e.target.checked)} className="hidden" />
                       </label>
-
-                      {/* OBJ-specific: MTL Toggle */}
-                      {format3D === 'obj' && (
-                        <label className="flex items-center justify-between mt-2 px-2 py-1.5 bg-[#1a1a1a] rounded-lg cursor-pointer hover:bg-[#222] transition-colors">
-                          <div className="flex items-center gap-2">
-                            <span>🎨</span>
-                            <span className="text-xs text-gray-300">Include Materials (.mtl)</span>
-                          </div>
-                          <div className={`w-8 h-4 rounded-full transition-colors ${includeMtl ? 'bg-amber-500' : 'bg-[#333]'}`}>
-                            <div className={`w-3 h-3 bg-white rounded-full m-0.5 transition-transform ${includeMtl ? 'translate-x-4' : ''}`} />
-                          </div>
-                          <input type="checkbox" checked={includeMtl} onChange={(e) => setIncludeMtl(e.target.checked)} className="hidden" />
-                        </label>
-                      )}
 
                       {/* STL-specific: Raft Thickness */}
                       {format3D === 'stl' && (
@@ -2290,13 +2270,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 <div className="space-y-3">
                   <div className="flex gap-2">
                     {[
-                      { id: 'obj', label: 'OBJ', desc: 'Rhino' },
                       { id: 'glb', label: 'GLB', desc: 'Blender' },
+                      { id: '3dm', label: '3DM', desc: 'Rhino' },
+                      { id: 'dae', label: 'DAE', desc: 'SketchUp' },
                       { id: 'stl', label: 'STL', desc: '3D Print' },
                     ].map(fmt => (
                       <button
                         key={fmt.id}
-                        onClick={() => setFormat3D(fmt.id as 'obj' | 'glb' | 'stl')}
+                        onClick={() => setFormat3D(fmt.id as 'glb' | 'stl' | '3dm' | 'dae')}
                         className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
                           format3D === fmt.id ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
                         }`}
@@ -2345,22 +2326,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     <span>Include Terrain</span>
                     {includeTerrain && <span>✓</span>}
                   </button>
-                  
-                  {/* OBJ: MTL toggle - Mobile */}
-                  {format3D === 'obj' && (
-                    <button
-                      onClick={() => setIncludeMtl(!includeMtl)}
-                      className={`w-full py-2 rounded-lg text-sm border transition-all flex items-center justify-center gap-2 ${
-                        includeMtl 
-                          ? 'bg-amber-500/20 border-amber-500 text-amber-400' 
-                          : 'bg-[#111] border-[#333] text-gray-500'
-                      }`}
-                    >
-                      <span>🎨</span>
-                      <span>Include Materials (.mtl)</span>
-                      {includeMtl && <span>✓</span>}
-                    </button>
-                  )}
                   
                   {/* STL: Raft slider - Mobile */}
                   {format3D === 'stl' && (
