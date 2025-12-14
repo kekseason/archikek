@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { REGIONAL_DISCOUNTS } from '@/lib/regional-discounts'
+import { getDiscountForCountry } from '@/lib/regional-discounts'
 
 export async function POST(request: NextRequest) {
   try {
     const { variantId, userId, userEmail, planType } = await request.json()
     
+    if (!userEmail) {
+      return NextResponse.json({ error: 'User email required' }, { status: 400 })
+    }
+    
     // Get country from Vercel's geo header
     const country = request.headers.get('x-vercel-ip-country') || ''
-    const discount = REGIONAL_DISCOUNTS[country]
+    const discount = getDiscountForCountry(country)
     
     // Calculate price for success page tracking
     const basePrice = planType === 'subscription' ? 18.99 : 14.99
@@ -40,9 +44,16 @@ export async function POST(request: NextRequest) {
           type: 'checkouts',
           attributes: {
             checkout_data: checkoutData,
+            checkout_options: {
+              embed: false,
+              media: false,
+              button_color: '#f59e0b'
+            },
             product_options: {
-              redirect_url: successUrl
-            }
+              redirect_url: successUrl,
+              enabled_variants: [variantId]
+            },
+            preview: true
           },
           relationships: {
             store: {

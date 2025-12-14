@@ -71,7 +71,12 @@ export default function PricingClient({ discount, country }: PricingClientProps)
       const response = await fetch('/api/purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variantId, planType }),
+        body: JSON.stringify({ 
+          variantId, 
+          planType,
+          userId: user.id,
+          userEmail: user.email 
+        }),
       })
 
       const data = await response.json()

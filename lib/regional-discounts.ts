@@ -101,9 +101,19 @@ export const REGIONAL_DISCOUNTS: Record<string, { percent: number; name: string;
   'PL': { percent: 30, name: 'Poland', code: 'E4OTC2MW' },
 }
 
+// Default 40% discount for ALL countries not in the list above
+const DEFAULT_DISCOUNT = { percent: 40, name: 'your region', code: 'K0NDAXMW' }
+
 export type RegionalDiscount = { percent: number; name: string; code: string } | null
 
 export function getDiscountForCountry(countryCode: string | null): RegionalDiscount {
-  if (!countryCode) return null
-  return REGIONAL_DISCOUNTS[countryCode] || null
+  if (!countryCode) return DEFAULT_DISCOUNT
+  
+  // Check if country has specific discount
+  if (REGIONAL_DISCOUNTS[countryCode]) {
+    return REGIONAL_DISCOUNTS[countryCode]
+  }
+  
+  // All other countries get 40% default discount
+  return DEFAULT_DISCOUNT
 }
