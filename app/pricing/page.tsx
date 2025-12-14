@@ -5,10 +5,10 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Pricing',
-  description: 'Simple, transparent pricing for ArchiKEK site analysis maps. Start free with 1 credit. 5 maps for $15 or unlimited Pro access. Student discounts available.',
+  description: 'Simple, transparent pricing for ArchiKEK. SVG & PNG exports free forever. Pro subscription for DXF and 3D exports.',
   openGraph: {
     title: 'Pricing | ArchiKEK',
-    description: 'Start free, pay as you go. 5 maps for $15 or unlimited Pro access.',
+    description: 'SVG & PNG free forever. Pro for DXF and 3D exports.',
     url: 'https://archikek.com/pricing',
   },
   alternates: {

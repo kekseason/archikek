@@ -128,9 +128,9 @@ export default function ContactPage() {
             <div className="mt-10 p-4 bg-[#111] border border-[#222] rounded-xl">
               <h3 className="text-white font-medium mb-2">Common Questions</h3>
               <ul className="text-sm text-gray-400 space-y-2">
-                <li>• <span className="text-gray-300">How do credits work?</span> Each map download uses 1 credit.</li>
-                <li>• <span className="text-gray-300">What formats are available?</span> SVG and DXF with organized layers.</li>
-                <li>• <span className="text-gray-300">Can I use maps commercially?</span> Yes, with OSM attribution.</li>
+                <li>• <span className="text-gray-300">Is it really free?</span> Yes! SVG and PNG exports are free forever.</li>
+                <li>• <span className="text-gray-300">What formats are available?</span> Free: SVG, PNG. Pro: DXF, 3DM, DAE, GLB, STL.</li>
+                <li>• <span className="text-gray-300">Can I use maps commercially?</span> Pro includes commercial license.</li>
               </ul>
             </div>
           </div>

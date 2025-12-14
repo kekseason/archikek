@@ -93,10 +93,8 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
   const [scrolled, setScrolled] = useState(false)
   const { user, profile, signOut } = useAuth()
 
-  // Calculate discounted prices
-  const baseCreditsPrice = 15
+  // Calculate discounted Pro price
   const baseProPrice = 19
-  const creditsPrice = discount ? Math.round(baseCreditsPrice * (1 - discount.percent / 100)) : baseCreditsPrice
   const proPrice = discount ? Math.round(baseProPrice * (1 - discount.percent / 100)) : baseProPrice
 
   useEffect(() => {
@@ -175,13 +173,11 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
             
             {user ? (
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
-                  {profile?.is_pro ? (
+                {profile?.is_pro && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
                     <span className="text-amber-500 text-sm font-medium">✨ Pro</span>
-                  ) : (
-                    <span className="text-white/70 text-sm">{profile?.credits || 0} credits</span>
-                  )}
-                </div>
+                  </div>
+                )}
                 <button onClick={signOut} className="text-white/60 hover:text-white text-sm transition-colors">
                   Sign Out
                 </button>
@@ -642,7 +638,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
               Simple pricing
             </h2>
-            <p className="text-white/50 text-lg">Start free with 1 credit. Upgrade when you need more.</p>
+            <p className="text-white/50 text-lg">SVG & PNG free forever. Upgrade to Pro for DXF and 3D exports.</p>
           </div>
 
           {/* Regional Discount Banner */}
@@ -655,33 +651,26 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
           )}
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Credits Pack */}
+            {/* Free Plan */}
             <div className="relative p-8 bg-white/[0.02] border border-white/10 rounded-3xl hover:border-white/20 transition-all">
               <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-1">Starter Pack</h3>
-                <p className="text-white/40 text-sm">5 Map Credits</p>
+                <h3 className="text-xl font-semibold mb-1">Free</h3>
+                <p className="text-white/40 text-sm">For personal projects</p>
               </div>
               
               <div className="mb-8">
-                {discount ? (
-                  <>
-                    <span className="text-white/40 line-through text-2xl mr-2">${baseCreditsPrice}</span>
-                    <span className="text-5xl font-bold text-green-400">${creditsPrice}</span>
-                  </>
-                ) : (
-                  <span className="text-5xl font-bold">${baseCreditsPrice}</span>
-                )}
-                <span className="text-white/40 ml-2">one-time</span>
+                <span className="text-5xl font-bold text-green-400">$0</span>
+                <span className="text-white/40 ml-2">forever</span>
               </div>
               
               <ul className="space-y-4 mb-8">
                 {[
-                  '5 Map Downloads (2D or 3D)',
-                  'All 24 2D Themes',
-                  'All 10 3D Themes',
-                  'SVG, DXF, PNG Export',
-                  '3DM, GLB, STL, DAE Export',
-                  'Commercial License'
+                  'Unlimited SVG Export',
+                  'Unlimited PNG Export',
+                  'All 34 Themes',
+                  'Up to 3000m area',
+                  'Real-time Preview',
+                  'No Watermark'
                 ].map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-white/70">
                     <span className="text-green-500"><CheckIcon /></span>
@@ -691,10 +680,10 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               </ul>
 
               <Link 
-                href="/pricing"
+                href="/create"
                 className="block w-full py-4 bg-white/5 border border-white/10 text-white text-center rounded-xl font-semibold hover:bg-white/10 transition-colors"
               >
-                Buy Credits
+                Start Free
               </Link>
             </div>
 
@@ -770,7 +759,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               <ArrowRightIcon />
             </Link>
           </div>
-          <p className="text-white/30 text-sm mt-6">No credit card required • 1 free credit to start</p>
+          <p className="text-white/30 text-sm mt-6">No credit card required • Free forever</p>
         </div>
       </section>
 

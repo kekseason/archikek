@@ -410,10 +410,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const { user, profile, loading: authLoading, signOut, refreshProfile, signInWithGoogle } = useAuth()
   const router = useRouter()
   
-  // Calculate discounted prices
-  const baseCreditsPrice = 14.99
+  // Calculate discounted Pro price
   const baseProPrice = 18.99
-  const creditsPrice = discount ? (baseCreditsPrice * (1 - discount.percent / 100)).toFixed(0) : baseCreditsPrice.toFixed(0)
   const proPrice = discount ? (baseProPrice * (1 - discount.percent / 100)).toFixed(0) : baseProPrice.toFixed(0)
   
   const [location, setLocation] = useState('')
@@ -899,39 +897,26 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
-    // Check credits for non-Pro SVG/PNG (free formats don't need credits)
-    if (!isPro && (exportFormat === 'svg' || exportFormat === 'png')) {
-      // SVG and PNG are free, no credit check needed
-    } else if (!isPro && (!profile?.credits || profile.credits <= 0)) {
-      setError('No credits remaining. Please purchase more credits.')
-      return
-    }
+    // SVG and PNG are free for everyone, no checks needed
+    // DXF is Pro-only (checked above)
     
     setGenerating(true)
     setError('')
     
     try {
-      // Use credit only for paid formats (DXF) - but DXF is Pro only now
-      // SVG/PNG are free, so skip credit usage
-      if (exportFormat !== 'svg' && exportFormat !== 'png') {
-        const creditResponse = await fetch('/api/use-credit', {
+      // Log download for analytics
+      if (user) {
+        fetch('/api/log-download', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user.id,
             theme: selectedTheme.id,
             location: location,
-            size: selection.size || size
+            size: selection.size || size,
+            format: exportFormat
           })
-        })
-
-        const creditData = await creditResponse.json()
-
-        if (!creditResponse.ok) {
-          setError(creditData.error || 'Failed to use credit')
-          setGenerating(false)
-          return
-        }
+        }).catch(() => {}) // Don't fail if logging fails
       }
 
       // Generate the map
@@ -1080,6 +1065,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
+    // Pro check - 3D export requires Pro subscription
+    const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
+    if (!isPro) {
+      setError('3D export requires Pro subscription')
+      setShowProModal(true)
+      return
+    }
+
     setGenerating(true)
     setError('')
 
@@ -1103,6 +1096,21 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         color_road: theme3D.preview.road,
         color_water: theme3D.preview.water,
         color_green: theme3D.preview.green
+      }
+
+      // Log 3D export for analytics
+      if (user) {
+        fetch('/api/log-download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            theme: `3d_${format3D}`,
+            location: locationName || `${selection.center.lat},${selection.center.lng}`,
+            size: selection.size || size,
+            format: format3D
+          })
+        }).catch(() => {}) // Don't fail if logging fails
       }
 
       console.log('3D Request v8 with colors:', requestBody)
@@ -1257,28 +1265,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
           </Link>
           
           <div className="flex items-center gap-2 md:gap-4">
-            {/* Credits display - mobile */}
-            {user && profile && (
+            {/* Pro badge - mobile */}
+            {user && profile && profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
               <div className="flex md:hidden items-center gap-1 px-2 py-1 bg-[#111] border border-[#222] rounded-lg">
-                {profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                  <span className="text-amber-500 text-xs font-medium">✨ Pro</span>
-                ) : (
-                  <span className="text-amber-500 text-xs font-medium">{profile.credits} ⚡</span>
-                )}
+                <span className="text-amber-500 text-xs font-medium">✨ Pro</span>
               </div>
             )}
             
-            {/* Credits display - desktop */}
-            {user && profile && (
+            {/* Pro badge - desktop */}
+            {user && profile && profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#111] border border-[#222] rounded-lg">
-                {profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                  <span className="text-amber-500 text-sm font-medium">✨ Pro</span>
-                ) : (
-                  <>
-                    <span className="text-amber-500 text-sm font-medium">{profile.credits}</span>
-                    <span className="text-gray-500 text-sm">credits</span>
-                  </>
-                )}
+                <span className="text-amber-500 text-sm font-medium">✨ Pro</span>
               </div>
             )}
 
@@ -1827,58 +1824,27 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   {/* Pricing Info - Only for 2D mode */}
                   {exportMode === '2d' && (
                     <div className="p-3 bg-[#0f0f0f] border border-[#222] rounded-lg text-center space-y-2">
-                      {!user ? (
-                        // Not logged in
+                      {exportFormat === 'dxf' ? (
                         <>
-                          {exportFormat === 'dxf' ? (
-                            <p className="text-xs text-amber-400 font-medium">✨ DXF requires Pro</p>
-                          ) : (
-                            <p className="text-xs text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</p>
+                          <p className="text-xs text-amber-400 font-medium">✨ DXF requires Pro</p>
+                          {!(profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())) && (
+                            <Link 
+                              href="/pricing" 
+                              className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
+                            >
+                              Upgrade to Pro →
+                            </Link>
                           )}
-                          <Link href="/pricing" className="text-[10px] text-amber-400 hover:underline">View all plans →</Link>
-                        </>
-                      ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                        // Pro user
-                        <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
-                      ) : profile?.credits && profile.credits > 0 ? (
-                        // Has credits
-                        <>
-                          <p className="text-xs text-white">
-                            <span className="text-amber-400 font-bold text-lg">{profile.credits}</span> credits remaining
-                          </p>
-                          <p className="text-[10px] text-gray-500">Each download uses 1 credit</p>
                         </>
                       ) : (
-                        // No credits
-                        <>
-                          <p className="text-xs text-red-400 font-medium">⚠️ No credits remaining</p>
-                          <p className="text-[10px] text-gray-400">
-                            Get 5 maps for {discount ? (
-                              <><span className="line-through text-gray-600">${baseCreditsPrice}</span> <span className="text-amber-400 font-medium">${creditsPrice}</span></>
-                            ) : (
-                              <span className="text-white font-medium">${baseCreditsPrice}</span>
-                            )}
-                          </p>
-                          {discount && (
-                            <p className="text-[10px] text-green-400">
-                              🎉 {discount.percent}% {discount.name} discount!
-                            </p>
-                          )}
-                          <Link 
-                            href="/pricing" 
-                            className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
-                          >
-                            Buy Credits →
-                          </Link>
-                        </>
+                        <p className="text-xs text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</p>
                       )}
-                      
-                      {/* Show pricing link if not showing buy button */}
-                      {(!user || (profile?.credits && profile.credits > 0) || profile?.is_pro) && (
-                        <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
-                          View all plans →
-                        </Link>
+                      {profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
+                        <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
                       )}
+                      <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
+                        View all plans →
+                      </Link>
                     </div>
                   )}
                   
@@ -2737,50 +2703,36 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               
               {/* Pricing Info - Context Aware */}
               <div className="flex items-center gap-2 text-xs flex-wrap justify-center">
-                {exportFormat === 'dxf' ? (
-                  // DXF requires Pro
-                  <span className="text-amber-400 font-medium">✨ DXF requires Pro</span>
-                ) : !user ? (
-                  // Not logged in - SVG/PNG free
+                {exportMode === '3d' ? (
+                  // 3D requires Pro
                   <>
-                    <span className="text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</span>
-                    <span className="text-white/30">•</span>
-                    <span className="text-white/50">Sign in to download</span>
+                    <span className="text-amber-400 font-medium">✨ 3D export requires Pro</span>
+                    {!(profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())) && (
+                      <Link href="/pricing" className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors">
+                        Upgrade
+                      </Link>
+                    )}
                   </>
-                ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                  // Pro user
-                  <span className="text-amber-400 font-medium">✨ Unlimited Pro Access</span>
-                ) : profile?.credits && profile.credits > 0 ? (
-                  // Has credits
+                ) : exportFormat === 'dxf' ? (
+                  // DXF requires Pro
                   <>
-                    <span className="text-white"><span className="text-amber-400 font-bold">{profile.credits}</span> credits remaining</span>
-                    <span className="text-white/30">•</span>
-                    <span className="text-white/50">1 credit per download</span>
+                    <span className="text-amber-400 font-medium">✨ DXF requires Pro</span>
+                    {!(profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())) && (
+                      <Link href="/pricing" className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors">
+                        Upgrade
+                      </Link>
+                    )}
                   </>
                 ) : (
-                  // No credits
+                  // SVG/PNG free
                   <>
-                    <span className="text-red-400 font-medium">⚠️ No credits</span>
-                    <span className="text-white/30">•</span>
-                    <span className="text-white/50">
-                      Get 5 maps for {discount ? (
-                        <><span className="text-amber-400 font-medium">${creditsPrice}</span></>
-                      ) : (
-                        <span className="text-white">${baseCreditsPrice}</span>
-                      )}
-                    </span>
-                    {discount && (
+                    <span className="text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</span>
+                    {profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
                       <>
                         <span className="text-white/30">•</span>
-                        <span className="text-green-400">{discount.percent}% OFF!</span>
+                        <span className="text-amber-400 font-medium">✨ Pro</span>
                       </>
                     )}
-                    <Link 
-                      href="/pricing" 
-                      className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors"
-                    >
-                      Buy Credits
-                    </Link>
                   </>
                 )}
               </div>

@@ -59,16 +59,16 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-4">4. Credits and Payments</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">4. Free and Pro Plans</h2>
             <p className="text-gray-300 leading-relaxed mb-4">
-              ArchiKEK operates on a credit-based system:
+              ArchiKEK operates on a freemium model:
             </p>
             <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
-              <li>New users receive 1 free credit upon registration</li>
-              <li>Additional credits can be purchased through our pricing page</li>
-              <li>Credits are non-refundable and non-transferable</li>
-              <li>Credits do not expire</li>
+              <li>Free plan: Unlimited SVG and PNG exports for personal use</li>
+              <li>Pro subscription: Includes DXF, 3D exports (3DM, DAE, GLB, STL), and commercial license</li>
               <li>Pro subscriptions provide unlimited access during the subscription period</li>
+              <li>Subscriptions can be cancelled anytime</li>
+              <li>Refunds are handled on a case-by-case basis</li>
             </ul>
           </section>
 
@@ -81,8 +81,8 @@ export default function TermsPage() {
               <li>Use the Service for any illegal purpose</li>
               <li>Attempt to reverse engineer or extract source code</li>
               <li>Overload or disrupt the Service infrastructure</li>
-              <li>Resell or redistribute generated maps commercially without proper licensing</li>
-              <li>Create multiple accounts to abuse free credits</li>
+              <li>Resell or redistribute generated maps commercially without Pro license</li>
+              <li>Use automated tools to abuse the service</li>
             </ul>
           </section>
 

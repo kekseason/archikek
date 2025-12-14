@@ -175,10 +175,10 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        {/* Free credit notice */}
-        <div className="text-center mt-6 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
-          <p className="text-amber-500 font-medium">🎁 1 Free Map Credit</p>
-          <p className="text-gray-400 text-sm mt-1">Create your first map on us!</p>
+        {/* Free forever notice */}
+        <div className="text-center mt-6 p-4 bg-green-500/5 border border-green-500/20 rounded-xl">
+          <p className="text-green-400 font-medium">✓ Free Forever</p>
+          <p className="text-gray-400 text-sm mt-1">Unlimited SVG & PNG exports at no cost!</p>
         </div>
       </div>
     </div>
