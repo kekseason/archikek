@@ -21,19 +21,17 @@ export default function ContactPage() {
     setError('')
 
     try {
-      // Send to Web3Forms (free form backend)
-      const response = await fetch('https://api.web3forms.com/submit', {
+      // Save to Supabase
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          access_key: 'YOUR_WEB3FORMS_KEY', // Replace with your Web3Forms access key
           name: formData.name,
           email: formData.email,
-          subject: `[ArchiKEK ${formData.subject}] Message from ${formData.name}`,
+          subject: formData.subject,
           message: formData.message,
-          from_name: 'ArchiKEK Contact Form',
         }),
       })
 
