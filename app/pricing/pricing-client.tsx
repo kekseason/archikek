@@ -188,7 +188,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
                 </li>
                 <li className="flex items-center gap-3 text-gray-500 text-sm">
                   <span className="text-gray-600 flex-shrink-0"><XIcon /></span>
-                  3D models (OBJ/GLB/STL)
+                  3D models (3DM/DAE/GLB/STL)
                 </li>
               </ul>
 
@@ -234,7 +234,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
                 </li>
                 <li className="flex items-center gap-3 text-white text-sm font-medium">
                   <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
-                  3D models (OBJ/GLB/STL)
+                  3D models (3DM/DAE/GLB/STL)
                 </li>
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
                   <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
@@ -303,7 +303,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
                     <td className="p-4 text-center text-green-400">✓</td>
                   </tr>
                   <tr className="border-b border-[#1a1a1a]">
-                    <td className="p-4 text-gray-300">3D Models (OBJ/GLB/STL)</td>
+                    <td className="p-4 text-gray-300">3D Models (3DM/DAE/GLB/STL)</td>
                     <td className="p-4 text-center text-gray-500">—</td>
                     <td className="p-4 text-center text-green-400">✓</td>
                   </tr>
@@ -385,7 +385,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
                 },
                 {
                   q: 'What 3D formats do you support?',
-                  a: 'We export OBJ (with MTL materials), GLB (for web/Blender), and STL (for 3D printing). All include real terrain elevation data.'
+                  a: 'We export 3DM (Rhino), DAE (SketchUp), GLB (Blender), and STL (for 3D printing). All include real terrain elevation data.'
                 },
                 {
                   q: 'Can I cancel my Pro subscription?',
