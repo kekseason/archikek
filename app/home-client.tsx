@@ -91,11 +91,43 @@ const BoxIcon = () => (
 
 export default function HomeClient({ discount, country }: HomeClientProps) {
   const [scrolled, setScrolled] = useState(false)
+  const [purchaseLoading, setPurchaseLoading] = useState(false)
   const { user, profile, signOut } = useAuth()
 
   // Calculate discounted Pro price
   const baseProPrice = 19
   const proPrice = discount ? Math.round(baseProPrice * (1 - discount.percent / 100)) : baseProPrice
+
+  // Direct checkout handler
+  const handlePurchase = async () => {
+    if (!user) {
+      window.location.href = '/login'
+      return
+    }
+
+    setPurchaseLoading(true)
+    try {
+      const response = await fetch('/api/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          variantId: process.env.NEXT_PUBLIC_LEMONSQUEEZY_SUBSCRIPTION_VARIANT_ID,
+          planType: 'subscription',
+          userId: user.id,
+          userEmail: user.email 
+        }),
+      })
+
+      const data = await response.json()
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl
+      }
+    } catch (err) {
+      console.error('Purchase error:', err)
+    } finally {
+      setPurchaseLoading(false)
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50)
@@ -726,12 +758,13 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                 ))}
               </ul>
 
-              <Link 
-                href="/pricing"
-                className="block w-full py-4 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-amber-400 transition-colors"
+              <button 
+                onClick={handlePurchase}
+                disabled={purchaseLoading}
+                className="block w-full py-4 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-amber-400 transition-colors disabled:opacity-50"
               >
-                Subscribe Now
-              </Link>
+                {purchaseLoading ? 'Loading...' : 'Subscribe Now'}
+              </button>
             </div>
           </div>
         </div>
