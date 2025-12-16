@@ -478,6 +478,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   // Drawing state refs
   const isDrawingRef = useRef(false)
   const drawStartRef = useRef<{lng: number, lat: number} | null>(null)
+  const selectionModeRef = useRef<SelectionMode>(selectionMode)
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    selectionModeRef.current = selectionMode
+  }, [selectionMode])
 
   // Track TikTok ViewContent event
   useEffect(() => {
@@ -682,7 +688,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           // --- MOUSE EVENTS FOR DRAWING ---
           map.on('mousedown', (e) => {
-            if (selectionMode !== 'rectangle') return
+            if (selectionModeRef.current !== 'rectangle') return
             
             isDrawingRef.current = true
             drawStartRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat }
@@ -780,7 +786,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           // --- CLICK EVENT (Point Mode) ---
           map.on('click', (e) => {
-            if (selectionMode !== 'point') return
+            if (selectionModeRef.current !== 'point') return
             
             const { lng, lat } = e.lngLat
             
