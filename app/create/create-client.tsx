@@ -479,11 +479,16 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const isDrawingRef = useRef(false)
   const drawStartRef = useRef<{lng: number, lat: number} | null>(null)
   const selectionModeRef = useRef<SelectionMode>(selectionMode)
+  const exportModeRef = useRef(exportMode)
   
-  // Keep ref in sync with state
+  // Keep refs in sync with state
   useEffect(() => {
     selectionModeRef.current = selectionMode
   }, [selectionMode])
+  
+  useEffect(() => {
+    exportModeRef.current = exportMode
+  }, [exportMode])
 
   // Track TikTok ViewContent event
   useEffect(() => {
@@ -760,12 +765,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             
             // Enforce max size limits based on export mode
             // 2D: max 3000m, 3D: max 2000m
-            const maxSize = exportMode === '3d' ? 2000 : 3000
+            const maxSize = exportModeRef.current === '3d' ? 2000 : 3000
             const minSize = 100
             
             if (avgSize > maxSize) {
               avgSize = maxSize
-              setError(`Maximum area is ${maxSize}m × ${maxSize}m for ${exportMode === '3d' ? '3D models' : '2D maps'}`)
+              setError(`Maximum area is ${maxSize}m × ${maxSize}m for ${exportModeRef.current === '3d' ? '3D models' : '2D maps'}`)
               setTimeout(() => setError(''), 3000)
             }
             

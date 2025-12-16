@@ -132,9 +132,54 @@ export default function ThreeViewer({ lat, lng, size = 500, layers, themeColors 
     }
     window.addEventListener('resize', handleResize)
 
+    // Keyboard controls for camera rotation
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!controls || !camera) return
+      
+      const rotateSpeed = 0.05
+      const panSpeed = size * 0.05
+      
+      switch (e.key) {
+        case 'ArrowLeft':
+          controls.autoRotate = false
+          // Rotate camera around target (orbit left)
+          const angleLeft = rotateSpeed
+          const xLeft = camera.position.x - controls.target.x
+          const zLeft = camera.position.z - controls.target.z
+          camera.position.x = controls.target.x + xLeft * Math.cos(angleLeft) - zLeft * Math.sin(angleLeft)
+          camera.position.z = controls.target.z + xLeft * Math.sin(angleLeft) + zLeft * Math.cos(angleLeft)
+          camera.lookAt(controls.target)
+          break
+        case 'ArrowRight':
+          controls.autoRotate = false
+          // Rotate camera around target (orbit right)
+          const angleRight = -rotateSpeed
+          const xRight = camera.position.x - controls.target.x
+          const zRight = camera.position.z - controls.target.z
+          camera.position.x = controls.target.x + xRight * Math.cos(angleRight) - zRight * Math.sin(angleRight)
+          camera.position.z = controls.target.z + xRight * Math.sin(angleRight) + zRight * Math.cos(angleRight)
+          camera.lookAt(controls.target)
+          break
+        case 'ArrowUp':
+          controls.autoRotate = false
+          // Move camera up (increase Y, decrease distance)
+          camera.position.y = Math.min(camera.position.y + panSpeed, size * 2)
+          camera.lookAt(controls.target)
+          break
+        case 'ArrowDown':
+          controls.autoRotate = false
+          // Move camera down
+          camera.position.y = Math.max(camera.position.y - panSpeed, size * 0.1)
+          camera.lookAt(controls.target)
+          break
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize)
+      window.removeEventListener('keydown', handleKeyDown)
       cancelAnimationFrame(frameIdRef.current)
       controls.dispose()
       renderer.dispose()
@@ -271,7 +316,7 @@ export default function ThreeViewer({ lat, lng, size = 500, layers, themeColors 
       {/* Controls hint */}
       {!loading && !error && (
         <div className="absolute bottom-4 left-4 text-xs text-gray-500 bg-black/50 px-2 py-1 rounded">
-          🖱️ Drag to rotate • Scroll to zoom
+          🖱️ Drag to rotate • Scroll to zoom • ⌨️ Arrow keys to orbit
         </div>
       )}
     </div>
