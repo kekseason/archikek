@@ -464,11 +464,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showProModal, setShowProModal] = useState(false)
   const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [showResults, setShowResults] = useState(false)
   const [showColorPanel, setShowColorPanel] = useState(false)
   const [showStrokePanel, setShowStrokePanel] = useState(false)
   const [activeCategory, setActiveCategory] = useState('Analysis')
+  
+  // Show toast helper
+  const showToast = (message: string) => {
+    setToast(message)
+    setTimeout(() => setToast(''), 1500)
+  }
   
   // Map refs
   const mapRef = useRef<HTMLDivElement>(null)
@@ -2017,7 +2024,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                             max={max} 
                             step={0.1} 
                             value={strokeWidths[key as keyof typeof strokeWidths]} 
-                            onChange={(e) => setStrokeWidths(prev => ({ ...prev, [key]: Number(e.target.value) }))} 
+                            onChange={(e) => {
+                              setStrokeWidths(prev => ({ ...prev, [key]: Number(e.target.value) }))
+                              showToast(`${label}: ${e.target.value}px`)
+                            }} 
                             className="w-full accent-amber-500 h-1" 
                           />
                         </div>
@@ -2053,7 +2063,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       <div className={`w-10 h-5 rounded-full transition-colors ${state ? 'bg-amber-500' : 'bg-[#333]'}`}>
                         <div className={`w-4 h-4 bg-white rounded-full m-0.5 transition-transform ${state ? 'translate-x-5' : ''}`} />
                       </div>
-                      <input type="checkbox" checked={state} onChange={(e) => setter(e.target.checked)} className="hidden" />
+                      <input type="checkbox" checked={state} onChange={(e) => {
+                        setter(e.target.checked)
+                        showToast(`${label}: ${e.target.checked ? 'On' : 'Off'}`)
+                      }} className="hidden" />
                     </label>
                   ))}
                 </div>
@@ -2066,6 +2079,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {error && (
               <div className="px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg">
                 <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
+            {/* Toast notification */}
+            {toast && (
+              <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-amber-500 text-black text-sm font-medium rounded-full shadow-lg animate-pulse">
+                ✓ {toast}
               </div>
             )}
           </div>

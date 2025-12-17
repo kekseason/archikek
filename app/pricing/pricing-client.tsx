@@ -206,7 +206,10 @@ export default function PricingClient({ discount, country }: PricingClientProps)
             </div>
 
             {/* Pro Subscription */}
-            <div className="bg-[#0a0a0a] border-2 border-amber-500 rounded-2xl p-8 relative flex flex-col">
+            <div 
+              onClick={() => !loading && handlePurchase(process.env.NEXT_PUBLIC_LEMONSQUEEZY_SUBSCRIPTION_VARIANT_ID, 'subscription')}
+              className="bg-[#0a0a0a] border-2 border-amber-500 rounded-2xl p-8 relative flex flex-col cursor-pointer hover:border-amber-400 hover:bg-[#0f0f0f] transition-all"
+            >
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide">
                 Most Popular
               </div>
