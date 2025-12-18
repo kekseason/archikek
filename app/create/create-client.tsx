@@ -1180,7 +1180,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
   // Generate Laser Cut DXF
   const generateLaserCut = async () => {
-    if (!selection) {
+    if (!selection || !selection.center) {
       setError('Please select a location first')
       return
     }
@@ -1200,8 +1200,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
       
       const requestBody = {
-        lat: selection.center.lat,
-        lng: selection.center.lng,
+        lat: selection.center!.lat,
+        lng: selection.center!.lng,
         size: selection.size || size,
         scale: laserScale,
         material_thickness: laserThickness,
@@ -1261,7 +1261,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
   // Preview Laser Cut (get layer count, etc)
   const previewLaserCut = async () => {
-    if (!selection) return
+    if (!selection || !selection.center) return
     
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
@@ -1270,8 +1270,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lat: selection.center.lat,
-          lng: selection.center.lng,
+          lat: selection.center!.lat,
+          lng: selection.center!.lng,
           size: selection.size || size,
           scale: laserScale,
           material_thickness: laserThickness,
