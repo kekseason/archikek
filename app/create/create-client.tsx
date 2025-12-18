@@ -1188,14 +1188,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
-    // Pro check
-    const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
-    if (!isPro) {
-      setError('Laser Cut requires Pro subscription')
-      setShowProModal(true)
-      return
-    }
-
     setGenerating(true)
     setError('')
 
@@ -1917,13 +1909,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                             </div>
                           </div>
                         )}
-                      </div>
-                    )}
-
-                    {/* Pro Required Notice */}
-                    {!isPro && (
-                      <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center">
-                        <p className="text-xs text-amber-400">✨ Laser Cut requires Pro subscription</p>
                       </div>
                     )}
                   </>
