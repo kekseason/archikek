@@ -505,6 +505,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     exportModeRef.current = exportMode
   }, [exportMode])
 
+  // Compute isPro status
+  const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
+
   // Track TikTok ViewContent event
   useEffect(() => {
     trackViewContent('Map Creator')
