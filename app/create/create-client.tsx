@@ -410,10 +410,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const { user, profile, loading: authLoading, signOut, refreshProfile, signInWithGoogle } = useAuth()
   const router = useRouter()
   
-  // Calculate discounted prices
-  const baseCreditsPrice = 14.99
+  // Calculate discounted Pro price
   const baseProPrice = 18.99
-  const creditsPrice = discount ? (baseCreditsPrice * (1 - discount.percent / 100)).toFixed(0) : baseCreditsPrice.toFixed(0)
   const proPrice = discount ? (baseProPrice * (1 - discount.percent / 100)).toFixed(0) : baseProPrice.toFixed(0)
   
   const [location, setLocation] = useState('')
@@ -438,13 +436,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showFrame, setShowFrame] = useState(false)
   const [locationName, setLocationName] = useState('')
   const [exportFormat, setExportFormat] = useState<'svg' | 'dxf' | 'png'>('svg')
-  const [exportMode, setExportMode] = useState<'2d' | '3d'>('2d')
-  const [format3D, setFormat3D] = useState<'obj' | 'glb' | 'stl'>('obj')
+  const [exportMode, setExportMode] = useState<'2d' | '3d' | 'laser'>('2d')
+  const [format3D, setFormat3D] = useState<'glb' | 'stl' | '3dm' | 'dae'>('glb')
   const [theme3D, setTheme3D] = useState(THEMES_3D[0])
   const [active3DCategory, setActive3DCategory] = useState('Realistic')
   const [includeTerrain, setIncludeTerrain] = useState(true)
-  const [includeMtl, setIncludeMtl] = useState(true)  // OBJ için MTL dosyası
-  const [raftThickness, setRaftThickness] = useState(2.0)  // STL için raft (mm)
+  const [raftThickness, setRaftThickness] = useState(0)  // STL için raft (mm)
   const [show3DPreview, setShow3DPreview] = useState(false)
   const [layers3D, setLayers3D] = useState({
     buildings: true,
@@ -452,6 +449,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     water: true,
     green: true
   })
+  
+  // Laser Cut State
+  const [laserScale, setLaserScale] = useState(500)
+  const [laserThickness, setLaserThickness] = useState(3)
+  const [laserInterval, setLaserInterval] = useState(5)
+  const [laserBuildings, setLaserBuildings] = useState(true)
+  const [laserPreview, setLaserPreview] = useState<any>(null)
+  
   const [resolution, setResolution] = useState(1200)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
@@ -467,11 +472,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showProModal, setShowProModal] = useState(false)
   const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [showResults, setShowResults] = useState(false)
   const [showColorPanel, setShowColorPanel] = useState(false)
   const [showStrokePanel, setShowStrokePanel] = useState(false)
   const [activeCategory, setActiveCategory] = useState('Analysis')
+  
+  // Show toast helper
+  const showToast = (message: string) => {
+    setToast(message)
+    setTimeout(() => setToast(''), 1500)
+  }
   
   // Map refs
   const mapRef = useRef<HTMLDivElement>(null)
@@ -481,6 +493,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   // Drawing state refs
   const isDrawingRef = useRef(false)
   const drawStartRef = useRef<{lng: number, lat: number} | null>(null)
+  const selectionModeRef = useRef<SelectionMode>(selectionMode)
+  const exportModeRef = useRef(exportMode)
+  
+  // Keep refs in sync with state
+  useEffect(() => {
+    selectionModeRef.current = selectionMode
+  }, [selectionMode])
+  
+  useEffect(() => {
+    exportModeRef.current = exportMode
+  }, [exportMode])
 
   // Track TikTok ViewContent event
   useEffect(() => {
@@ -685,7 +708,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           // --- MOUSE EVENTS FOR DRAWING ---
           map.on('mousedown', (e) => {
-            if (selectionMode !== 'rectangle') return
+            if (selectionModeRef.current !== 'rectangle') return
             
             isDrawingRef.current = true
             drawStartRef.current = { lng: e.lngLat.lng, lat: e.lngLat.lat }
@@ -757,12 +780,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             
             // Enforce max size limits based on export mode
             // 2D: max 3000m, 3D: max 2000m
-            const maxSize = exportMode === '3d' ? 2000 : 3000
+            const maxSize = exportModeRef.current === '3d' ? 2000 : 3000
             const minSize = 100
             
             if (avgSize > maxSize) {
               avgSize = maxSize
-              setError(`Maximum area is ${maxSize}m × ${maxSize}m for ${exportMode === '3d' ? '3D models' : '2D maps'}`)
+              setError(`Maximum area is ${maxSize}m × ${maxSize}m for ${exportModeRef.current === '3d' ? '3D models' : '2D maps'}`)
               setTimeout(() => setError(''), 3000)
             }
             
@@ -783,7 +806,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
           // --- CLICK EVENT (Point Mode) ---
           map.on('click', (e) => {
-            if (selectionMode !== 'point') return
+            if (selectionModeRef.current !== 'point') return
             
             const { lng, lat } = e.lngLat
             
@@ -900,39 +923,26 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
-    // Check credits for non-Pro SVG/PNG (free formats don't need credits)
-    if (!isPro && (exportFormat === 'svg' || exportFormat === 'png')) {
-      // SVG and PNG are free, no credit check needed
-    } else if (!isPro && (!profile?.credits || profile.credits <= 0)) {
-      setError('No credits remaining. Please purchase more credits.')
-      return
-    }
+    // SVG and PNG are free for everyone, no checks needed
+    // DXF is Pro-only (checked above)
     
     setGenerating(true)
     setError('')
     
     try {
-      // Use credit only for paid formats (DXF) - but DXF is Pro only now
-      // SVG/PNG are free, so skip credit usage
-      if (exportFormat !== 'svg' && exportFormat !== 'png') {
-        const creditResponse = await fetch('/api/use-credit', {
+      // Log download for analytics
+      if (user) {
+        fetch('/api/log-download', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user.id,
             theme: selectedTheme.id,
             location: location,
-            size: selection.size || size
+            size: selection.size || size,
+            format: exportFormat
           })
-        })
-
-        const creditData = await creditResponse.json()
-
-        if (!creditResponse.ok) {
-          setError(creditData.error || 'Failed to use credit')
-          setGenerating(false)
-          return
-        }
+        }).catch(() => {}) // Don't fail if logging fails
       }
 
       // Generate the map
@@ -1081,6 +1091,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
+    // Pro check - 3D export requires Pro subscription
+    const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
+    if (!isPro) {
+      setError('3D export requires Pro subscription')
+      setShowProModal(true)
+      return
+    }
+
     setGenerating(true)
     setError('')
 
@@ -1096,7 +1114,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         include_roads: layers3D.roads,
         include_water: layers3D.water,
         include_green: layers3D.green,
-        include_mtl: format3D === 'obj' ? includeMtl : false,
         raft_thickness: format3D === 'stl' ? raftThickness : 0,
         location_name: locationName || undefined,
         // Send theme colors explicitly
@@ -1107,7 +1124,22 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         color_green: theme3D.preview.green
       }
 
-      console.log('3D Request v7 with colors:', requestBody)
+      // Log 3D export for analytics
+      if (user) {
+        fetch('/api/log-download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            theme: `3d_${format3D}`,
+            location: locationName || `${selection.center.lat},${selection.center.lng}`,
+            size: selection.size || size,
+            format: format3D
+          })
+        }).catch(() => {}) // Don't fail if logging fails
+      }
+
+      console.log('3D Request v8 with colors:', requestBody)
 
       const response = await fetch(`${API_URL}/generate-3d`, {
         method: 'POST',
@@ -1129,11 +1161,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       const safeName = locationName ? locationName.replace(/\s+/g, '_') : 'archikek'
       let ext: string = format3D
       
-      // OBJ + MTL = ZIP dosyası
-      if (format3D === 'obj' && includeMtl) {
-        ext = 'zip'
-      }
-      
       a.download = `${safeName}_3d_${requestBody.size}m.${ext}`
       document.body.appendChild(a)
       a.click()
@@ -1149,6 +1176,117 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     }
 
     setGenerating(false)
+  }
+
+  // Generate Laser Cut DXF
+  const generateLaserCut = async () => {
+    if (!selection) {
+      setError('Please select a location first')
+      return
+    }
+
+    // Pro check
+    const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
+    if (!isPro) {
+      setError('Laser Cut requires Pro subscription')
+      setShowProModal(true)
+      return
+    }
+
+    setGenerating(true)
+    setError('')
+
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
+      
+      const requestBody = {
+        lat: selection.center.lat,
+        lng: selection.center.lng,
+        size: selection.size || size,
+        scale: laserScale,
+        material_thickness: laserThickness,
+        contour_interval: laserInterval,
+        include_buildings: laserBuildings
+      }
+
+      // Log for analytics
+      if (user) {
+        fetch('/api/log-download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            theme: 'laser_cut',
+            location: locationName || `${selection.center.lat},${selection.center.lng}`,
+            size: selection.size || size,
+            format: 'laser_dxf'
+          })
+        }).catch(() => {})
+      }
+
+      const response = await fetch(`${API_URL}/laser-cut`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(errorText || `Server error: ${response.status}`)
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      
+      const safeName = locationName ? locationName.replace(/\s+/g, '_') : 'laser_terrain'
+      a.download = `${safeName}_${requestBody.size}m_1-${laserScale}.zip`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+
+      await refreshProfile()
+      setGenerated(true)
+      showToast('Laser cut files downloaded!')
+
+    } catch (err: any) {
+      console.error('Laser cut error:', err)
+      setError(err.message || 'Failed to generate laser cut files')
+    }
+
+    setGenerating(false)
+  }
+
+  // Preview Laser Cut (get layer count, etc)
+  const previewLaserCut = async () => {
+    if (!selection) return
+    
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
+      
+      const response = await fetch(`${API_URL}/laser-cut/preview`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lat: selection.center.lat,
+          lng: selection.center.lng,
+          size: selection.size || size,
+          scale: laserScale,
+          material_thickness: laserThickness,
+          contour_interval: laserInterval,
+          include_buildings: laserBuildings
+        })
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        setLaserPreview(data.preview)
+      }
+    } catch (err) {
+      console.error('Laser preview error:', err)
+    }
   }
 
   // Preview function - no credit, low resolution
@@ -1264,28 +1402,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
           </Link>
           
           <div className="flex items-center gap-2 md:gap-4">
-            {/* Credits display - mobile */}
-            {user && profile && (
+            {/* Pro badge - mobile */}
+            {user && profile && profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
               <div className="flex md:hidden items-center gap-1 px-2 py-1 bg-[#111] border border-[#222] rounded-lg">
-                {profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                  <span className="text-amber-500 text-xs font-medium">✨ Pro</span>
-                ) : (
-                  <span className="text-amber-500 text-xs font-medium">{profile.credits} ⚡</span>
-                )}
+                <span className="text-amber-500 text-xs font-medium">✨ Pro</span>
               </div>
             )}
             
-            {/* Credits display - desktop */}
-            {user && profile && (
+            {/* Pro badge - desktop */}
+            {user && profile && profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#111] border border-[#222] rounded-lg">
-                {profile.is_pro && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                  <span className="text-amber-500 text-sm font-medium">✨ Pro</span>
-                ) : (
-                  <>
-                    <span className="text-amber-500 text-sm font-medium">{profile.credits}</span>
-                    <span className="text-gray-500 text-sm">credits</span>
-                  </>
-                )}
+                <span className="text-amber-500 text-sm font-medium">✨ Pro</span>
               </div>
             )}
 
@@ -1401,11 +1528,11 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 </div>
 
                 {/* ═══════════════════════════════════════════════════════ */}
-                {/* 2D / 3D MODE SELECTION - With Format Info */}
+                {/* 2D / 3D / LASER MODE SELECTION */}
                 {/* ═══════════════════════════════════════════════════════ */}
                 <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
                   <p className="text-xs text-gray-500 mb-2">Export Type</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => setExportMode('2d')}
                       className={`p-3 rounded-xl border-2 transition-all text-left ${
@@ -1418,7 +1545,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
                         </svg>
-                        <span className={`font-semibold ${exportMode === '2d' ? 'text-amber-400' : 'text-white'}`}>2D Map</span>
+                        <span className={`font-semibold text-sm ${exportMode === '2d' ? 'text-amber-400' : 'text-white'}`}>2D</span>
                       </div>
                       <p className="text-[10px] text-gray-500">SVG · PNG · DXF</p>
                     </button>
@@ -1434,9 +1561,23 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
-                        <span className={`font-semibold ${exportMode === '3d' ? 'text-amber-400' : 'text-white'}`}>3D Model</span>
+                        <span className={`font-semibold text-sm ${exportMode === '3d' ? 'text-amber-400' : 'text-white'}`}>3D</span>
                       </div>
-                      <p className="text-[10px] text-gray-500">OBJ · GLB · STL</p>
+                      <p className="text-[10px] text-gray-500">GLB · STL · 3DM</p>
+                    </button>
+                    <button
+                      onClick={() => setExportMode('laser')}
+                      className={`p-3 rounded-xl border-2 transition-all text-left ${
+                        exportMode === 'laser'
+                          ? 'border-red-500 bg-red-500/10'
+                          : 'border-[#222] bg-[#111] hover:border-[#333]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">🔥</span>
+                        <span className={`font-semibold text-sm ${exportMode === 'laser' ? 'text-red-400' : 'text-white'}`}>Laser</span>
+                      </div>
+                      <p className="text-[10px] text-gray-500">DXF for cutting</p>
                     </button>
                   </div>
                 </div>
@@ -1565,13 +1706,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       <p className="text-xs text-gray-500 mb-2">Format</p>
                       <div className="flex gap-2">
                         {[
-                          { id: 'obj', label: 'OBJ', desc: 'Rhino, SketchUp' },
                           { id: 'glb', label: 'GLB', desc: 'Blender, Web' },
                           { id: 'stl', label: 'STL', desc: '3D Print' },
+                          { id: '3dm', label: '3DM', desc: 'Rhino' },
+                          { id: 'dae', label: 'DAE', desc: 'SketchUp' },
                         ].map(fmt => (
                           <button
                             key={fmt.id}
-                            onClick={() => setFormat3D(fmt.id as 'obj' | 'glb' | 'stl')}
+                            onClick={() => setFormat3D(fmt.id as 'glb' | 'stl' | '3dm' | 'dae')}
                             className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
                               format3D === fmt.id
                                 ? 'bg-amber-500 text-black'
@@ -1624,20 +1766,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                         <input type="checkbox" checked={includeTerrain} onChange={(e) => setIncludeTerrain(e.target.checked)} className="hidden" />
                       </label>
 
-                      {/* OBJ-specific: MTL Toggle */}
-                      {format3D === 'obj' && (
-                        <label className="flex items-center justify-between mt-2 px-2 py-1.5 bg-[#1a1a1a] rounded-lg cursor-pointer hover:bg-[#222] transition-colors">
-                          <div className="flex items-center gap-2">
-                            <span>🎨</span>
-                            <span className="text-xs text-gray-300">Include Materials (.mtl)</span>
-                          </div>
-                          <div className={`w-8 h-4 rounded-full transition-colors ${includeMtl ? 'bg-amber-500' : 'bg-[#333]'}`}>
-                            <div className={`w-3 h-3 bg-white rounded-full m-0.5 transition-transform ${includeMtl ? 'translate-x-4' : ''}`} />
-                          </div>
-                          <input type="checkbox" checked={includeMtl} onChange={(e) => setIncludeMtl(e.target.checked)} className="hidden" />
-                        </label>
-                      )}
-
                       {/* STL-specific: Raft Thickness */}
                       {format3D === 'stl' && (
                         <div className="mt-2 px-2 py-1.5 bg-[#1a1a1a] rounded-lg">
@@ -1657,6 +1785,144 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                         </div>
                       )}
                     </div>
+                  </>
+                )}
+
+                {/* ═══════════════════════════════════════════════════════ */}
+                {/* LASER CUT OPTIONS */}
+                {/* ═══════════════════════════════════════════════════════ */}
+                {exportMode === 'laser' && (
+                  <>
+                    {/* Laser Info Banner */}
+                    <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xl">🔥</span>
+                        <span className="font-semibold text-red-400">Laser Cut Terrain Model</span>
+                      </div>
+                      <p className="text-xs text-gray-400">
+                        Generate DXF files for laser cutting physical terrain models. 
+                        Layers stack to create 3D topography.
+                      </p>
+                    </div>
+
+                    {/* Scale Selection */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                      <p className="text-xs text-gray-500 mb-2">Model Scale</p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {[
+                          { value: 200, label: '1:200' },
+                          { value: 500, label: '1:500' },
+                          { value: 1000, label: '1:1000' },
+                          { value: 2000, label: '1:2000' },
+                        ].map(s => (
+                          <button
+                            key={s.value}
+                            onClick={() => setLaserScale(s.value)}
+                            className={`py-2 rounded-lg text-xs font-medium transition-all ${
+                              laserScale === s.value
+                                ? 'bg-red-500 text-white'
+                                : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Material & Contour Settings */}
+                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl space-y-3">
+                      <div>
+                        <p className="text-xs text-gray-500 mb-2">Material Thickness</p>
+                        <div className="grid grid-cols-5 gap-1">
+                          {[2, 3, 4, 5, 6].map(t => (
+                            <button
+                              key={t}
+                              onClick={() => setLaserThickness(t)}
+                              className={`py-2 rounded-lg text-xs font-medium transition-all ${
+                                laserThickness === t
+                                  ? 'bg-red-500 text-white'
+                                  : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                              }`}
+                            >
+                              {t}mm
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-gray-500 mb-2">Contour Interval</p>
+                        <div className="grid grid-cols-4 gap-1">
+                          {[
+                            { value: 2, label: '2m' },
+                            { value: 5, label: '5m' },
+                            { value: 10, label: '10m' },
+                            { value: 20, label: '20m' },
+                          ].map(i => (
+                            <button
+                              key={i.value}
+                              onClick={() => setLaserInterval(i.value)}
+                              className={`py-2 rounded-lg text-xs font-medium transition-all ${
+                                laserInterval === i.value
+                                  ? 'bg-red-500 text-white'
+                                  : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                              }`}
+                            >
+                              {i.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={laserBuildings}
+                          onChange={(e) => setLaserBuildings(e.target.checked)}
+                          className="w-4 h-4 accent-red-500"
+                        />
+                        <span className="text-xs text-gray-300">Include building footprints (etched)</span>
+                      </label>
+                    </div>
+
+                    {/* Model Preview Info */}
+                    {selection && (
+                      <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
+                        <p className="text-xs text-gray-500 mb-2">Model Dimensions</p>
+                        <div className="grid grid-cols-2 gap-2 text-center">
+                          <div className="bg-[#1a1a1a] p-2 rounded-lg">
+                            <p className="text-lg font-mono text-red-400">
+                              {((selection.size || size) / laserScale * 1000).toFixed(0)}mm
+                            </p>
+                            <p className="text-[10px] text-gray-500">Model size</p>
+                          </div>
+                          <div className="bg-[#1a1a1a] p-2 rounded-lg">
+                            <p className="text-lg font-mono text-red-400">1:{laserScale}</p>
+                            <p className="text-[10px] text-gray-500">Scale</p>
+                          </div>
+                        </div>
+                        {laserPreview && (
+                          <div className="mt-2 grid grid-cols-2 gap-2 text-center">
+                            <div className="bg-[#1a1a1a] p-2 rounded-lg">
+                              <p className="text-lg font-mono text-amber-400">{laserPreview.num_layers}</p>
+                              <p className="text-[10px] text-gray-500">Layers</p>
+                            </div>
+                            <div className="bg-[#1a1a1a] p-2 rounded-lg">
+                              <p className="text-lg font-mono text-amber-400">{laserPreview.total_height_mm}mm</p>
+                              <p className="text-[10px] text-gray-500">Total height</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Pro Required Notice */}
+                    {!isPro && (
+                      <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center">
+                        <p className="text-xs text-amber-400">✨ Laser Cut requires Pro subscription</p>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -1688,10 +1954,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {/* ═══════════════════════════════════════════════════════ */}
             {/* PREVIEW & GENERATE - PRIMARY SECTION */}
             {/* ═══════════════════════════════════════════════════════ */}
-            <div className="p-3 bg-gradient-to-b from-amber-500/10 to-transparent border border-amber-500/30 rounded-xl">
+            <div className={`p-3 bg-gradient-to-b ${exportMode === 'laser' ? 'from-red-500/10 border-red-500/30' : 'from-amber-500/10 border-amber-500/30'} to-transparent border rounded-xl`}>
               
               {/* Preview Button - When no preview */}
-              {!previewUrl && (
+              {!previewUrl && exportMode !== 'laser' && (
                 <>
                   <button
                     onClick={exportMode === '3d' ? () => setShow3DPreview(true) : previewMap}
@@ -1737,6 +2003,36 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     </div>
                   )}
                 </>
+              )}
+
+              {/* Laser Cut Generate Button */}
+              {exportMode === 'laser' && (
+                <div className="space-y-3">
+                  <button
+                    onClick={() => { previewLaserCut(); generateLaserCut(); }}
+                    disabled={generating || !selection}
+                    className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all ${
+                      selection && !generating
+                        ? 'bg-red-500 text-white hover:bg-red-400' 
+                        : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    {generating ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Generating layers...
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-lg">🔥</span>
+                        {selection ? 'Generate Laser Cut DXF' : 'Select location first'}
+                      </>
+                    )}
+                  </button>
+                  <p className="text-center text-[10px] text-gray-500">
+                    Downloads ZIP with DXF + assembly guide
+                  </p>
+                </div>
               )}
 
               {/* Mini Preview + Generate - When preview exists */}
@@ -1847,58 +2143,27 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   {/* Pricing Info - Only for 2D mode */}
                   {exportMode === '2d' && (
                     <div className="p-3 bg-[#0f0f0f] border border-[#222] rounded-lg text-center space-y-2">
-                      {!user ? (
-                        // Not logged in
+                      {exportFormat === 'dxf' ? (
                         <>
-                          {exportFormat === 'dxf' ? (
-                            <p className="text-xs text-amber-400 font-medium">✨ DXF requires Pro</p>
-                          ) : (
-                            <p className="text-xs text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</p>
+                          <p className="text-xs text-amber-400 font-medium">✨ DXF requires Pro</p>
+                          {!(profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())) && (
+                            <Link 
+                              href="/pricing" 
+                              className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
+                            >
+                              Upgrade to Pro →
+                            </Link>
                           )}
-                          <Link href="/pricing" className="text-[10px] text-amber-400 hover:underline">View all plans →</Link>
-                        </>
-                      ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                        // Pro user
-                        <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
-                      ) : profile?.credits && profile.credits > 0 ? (
-                        // Has credits
-                        <>
-                          <p className="text-xs text-white">
-                            <span className="text-amber-400 font-bold text-lg">{profile.credits}</span> credits remaining
-                          </p>
-                          <p className="text-[10px] text-gray-500">Each download uses 1 credit</p>
                         </>
                       ) : (
-                        // No credits
-                        <>
-                          <p className="text-xs text-red-400 font-medium">⚠️ No credits remaining</p>
-                          <p className="text-[10px] text-gray-400">
-                            Get 5 maps for {discount ? (
-                              <><span className="line-through text-gray-600">${baseCreditsPrice}</span> <span className="text-amber-400 font-medium">${creditsPrice}</span></>
-                            ) : (
-                              <span className="text-white font-medium">${baseCreditsPrice}</span>
-                            )}
-                          </p>
-                          {discount && (
-                            <p className="text-[10px] text-green-400">
-                              🎉 {discount.percent}% {discount.name} discount!
-                            </p>
-                          )}
-                          <Link 
-                            href="/pricing" 
-                            className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
-                          >
-                            Buy Credits →
-                          </Link>
-                        </>
+                        <p className="text-xs text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</p>
                       )}
-                      
-                      {/* Show pricing link if not showing buy button */}
-                      {(!user || (profile?.credits && profile.credits > 0) || profile?.is_pro) && (
-                        <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
-                          View all plans →
-                        </Link>
+                      {profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
+                        <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
                       )}
+                      <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
+                        View all plans →
+                      </Link>
                     </div>
                   )}
                   
@@ -1913,6 +2178,25 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       >
                         Upgrade to Pro →
                       </Link>
+                    </div>
+                  )}
+                  
+                  {/* Instagram Follow CTA - Shows after successful download */}
+                  {generated && (
+                    <div className="p-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg text-center space-y-1">
+                      <p className="text-xs text-green-400 font-medium">✓ Downloaded!</p>
+                      <p className="text-[10px] text-gray-400">Support us & never miss updates</p>
+                      <a 
+                        href="https://instagram.com/archikekapp" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 mt-1 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-medium rounded-lg hover:opacity-90 transition-opacity"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                        @archikekapp
+                      </a>
                     </div>
                   )}
                   
@@ -2041,7 +2325,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                             max={max} 
                             step={0.1} 
                             value={strokeWidths[key as keyof typeof strokeWidths]} 
-                            onChange={(e) => setStrokeWidths(prev => ({ ...prev, [key]: Number(e.target.value) }))} 
+                            onChange={(e) => {
+                              setStrokeWidths(prev => ({ ...prev, [key]: Number(e.target.value) }))
+                              showToast(`${label}: ${e.target.value}px`)
+                            }} 
                             className="w-full accent-amber-500 h-1" 
                           />
                         </div>
@@ -2077,23 +2364,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       <div className={`w-10 h-5 rounded-full transition-colors ${state ? 'bg-amber-500' : 'bg-[#333]'}`}>
                         <div className={`w-4 h-4 bg-white rounded-full m-0.5 transition-transform ${state ? 'translate-x-5' : ''}`} />
                       </div>
-                      <input type="checkbox" checked={state} onChange={(e) => setter(e.target.checked)} className="hidden" />
+                      <input type="checkbox" checked={state} onChange={(e) => {
+                        setter(e.target.checked)
+                        showToast(`${label}: ${e.target.checked ? 'On' : 'Off'}`)
+                      }} className="hidden" />
                     </label>
                   ))}
                 </div>
 
-                {/* 3D Preview Button - Only show in 3D mode */}
-                {exportMode === '3d' && selection && (
-                  <button
-                    onClick={() => setShow3DPreview(true)}
-                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                    Preview 3D Model
-                  </button>
-                )}
               </div>
             </details>
             )}
@@ -2102,6 +2380,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {error && (
               <div className="px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg">
                 <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
+            {/* Toast notification */}
+            {toast && (
+              <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-amber-500 text-black text-sm font-medium rounded-full shadow-lg animate-pulse">
+                ✓ {toast}
               </div>
             )}
           </div>
@@ -2151,6 +2436,33 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     {layer.label}
                   </button>
                 ))}
+              </div>
+              
+              {/* Download Buttons - Bottom Right */}
+              <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-2">
+                <p className="text-[10px] text-gray-500 text-right mb-1">Download As</p>
+                <div className="flex gap-2">
+                  {[
+                    { id: 'glb', label: 'GLB', desc: 'Blender' },
+                    { id: 'stl', label: 'STL', desc: '3D Print' },
+                    { id: '3dm', label: '3DM', desc: 'Rhino' },
+                    { id: 'dae', label: 'DAE', desc: 'SketchUp' },
+                  ].map(fmt => (
+                    <button
+                      key={fmt.id}
+                      onClick={() => {
+                        setFormat3D(fmt.id as 'glb' | 'stl' | '3dm' | 'dae')
+                        setShow3DPreview(false)
+                        setTimeout(() => generate3DModel(), 100)
+                      }}
+                      disabled={generating}
+                      className="flex flex-col items-center px-3 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-gray-600 text-black rounded-lg transition-all"
+                    >
+                      <span className="text-xs font-bold">{fmt.label}</span>
+                      <span className="text-[9px] opacity-70">{fmt.desc}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
               
               {/* Three.js Viewer */}
@@ -2457,16 +2769,21 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <div className="flex gap-2">
-                    {['obj', 'glb', 'stl'].map(fmt => (
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { id: 'glb', label: 'GLB' },
+                      { id: 'stl', label: 'STL' },
+                      { id: '3dm', label: '3DM' },
+                      { id: 'dae', label: 'DAE' },
+                    ].map(fmt => (
                       <button
-                        key={fmt}
-                        onClick={() => setFormat3D(fmt as 'obj' | 'glb' | 'stl')}
-                        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                          format3D === fmt ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
+                        key={fmt.id}
+                        onClick={() => setFormat3D(fmt.id as 'glb' | 'stl' | '3dm' | 'dae')}
+                        className={`py-2 rounded-lg text-sm font-medium transition-all ${
+                          format3D === fmt.id ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
                         }`}
                       >
-                        {fmt.toUpperCase()}
+                        {fmt.label}
                       </button>
                     ))}
                   </div>
@@ -2503,20 +2820,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   >
                     {includeTerrain ? '✓ ⛰️' : '⛰️'} Terrain
                   </button>
-                  
-                  {/* OBJ: MTL toggle - Mobile */}
-                  {format3D === 'obj' && (
-                    <button
-                      onClick={() => setIncludeMtl(!includeMtl)}
-                      className={`w-full py-2 rounded-lg text-sm border transition-all ${
-                        includeMtl 
-                          ? 'bg-amber-500/20 border-amber-500 text-amber-400' 
-                          : 'bg-[#111] border-[#333] text-gray-500'
-                      }`}
-                    >
-                      {includeMtl ? '✓ 🎨' : '🎨'} Materials (MTL)
-                    </button>
-                  )}
                   
                   {/* STL: Raft slider - Mobile */}
                   {format3D === 'stl' && (
@@ -2751,53 +3054,56 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               
               {/* Pricing Info - Context Aware */}
               <div className="flex items-center gap-2 text-xs flex-wrap justify-center">
-                {exportFormat === 'dxf' ? (
-                  // DXF requires Pro
-                  <span className="text-amber-400 font-medium">✨ DXF requires Pro</span>
-                ) : !user ? (
-                  // Not logged in - SVG/PNG free
+                {exportMode === '3d' ? (
+                  // 3D requires Pro
                   <>
-                    <span className="text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</span>
-                    <span className="text-white/30">•</span>
-                    <span className="text-white/50">Sign in to download</span>
+                    <span className="text-amber-400 font-medium">✨ 3D export requires Pro</span>
+                    {!(profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())) && (
+                      <Link href="/pricing" className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors">
+                        Upgrade
+                      </Link>
+                    )}
                   </>
-                ) : profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) ? (
-                  // Pro user
-                  <span className="text-amber-400 font-medium">✨ Unlimited Pro Access</span>
-                ) : profile?.credits && profile.credits > 0 ? (
-                  // Has credits
+                ) : exportFormat === 'dxf' ? (
+                  // DXF requires Pro
                   <>
-                    <span className="text-white"><span className="text-amber-400 font-bold">{profile.credits}</span> credits remaining</span>
-                    <span className="text-white/30">•</span>
-                    <span className="text-white/50">1 credit per download</span>
+                    <span className="text-amber-400 font-medium">✨ DXF requires Pro</span>
+                    {!(profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())) && (
+                      <Link href="/pricing" className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors">
+                        Upgrade
+                      </Link>
+                    )}
                   </>
                 ) : (
-                  // No credits
+                  // SVG/PNG free
                   <>
-                    <span className="text-red-400 font-medium">⚠️ No credits</span>
-                    <span className="text-white/30">•</span>
-                    <span className="text-white/50">
-                      Get 5 maps for {discount ? (
-                        <><span className="text-amber-400 font-medium">${creditsPrice}</span></>
-                      ) : (
-                        <span className="text-white">${baseCreditsPrice}</span>
-                      )}
-                    </span>
-                    {discount && (
+                    <span className="text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</span>
+                    {profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
                       <>
                         <span className="text-white/30">•</span>
-                        <span className="text-green-400">{discount.percent}% OFF!</span>
+                        <span className="text-amber-400 font-medium">✨ Pro</span>
                       </>
                     )}
-                    <Link 
-                      href="/pricing" 
-                      className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors"
-                    >
-                      Buy Credits
-                    </Link>
                   </>
                 )}
               </div>
+              
+              {/* Instagram Follow CTA - Shows after successful download */}
+              {generated && (
+                <div className="flex items-center gap-2 text-xs bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 px-4 py-2 rounded-full">
+                  <span className="text-white/90">✓ Downloaded!</span>
+                  <span className="text-white/50">•</span>
+                  <span className="text-white/70">Support us & never miss updates →</span>
+                  <a 
+                    href="https://instagram.com/archikekapp" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-pink-400 font-medium hover:text-pink-300 transition-colors"
+                  >
+                    @archikekapp
+                  </a>
+                </div>
+              )}
               
               <button 
                 onClick={() => setShowLightbox(false)}
@@ -3079,7 +3385,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             </h3>
             <p className="text-gray-400 text-center text-sm mb-6">
               {exportMode === '3d' 
-                ? '3D Model export (OBJ, GLB, STL) requires Pro subscription'
+                ? '3D Model export (GLB, STL, 3DM, DAE) requires Pro subscription'
                 : 'DXF export for AutoCAD/Rhino requires Pro subscription'
               }
             </p>
@@ -3104,7 +3410,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  3D Models (OBJ, GLB, STL)
+                  3D Models (GLB, STL, 3DM, DAE)
                 </li>
                 <li className="flex items-center gap-2">
                   <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
