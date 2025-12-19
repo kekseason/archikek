@@ -12,6 +12,8 @@ export type Profile = {
   credits: number
   is_pro: boolean
   pro_expires_at: string | null
+  has_unlimited_svg: boolean
+  unlimited_svg_expires_at: string | null
   created_at: string
   updated_at: string
 }
