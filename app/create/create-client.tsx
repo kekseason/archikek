@@ -923,6 +923,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         setSelection({
           center,
           size: size,
+          mode: 'rectangle' as const,
           bounds: {
             north: lat + (size / 2) / 111320,
             south: lat - (size / 2) / 111320,
