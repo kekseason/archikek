@@ -151,26 +151,22 @@ export default function PricingClient({ discount, country }: PricingClientProps)
             </div>
           )}
 
-          {/* Pricing Cards - 2 columns */}
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* Pricing Cards - 3 columns */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             
             {/* Free Tier */}
-            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 hover:border-[#333] transition-all flex flex-col">
+            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 hover:border-[#333] transition-all flex flex-col">
               <div className="mb-6">
                 <h3 className="font-semibold text-lg mb-1">Free</h3>
-                <p className="text-gray-500 text-sm">For personal projects</p>
+                <p className="text-gray-500 text-sm">For exploring</p>
               </div>
               
               <div className="mb-8">
-                <span className="font-serif text-5xl font-medium">$0</span>
-                <span className="text-gray-500 text-lg ml-2">forever</span>
+                <span className="font-serif text-4xl font-medium">$0</span>
+                <span className="text-gray-500 text-base ml-2">forever</span>
               </div>
               
-              <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-center gap-3 text-gray-300 text-sm">
-                  <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
-                  Unlimited SVG exports
-                </li>
+              <ul className="space-y-3 mb-8 flex-1">
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
                   <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
                   Unlimited PNG exports
@@ -181,37 +177,96 @@ export default function PricingClient({ discount, country }: PricingClientProps)
                 </li>
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
                   <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
-                  Full color customization
-                </li>
-                <li className="flex items-center gap-3 text-gray-300 text-sm">
-                  <span className="text-green-500 flex-shrink-0"><CheckIcon /></span>
-                  Topographic contours
+                  Color customization
                 </li>
                 <li className="flex items-center gap-3 text-gray-500 text-sm">
                   <span className="text-gray-600 flex-shrink-0"><XIcon /></span>
-                  DXF export (AutoCAD/Rhino)
+                  SVG export
                 </li>
                 <li className="flex items-center gap-3 text-gray-500 text-sm">
                   <span className="text-gray-600 flex-shrink-0"><XIcon /></span>
-                  3D models (3DM/DAE/GLB/STL)
+                  DXF export
+                </li>
+                <li className="flex items-center gap-3 text-gray-500 text-sm">
+                  <span className="text-gray-600 flex-shrink-0"><XIcon /></span>
+                  3D models
                 </li>
               </ul>
 
               <Link
                 href="/create"
-                className="w-full py-4 bg-[#1a1a1a] text-white rounded-xl font-medium hover:bg-[#222] transition-all flex items-center justify-center gap-2 text-center"
+                className="w-full py-3 bg-[#1a1a1a] text-white rounded-xl font-medium hover:bg-[#222] transition-all flex items-center justify-center gap-2 text-center text-sm"
               >
-                Start Creating →
+                Start Free →
               </Link>
             </div>
 
+            {/* Unlimited SVG+DXF */}
+            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 hover:border-blue-500/50 transition-all flex flex-col">
+              <div className="mb-6">
+                <h3 className="font-semibold text-lg mb-1">Unlimited</h3>
+                <p className="text-gray-500 text-sm">For designers & students</p>
+              </div>
+              
+              <div className="mb-8">
+                {discount ? (
+                  <>
+                    <span className="text-gray-500 line-through text-xl mr-2">$8</span>
+                    <span className="font-serif text-4xl font-medium text-green-400">${Math.round(8 * (1 - discount.percent / 100))}</span>
+                  </>
+                ) : (
+                  <span className="font-serif text-4xl font-medium">$8</span>
+                )}
+                <span className="text-gray-500 text-base ml-2">/month</span>
+              </div>
+              
+              <ul className="space-y-3 mb-8 flex-1">
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  Everything in Free
+                </li>
+                <li className="flex items-center gap-3 text-white text-sm font-medium">
+                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  Unlimited SVG exports
+                </li>
+                <li className="flex items-center gap-3 text-white text-sm font-medium">
+                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  Unlimited DXF exports
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  AutoCAD/Rhino compatible
+                </li>
+                <li className="flex items-center gap-3 text-gray-300 text-sm">
+                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  Cancel anytime
+                </li>
+                <li className="flex items-center gap-3 text-gray-500 text-sm">
+                  <span className="text-gray-600 flex-shrink-0"><XIcon /></span>
+                  3D models
+                </li>
+              </ul>
+
+              <button
+                onClick={() => handlePurchase(process.env.NEXT_PUBLIC_LEMON_SQUEEZY_UNLIMITED_SVG_VARIANT_ID, 'unlimited')}
+                disabled={loading === 'unlimited'}
+                className="w-full py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-sm"
+              >
+                {loading === 'unlimited' ? (
+                  <>
+                    <LoaderIcon />
+                    Processing...
+                  </>
+                ) : (
+                  'Get Unlimited'
+                )}
+              </button>
+            </div>
+
             {/* Pro Subscription */}
-            <div 
-              onClick={() => !loading && handlePurchase(process.env.NEXT_PUBLIC_LEMONSQUEEZY_SUBSCRIPTION_VARIANT_ID, 'subscription')}
-              className="bg-[#0a0a0a] border-2 border-amber-500 rounded-2xl p-8 relative flex flex-col cursor-pointer hover:border-amber-400 hover:bg-[#0f0f0f] transition-all"
-            >
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide">
-                Most Popular
+            <div className="bg-[#0a0a0a] border-2 border-amber-500 rounded-2xl p-6 relative flex flex-col">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                Best Value
               </div>
               
               <div className="mb-6">
@@ -222,35 +277,31 @@ export default function PricingClient({ discount, country }: PricingClientProps)
               <div className="mb-8">
                 {discount ? (
                   <>
-                    <span className="text-gray-500 line-through text-2xl mr-2">${baseProPrice}</span>
-                    <span className="font-serif text-5xl font-medium text-green-400">${proPrice}</span>
+                    <span className="text-gray-500 line-through text-xl mr-2">${baseProPrice}</span>
+                    <span className="font-serif text-4xl font-medium text-green-400">${proPrice}</span>
                   </>
                 ) : (
-                  <span className="font-serif text-5xl font-medium">${baseProPrice}</span>
+                  <span className="font-serif text-4xl font-medium">${baseProPrice}</span>
                 )}
-                <span className="text-gray-500 text-lg ml-2">/month</span>
+                <span className="text-gray-500 text-base ml-2">/month</span>
               </div>
               
-              <ul className="space-y-4 mb-8 flex-1">
+              <ul className="space-y-3 mb-8 flex-1">
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
                   <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
-                  <span>Everything in Free</span>
+                  Everything in Unlimited
                 </li>
                 <li className="flex items-center gap-3 text-white text-sm font-medium">
                   <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
-                  DXF export (AutoCAD/Rhino)
-                </li>
-                <li className="flex items-center gap-3 text-white text-sm font-medium">
-                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
-                  3D models (3DM/DAE/GLB/STL)
+                  3D models (GLB/STL/3DM)
                 </li>
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
                   <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
-                  Professional DXF with layers
+                  Real elevation terrain
                 </li>
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
                   <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
-                  Terrain with real elevation
+                  3D print ready (STL)
                 </li>
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
                   <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
@@ -265,7 +316,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
               <button
                 onClick={() => handlePurchase(process.env.NEXT_PUBLIC_LEMONSQUEEZY_SUBSCRIPTION_VARIANT_ID, 'subscription')}
                 disabled={loading === 'subscription'}
-                className="w-full py-4 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-sm"
               >
                 {loading === 'subscription' ? (
                   <>
