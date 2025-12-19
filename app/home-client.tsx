@@ -30,6 +30,13 @@ const CheckIcon = () => (
   </svg>
 )
 
+const XIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+)
+
 const LayersIcon = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
     <polygon points="12 2 2 7 12 12 22 7 12 2"/>
@@ -98,7 +105,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
   const baseProPrice = 19
   const proPrice = discount ? Math.round(baseProPrice * (1 - discount.percent / 100)) : baseProPrice
 
-  // Direct checkout handler
+  // Direct checkout handler for Pro
   const handlePurchase = async () => {
     if (!user) {
       window.location.href = '/login'
@@ -113,6 +120,37 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
         body: JSON.stringify({ 
           variantId: process.env.NEXT_PUBLIC_LEMONSQUEEZY_SUBSCRIPTION_VARIANT_ID,
           planType: 'subscription',
+          userId: user.id,
+          userEmail: user.email 
+        }),
+      })
+
+      const data = await response.json()
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl
+      }
+    } catch (err) {
+      console.error('Purchase error:', err)
+    } finally {
+      setPurchaseLoading(false)
+    }
+  }
+
+  // Direct checkout handler for Unlimited SVG+DXF
+  const handleUnlimitedPurchase = async () => {
+    if (!user) {
+      window.location.href = '/login'
+      return
+    }
+
+    setPurchaseLoading(true)
+    try {
+      const response = await fetch('/api/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          variantId: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_UNLIMITED_SVG_VARIANT_ID,
+          planType: 'unlimited',
           userId: user.id,
           userEmail: user.email 
         }),
@@ -664,48 +702,56 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
       <section id="pricing" className="py-24 md:py-32 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent" />
         
-        <div className="relative max-w-5xl mx-auto px-6">
+        <div className="relative max-w-6xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-8">
             <span className="inline-block text-amber-500 text-sm font-semibold uppercase tracking-[0.2em] mb-4">Pricing</span>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
               Simple pricing
             </h2>
-            <p className="text-white/50 text-lg">SVG & PNG free forever. Upgrade to Pro for DXF and 3D exports.</p>
+            <p className="text-white/50 text-lg">PNG free forever. Upgrade for SVG, DXF and 3D exports.</p>
           </div>
 
           {/* Regional Discount Banner */}
           {discount && (
-            <div className="max-w-4xl mx-auto mb-8 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-center">
+            <div className="max-w-5xl mx-auto mb-8 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-center">
               <p className="text-green-400">
                 🎉 <strong>{discount.percent}% discount</strong> applied for {discount.name}! Prices shown below.
               </p>
             </div>
           )}
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {/* Free Plan */}
-            <div className="relative p-8 bg-white/[0.02] border border-white/10 rounded-3xl hover:border-white/20 transition-all">
+            <div className="relative p-6 bg-white/[0.02] border border-white/10 rounded-3xl hover:border-white/20 transition-all">
               <div className="mb-6">
                 <h3 className="text-xl font-semibold mb-1">Free</h3>
-                <p className="text-white/40 text-sm">For personal projects</p>
+                <p className="text-white/40 text-sm">For exploring</p>
               </div>
               
               <div className="mb-8">
-                <span className="text-5xl font-bold text-green-400">$0</span>
+                <span className="text-4xl font-bold text-green-400">$0</span>
                 <span className="text-white/40 ml-2">forever</span>
               </div>
               
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-3 mb-8">
                 {[
-                  'Unlimited SVG Export',
                   'Unlimited PNG Export',
                   'All 34 Themes',
-                  'Up to 3000m area',
+                  'Color Customization',
                   'Real-time Preview',
-                  'No Watermark'
                 ].map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-white/70">
+                  <li key={i} className="flex items-center gap-3 text-white/70 text-sm">
                     <span className="text-green-500"><CheckIcon /></span>
+                    {f}
+                  </li>
+                ))}
+                {[
+                  'SVG Export',
+                  'DXF Export',
+                  '3D Models',
+                ].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-white/30 text-sm">
+                    <span className="text-white/20"><XIcon /></span>
                     {f}
                   </li>
                 ))}
@@ -713,45 +759,96 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
 
               <Link 
                 href="/create"
-                className="block w-full py-4 bg-white/5 border border-white/10 text-white text-center rounded-xl font-semibold hover:bg-white/10 transition-colors"
+                className="block w-full py-3 bg-white/5 border border-white/10 text-white text-center rounded-xl font-semibold hover:bg-white/10 transition-colors text-sm"
               >
                 Start Free
               </Link>
             </div>
 
-            {/* Pro Subscription */}
-            <div className="relative p-8 bg-gradient-to-b from-amber-500/10 to-transparent border-2 border-amber-500/50 rounded-3xl">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-amber-500 text-black text-sm font-bold rounded-full">
-                BEST VALUE
-              </div>
-              
+            {/* Unlimited Plan */}
+            <div className="relative p-6 bg-white/[0.02] border border-blue-500/30 rounded-3xl hover:border-blue-500/50 transition-all">
               <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-1">Pro</h3>
-                <p className="text-white/40 text-sm">Unlimited maps</p>
+                <h3 className="text-xl font-semibold mb-1">Unlimited</h3>
+                <p className="text-white/40 text-sm">For designers & students</p>
               </div>
               
               <div className="mb-8">
                 {discount ? (
                   <>
-                    <span className="text-white/40 line-through text-2xl mr-2">${baseProPrice}</span>
-                    <span className="text-5xl font-bold text-green-400">${proPrice}</span>
+                    <span className="text-white/40 line-through text-xl mr-2">$8</span>
+                    <span className="text-4xl font-bold text-green-400">${Math.round(8 * (1 - discount.percent / 100))}</span>
                   </>
                 ) : (
-                  <span className="text-5xl font-bold">${baseProPrice}</span>
+                  <span className="text-4xl font-bold">$8</span>
                 )}
                 <span className="text-white/40 ml-2">/month</span>
               </div>
               
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-3 mb-8">
                 {[
-                  'Unlimited 2D & 3D Downloads',
-                  '34 Total Themes',
-                  'Native 3DM for Rhino',
-                  'Layered SVG for Illustrator',
-                  'Priority Support',
-                  'Early Access Features'
+                  'Everything in Free',
+                  'Unlimited SVG Export',
+                  'Unlimited DXF Export',
+                  'AutoCAD/Rhino Compatible',
+                  'Cancel Anytime',
                 ].map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-white/70">
+                  <li key={i} className="flex items-center gap-3 text-white/70 text-sm">
+                    <span className="text-blue-500"><CheckIcon /></span>
+                    {f}
+                  </li>
+                ))}
+                {[
+                  '3D Models',
+                ].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-white/30 text-sm">
+                    <span className="text-white/20"><XIcon /></span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <button 
+                onClick={handleUnlimitedPurchase}
+                disabled={purchaseLoading}
+                className="block w-full py-3 bg-blue-500 text-white text-center rounded-xl font-bold hover:bg-blue-400 transition-colors disabled:opacity-50 text-sm"
+              >
+                {purchaseLoading ? 'Loading...' : 'Get Unlimited'}
+              </button>
+            </div>
+
+            {/* Pro Subscription */}
+            <div className="relative p-6 bg-gradient-to-b from-amber-500/10 to-transparent border-2 border-amber-500/50 rounded-3xl">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-amber-500 text-black text-xs font-bold rounded-full">
+                BEST VALUE
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-1">Pro</h3>
+                <p className="text-white/40 text-sm">For professionals</p>
+              </div>
+              
+              <div className="mb-8">
+                {discount ? (
+                  <>
+                    <span className="text-white/40 line-through text-xl mr-2">${baseProPrice}</span>
+                    <span className="text-4xl font-bold text-green-400">${proPrice}</span>
+                  </>
+                ) : (
+                  <span className="text-4xl font-bold">${baseProPrice}</span>
+                )}
+                <span className="text-white/40 ml-2">/month</span>
+              </div>
+              
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Everything in Unlimited',
+                  '3D Models (GLB/STL/3DM)',
+                  'Real Elevation Terrain',
+                  '3D Print Ready (STL)',
+                  'Commercial License',
+                  'Priority Support',
+                ].map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-white/70 text-sm">
                     <span className="text-amber-500"><CheckIcon /></span>
                     {f}
                   </li>
@@ -761,9 +858,9 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               <button 
                 onClick={handlePurchase}
                 disabled={purchaseLoading}
-                className="block w-full py-4 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-amber-400 transition-colors disabled:opacity-50"
+                className="block w-full py-3 bg-amber-500 text-black text-center rounded-xl font-bold hover:bg-amber-400 transition-colors disabled:opacity-50 text-sm"
               >
-                {purchaseLoading ? 'Loading...' : 'Subscribe Now'}
+                {purchaseLoading ? 'Loading...' : 'Upgrade to Pro'}
               </button>
             </div>
           </div>
