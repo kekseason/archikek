@@ -500,8 +500,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     exportModeRef.current = exportMode
   }, [exportMode])
 
-  // Compute isPro status
+  // Compute subscription status
   const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
+  const hasUnlimitedSvg = profile?.has_unlimited_svg && (!profile?.unlimited_svg_expires_at || new Date(profile.unlimited_svg_expires_at) > new Date())
+  
+  // Export permissions
+  const canExportSVG = isPro || hasUnlimitedSvg
+  const canExportDXF = isPro || hasUnlimitedSvg
+  const canExport3D = isPro
 
   // Track TikTok ViewContent event
   useEffect(() => {
@@ -943,16 +949,20 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
-    // Check if Pro required for DXF
-    const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
+    // Check format permissions
+    // PNG = Free for everyone
+    // SVG = Pro or Unlimited SVG subscription
+    // DXF = Pro or Unlimited SVG subscription
     
-    if (exportFormat === 'dxf' && !isPro) {
+    if (exportFormat === 'svg' && !canExportSVG) {
       setShowProModal(true)
       return
     }
-
-    // SVG and PNG are free for everyone, no checks needed
-    // DXF is Pro-only (checked above)
+    
+    if (exportFormat === 'dxf' && !canExportDXF) {
+      setShowProModal(true)
+      return
+    }
     
     setGenerating(true)
     setError('')
@@ -1119,9 +1129,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
 
-    // Pro check - 3D export requires Pro subscription
-    const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
-    if (!isPro) {
+    // Pro check - 3D export requires Pro subscription only
+    if (!canExport3D) {
       setError('3D export requires Pro subscription')
       setShowProModal(true)
       return
@@ -1774,11 +1783,21 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   {/* Format info - 2D only */}
                   {exportMode === '2d' && (
                     <div className="text-center text-[10px] text-gray-500">
-                      {exportFormat === 'dxf' ? (
-                        <span className="text-amber-400">✨ DXF requires Pro</span>
-                      ) : (
-                        <span className="text-green-400">✓ {exportFormat.toUpperCase()} is free</span>
-                      )}
+                      {exportFormat === 'png' ? (
+                        <span className="text-green-400">✓ PNG is free</span>
+                      ) : exportFormat === 'svg' ? (
+                        canExportSVG ? (
+                          <span className="text-green-400">✓ SVG included in your plan</span>
+                        ) : (
+                          <span className="text-amber-400">✨ SVG requires subscription</span>
+                        )
+                      ) : exportFormat === 'dxf' ? (
+                        canExportDXF ? (
+                          <span className="text-green-400">✓ DXF included in your plan</span>
+                        ) : (
+                          <span className="text-amber-400">✨ DXF requires subscription</span>
+                        )
+                      ) : null}
                     </div>
                   )}
                 </>
@@ -1892,23 +1911,27 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   {/* Pricing Info - Only for 2D mode */}
                   {exportMode === '2d' && (
                     <div className="p-3 bg-[#0f0f0f] border border-[#222] rounded-lg text-center space-y-2">
-                      {exportFormat === 'dxf' ? (
-                        <>
-                          <p className="text-xs text-amber-400 font-medium">✨ DXF requires Pro</p>
-                          {!(profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())) && (
+                      {exportFormat === 'png' ? (
+                        <p className="text-xs text-green-400 font-medium">✓ PNG is free</p>
+                      ) : exportFormat === 'svg' || exportFormat === 'dxf' ? (
+                        canExportSVG || canExportDXF ? (
+                          <p className="text-xs text-green-400 font-medium">✓ {exportFormat.toUpperCase()} included in your plan</p>
+                        ) : (
+                          <>
+                            <p className="text-xs text-amber-400 font-medium">✨ {exportFormat.toUpperCase()} requires subscription</p>
                             <Link 
                               href="/pricing" 
                               className="inline-block mt-1 px-4 py-1.5 bg-amber-500 text-black text-xs font-medium rounded-lg hover:bg-amber-400 transition-colors"
                             >
-                              Upgrade to Pro →
+                              View Plans →
                             </Link>
-                          )}
-                        </>
-                      ) : (
-                        <p className="text-xs text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</p>
-                      )}
-                      {profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
-                        <p className="text-xs text-amber-400 font-medium">✨ Unlimited Pro Access</p>
+                          </>
+                        )
+                      ) : null}
+                      {(isPro || hasUnlimitedSvg) && (
+                        <p className="text-xs text-amber-400 font-medium">
+                          {isPro ? '✨ Pro Access' : '✨ Unlimited SVG+DXF'}
+                        </p>
                       )}
                       <Link href="/pricing" className="block text-[10px] text-amber-500/70 hover:text-amber-500 hover:underline">
                         View all plans →
@@ -1917,7 +1940,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   )}
                   
                   {/* 3D Mode - Pro Required Notice */}
-                  {exportMode === '3d' && (
+                  {exportMode === '3d' && !canExport3D && (
                     <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-center space-y-2">
                       <p className="text-xs text-amber-400 font-medium">✨ Pro Feature</p>
                       <p className="text-[10px] text-gray-400">3D export requires Pro subscription</p>
@@ -1927,6 +1950,12 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       >
                         Upgrade to Pro →
                       </Link>
+                    </div>
+                  )}
+                  
+                  {exportMode === '3d' && canExport3D && (
+                    <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-center">
+                      <p className="text-xs text-green-400 font-medium">✓ 3D included in Pro</p>
                     </div>
                   )}
                   
@@ -2824,35 +2853,49 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               {/* Pricing Info - Context Aware */}
               <div className="flex items-center gap-2 text-xs flex-wrap justify-center">
                 {exportMode === '3d' ? (
-                  // 3D requires Pro
-                  <>
-                    <span className="text-amber-400 font-medium">✨ 3D export requires Pro</span>
-                    {!(profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())) && (
+                  // 3D requires Pro only
+                  canExport3D ? (
+                    <span className="text-green-400 font-medium">✓ 3D included in Pro</span>
+                  ) : (
+                    <>
+                      <span className="text-amber-400 font-medium">✨ 3D requires Pro</span>
                       <Link href="/pricing" className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors">
                         Upgrade
                       </Link>
-                    )}
-                  </>
+                    </>
+                  )
+                ) : exportFormat === 'png' ? (
+                  // PNG is free
+                  <span className="text-green-400 font-medium">✓ PNG is free</span>
+                ) : exportFormat === 'svg' ? (
+                  // SVG requires subscription
+                  canExportSVG ? (
+                    <span className="text-green-400 font-medium">✓ SVG included in your plan</span>
+                  ) : (
+                    <>
+                      <span className="text-amber-400 font-medium">✨ SVG requires subscription</span>
+                      <Link href="/pricing" className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors">
+                        View Plans
+                      </Link>
+                    </>
+                  )
                 ) : exportFormat === 'dxf' ? (
-                  // DXF requires Pro
-                  <>
-                    <span className="text-amber-400 font-medium">✨ DXF requires Pro</span>
-                    {!(profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())) && (
+                  // DXF requires subscription
+                  canExportDXF ? (
+                    <span className="text-green-400 font-medium">✓ DXF included in your plan</span>
+                  ) : (
+                    <>
+                      <span className="text-amber-400 font-medium">✨ DXF requires subscription</span>
                       <Link href="/pricing" className="ml-2 px-3 py-1 bg-amber-500 text-black font-medium rounded-full hover:bg-amber-400 transition-colors">
-                        Upgrade
+                        View Plans
                       </Link>
-                    )}
-                  </>
-                ) : (
-                  // SVG/PNG free
+                    </>
+                  )
+                ) : null}
+                {(isPro || hasUnlimitedSvg) && (
                   <>
-                    <span className="text-green-400 font-medium">✓ {exportFormat.toUpperCase()} is free</span>
-                    {profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date()) && (
-                      <>
-                        <span className="text-white/30">•</span>
-                        <span className="text-amber-400 font-medium">✨ Pro</span>
-                      </>
-                    )}
+                    <span className="text-white/30">•</span>
+                    <span className="text-amber-400 font-medium">{isPro ? '✨ Pro' : '✨ Unlimited'}</span>
                   </>
                 )}
               </div>
