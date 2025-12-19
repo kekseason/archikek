@@ -436,7 +436,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showFrame, setShowFrame] = useState(false)
   const [locationName, setLocationName] = useState('')
   const [exportFormat, setExportFormat] = useState<'svg' | 'dxf' | 'png'>('svg')
-  const [exportMode, setExportMode] = useState<'2d' | '3d' | 'laser'>('2d')
+  const [exportMode, setExportMode] = useState<'2d' | '3d'>('2d')
   const [format3D, setFormat3D] = useState<'glb' | 'stl' | '3dm' | 'dae'>('glb')
   const [theme3D, setTheme3D] = useState(THEMES_3D[0])
   const [active3DCategory, setActive3DCategory] = useState('Realistic')
@@ -450,12 +450,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     green: true
   })
   
-  // Laser Cut State
-  const [laserScale, setLaserScale] = useState(500)
-  const [laserThickness, setLaserThickness] = useState(3)
-  const [laserInterval, setLaserInterval] = useState(5)
-  const [laserBuildings, setLaserBuildings] = useState(true)
-  const [laserPreview, setLaserPreview] = useState<any>(null)
+  // Export mode: '2d' or '3d'
   
   const [resolution, setResolution] = useState(1200)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -1211,109 +1206,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     setGenerating(false)
   }
 
-  // Generate Laser Cut DXF
-  const generateLaserCut = async () => {
-    if (!selection || !selection.center) {
-      setError('Please select a location first')
-      return
-    }
-
-    setGenerating(true)
-    setError('')
-
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
-      
-      const requestBody = {
-        lat: selection.center!.lat,
-        lng: selection.center!.lng,
-        size: selection.size || size,
-        scale: laserScale,
-        material_thickness: laserThickness,
-        contour_interval: laserInterval,
-        include_buildings: laserBuildings
-      }
-
-      // Log for analytics
-      if (user) {
-        fetch('/api/log-download', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id,
-            theme: 'laser_cut',
-            location: locationName || `${selection.center.lat},${selection.center.lng}`,
-            size: selection.size || size,
-            format: 'laser_dxf'
-          })
-        }).catch(() => {})
-      }
-
-      const response = await fetch(`${API_URL}/laser-cut`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(errorText || `Server error: ${response.status}`)
-      }
-
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      
-      const safeName = locationName ? locationName.replace(/\s+/g, '_') : 'laser_terrain'
-      a.download = `${safeName}_${requestBody.size}m_1-${laserScale}.zip`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
-
-      await refreshProfile()
-      setGenerated(true)
-      showToast('Laser cut files downloaded!')
-
-    } catch (err: any) {
-      console.error('Laser cut error:', err)
-      setError(err.message || 'Failed to generate laser cut files')
-    }
-
-    setGenerating(false)
-  }
-
-  // Preview Laser Cut (get layer count, etc)
-  const previewLaserCut = async () => {
-    if (!selection || !selection.center) return
-    
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-64f4.up.railway.app'
-      
-      const response = await fetch(`${API_URL}/laser-cut/preview`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lat: selection.center!.lat,
-          lng: selection.center!.lng,
-          size: selection.size || size,
-          scale: laserScale,
-          material_thickness: laserThickness,
-          contour_interval: laserInterval,
-          include_buildings: laserBuildings
-        })
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        setLaserPreview(data.preview)
-      }
-    } catch (err) {
-      console.error('Laser preview error:', err)
-    }
-  }
-
   // Preview function - no credit, low resolution
   const previewMap = async () => {
     if (!selection) {
@@ -1603,20 +1495,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       </div>
                       <p className="text-[10px] text-gray-500">GLB · STL · 3DM</p>
                     </button>
-                    <button
-                      onClick={() => setExportMode('laser')}
-                      className={`p-3 rounded-xl border-2 transition-all text-left ${
-                        exportMode === 'laser'
-                          ? 'border-red-500 bg-red-500/10'
-                          : 'border-[#222] bg-[#111] hover:border-[#333]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">🔥</span>
-                        <span className={`font-semibold text-sm ${exportMode === 'laser' ? 'text-red-400' : 'text-white'}`}>Laser</span>
-                      </div>
-                      <p className="text-[10px] text-gray-500">DXF for cutting</p>
-                    </button>
                   </div>
                 </div>
 
@@ -1826,136 +1704,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   </>
                 )}
 
-                {/* ═══════════════════════════════════════════════════════ */}
-                {/* LASER CUT OPTIONS */}
-                {/* ═══════════════════════════════════════════════════════ */}
-                {exportMode === 'laser' && (
-                  <>
-                    {/* Laser Info Banner */}
-                    <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xl">🔥</span>
-                        <span className="font-semibold text-red-400">Laser Cut Terrain Model</span>
-                      </div>
-                      <p className="text-xs text-gray-400">
-                        Generate DXF files for laser cutting physical terrain models. 
-                        Layers stack to create 3D topography.
-                      </p>
-                    </div>
-
-                    {/* Scale Selection */}
-                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
-                      <p className="text-xs text-gray-500 mb-2">Model Scale</p>
-                      <div className="grid grid-cols-4 gap-2">
-                        {[
-                          { value: 200, label: '1:200' },
-                          { value: 500, label: '1:500' },
-                          { value: 1000, label: '1:1000' },
-                          { value: 2000, label: '1:2000' },
-                        ].map(s => (
-                          <button
-                            key={s.value}
-                            onClick={() => setLaserScale(s.value)}
-                            className={`py-2 rounded-lg text-xs font-medium transition-all ${
-                              laserScale === s.value
-                                ? 'bg-red-500 text-white'
-                                : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
-                            }`}
-                          >
-                            {s.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Material & Contour Settings */}
-                    <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl space-y-3">
-                      <div>
-                        <p className="text-xs text-gray-500 mb-2">Material Thickness</p>
-                        <div className="grid grid-cols-5 gap-1">
-                          {[2, 3, 4, 5, 6].map(t => (
-                            <button
-                              key={t}
-                              onClick={() => setLaserThickness(t)}
-                              className={`py-2 rounded-lg text-xs font-medium transition-all ${
-                                laserThickness === t
-                                  ? 'bg-red-500 text-white'
-                                  : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
-                              }`}
-                            >
-                              {t}mm
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-gray-500 mb-2">Contour Interval</p>
-                        <div className="grid grid-cols-4 gap-1">
-                          {[
-                            { value: 2, label: '2m' },
-                            { value: 5, label: '5m' },
-                            { value: 10, label: '10m' },
-                            { value: 20, label: '20m' },
-                          ].map(i => (
-                            <button
-                              key={i.value}
-                              onClick={() => setLaserInterval(i.value)}
-                              className={`py-2 rounded-lg text-xs font-medium transition-all ${
-                                laserInterval === i.value
-                                  ? 'bg-red-500 text-white'
-                                  : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
-                              }`}
-                            >
-                              {i.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={laserBuildings}
-                          onChange={(e) => setLaserBuildings(e.target.checked)}
-                          className="w-4 h-4 accent-red-500"
-                        />
-                        <span className="text-xs text-gray-300">Include building footprints (etched)</span>
-                      </label>
-                    </div>
-
-                    {/* Model Preview Info */}
-                    {selection && (
-                      <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
-                        <p className="text-xs text-gray-500 mb-2">Model Dimensions</p>
-                        <div className="grid grid-cols-2 gap-2 text-center">
-                          <div className="bg-[#1a1a1a] p-2 rounded-lg">
-                            <p className="text-lg font-mono text-red-400">
-                              {((selection.size || size) / laserScale * 1000).toFixed(0)}mm
-                            </p>
-                            <p className="text-[10px] text-gray-500">Model size</p>
-                          </div>
-                          <div className="bg-[#1a1a1a] p-2 rounded-lg">
-                            <p className="text-lg font-mono text-red-400">1:{laserScale}</p>
-                            <p className="text-[10px] text-gray-500">Scale</p>
-                          </div>
-                        </div>
-                        {laserPreview && (
-                          <div className="mt-2 grid grid-cols-2 gap-2 text-center">
-                            <div className="bg-[#1a1a1a] p-2 rounded-lg">
-                              <p className="text-lg font-mono text-amber-400">{laserPreview.num_layers}</p>
-                              <p className="text-[10px] text-gray-500">Layers</p>
-                            </div>
-                            <div className="bg-[#1a1a1a] p-2 rounded-lg">
-                              <p className="text-lg font-mono text-amber-400">{laserPreview.total_height_mm}mm</p>
-                              <p className="text-[10px] text-gray-500">Total height</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
               </div>
             ) : (
               <div className="flex gap-2">
@@ -1985,10 +1733,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {/* ═══════════════════════════════════════════════════════ */}
             {/* PREVIEW & GENERATE - PRIMARY SECTION */}
             {/* ═══════════════════════════════════════════════════════ */}
-            <div className={`p-3 bg-gradient-to-b ${exportMode === 'laser' ? 'from-red-500/10 border-red-500/30' : 'from-amber-500/10 border-amber-500/30'} to-transparent border rounded-xl`}>
+            <div className="p-3 bg-gradient-to-b from-amber-500/10 border-amber-500/30 to-transparent border rounded-xl">
               
               {/* Preview Button - When no preview */}
-              {!previewUrl && exportMode !== 'laser' && (
+              {!previewUrl && (
                 <>
                   <button
                     onClick={exportMode === '3d' ? () => setShow3DPreview(true) : previewMap}
@@ -2034,36 +1782,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     </div>
                   )}
                 </>
-              )}
-
-              {/* Laser Cut Generate Button */}
-              {exportMode === 'laser' && (
-                <div className="space-y-3">
-                  <button
-                    onClick={() => { previewLaserCut(); generateLaserCut(); }}
-                    disabled={generating || !selection}
-                    className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all ${
-                      selection && !generating
-                        ? 'bg-red-500 text-white hover:bg-red-400' 
-                        : 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    {generating ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Generating layers...
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-lg">🔥</span>
-                        {selection ? 'Generate Laser Cut DXF' : 'Select location first'}
-                      </>
-                    )}
-                  </button>
-                  <p className="text-center text-[10px] text-gray-500">
-                    Downloads ZIP with DXF + assembly guide
-                  </p>
-                </div>
               )}
 
               {/* Mini Preview + Generate - When preview exists */}
