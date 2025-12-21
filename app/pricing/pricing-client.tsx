@@ -202,9 +202,9 @@ export default function PricingClient({ discount, country }: PricingClientProps)
             </div>
 
             {/* Unlimited SVG+DXF */}
-            <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 hover:border-blue-500/50 transition-all flex flex-col">
+            <div className="bg-[#0a0a0a] border border-amber-500/30 rounded-2xl p-6 hover:border-amber-500/50 transition-all flex flex-col">
               <div className="mb-6">
-                <h3 className="font-semibold text-lg mb-1">Unlimited</h3>
+                <h3 className="font-semibold text-lg mb-1">Unlimited SVG+DXF</h3>
                 <p className="text-gray-500 text-sm">For designers & students</p>
               </div>
               
@@ -222,23 +222,23 @@ export default function PricingClient({ discount, country }: PricingClientProps)
               
               <ul className="space-y-3 mb-8 flex-1">
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
-                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
                   Everything in Free
                 </li>
                 <li className="flex items-center gap-3 text-white text-sm font-medium">
-                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
                   Unlimited SVG exports
                 </li>
                 <li className="flex items-center gap-3 text-white text-sm font-medium">
-                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
                   Unlimited DXF exports
                 </li>
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
-                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
                   AutoCAD/Rhino compatible
                 </li>
                 <li className="flex items-center gap-3 text-gray-300 text-sm">
-                  <span className="text-blue-500 flex-shrink-0"><CheckIcon /></span>
+                  <span className="text-amber-500 flex-shrink-0"><CheckIcon /></span>
                   Cancel anytime
                 </li>
                 <li className="flex items-center gap-3 text-gray-500 text-sm">
@@ -250,7 +250,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
               <button
                 onClick={() => handlePurchase(process.env.NEXT_PUBLIC_LEMON_SQUEEZY_UNLIMITED_SVG_VARIANT_ID, 'unlimited')}
                 disabled={loading === 'unlimited'}
-                className="w-full py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-sm"
+                className="w-full py-3 bg-amber-500/80 text-black rounded-xl font-semibold hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-sm"
               >
                 {loading === 'unlimited' ? (
                   <>
