@@ -765,10 +765,10 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               </Link>
             </div>
 
-            {/* Unlimited Plan */}
-            <div className="relative p-6 bg-white/[0.02] border border-blue-500/30 rounded-3xl hover:border-blue-500/50 transition-all">
+            {/* Unlimited SVG+DXF Plan */}
+            <div className="relative p-6 bg-white/[0.02] border border-amber-500/30 rounded-3xl hover:border-amber-500/50 transition-all">
               <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-1">Unlimited</h3>
+                <h3 className="text-xl font-semibold mb-1">Unlimited SVG+DXF</h3>
                 <p className="text-white/40 text-sm">For designers & students</p>
               </div>
               
@@ -793,7 +793,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
                   'Cancel Anytime',
                 ].map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-white/70 text-sm">
-                    <span className="text-blue-500"><CheckIcon /></span>
+                    <span className="text-amber-500"><CheckIcon /></span>
                     {f}
                   </li>
                 ))}
@@ -810,7 +810,7 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               <button 
                 onClick={handleUnlimitedPurchase}
                 disabled={purchaseLoading}
-                className="block w-full py-3 bg-blue-500 text-white text-center rounded-xl font-bold hover:bg-blue-400 transition-colors disabled:opacity-50 text-sm"
+                className="block w-full py-3 bg-amber-500/80 text-black text-center rounded-xl font-bold hover:bg-amber-500 transition-colors disabled:opacity-50 text-sm"
               >
                 {purchaseLoading ? 'Loading...' : 'Get Unlimited'}
               </button>
