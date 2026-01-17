@@ -11,6 +11,16 @@ export const metadata: Metadata = {
     template: '%s | ArchiKEK'
   },
   description: 'Generate site plans, figure ground maps, and 3D city models instantly. Free SVG export, DXF for AutoCAD, 3DM for Rhino, DAE for SketchUp. 34 themes, real terrain data. Best free Cadmapper alternative.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
   keywords: [
     // Primary keywords (high volume)
     'site plan generator', 'CAD map download', '3D city model', 'figure ground map',
@@ -188,8 +198,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap" rel="stylesheet" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+        <link rel="icon" href="/favicon.ico" sizes="32x32" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
         <meta name="theme-color" content="#f59e0b" />
         <meta name="p:domain_verify" content="bc7f55ef554f9c7a4bf953c81cc5dec9"/>
       </head>

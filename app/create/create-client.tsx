@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { trackViewContent } from '@/lib/tiktok'
 import dynamic from 'next/dynamic'
+import UpsellPopup from '@/components/upsell-popup'
 
 // Dynamic import for Three.js (client-side only)
 const ThreeViewer = dynamic(() => import('@/components/three-viewer'), {
@@ -466,6 +467,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [generated, setGenerated] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showProModal, setShowProModal] = useState(false)
+  const [showUpsellPopup, setShowUpsellPopup] = useState(false)
+  const hasSeenUpsell = useRef(false)
   const [error, setError] = useState('')
   const [toast, setToast] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
@@ -964,6 +967,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       return
     }
     
+    // Show upsell popup for PNG users who haven't seen it yet
+    // Don't show to Pro users or users with Unlimited SVG
+    if (exportFormat === 'png' && !hasSeenUpsell.current && !canExportSVG) {
+      setShowUpsellPopup(true)
+      return
+    }
+    
+    await executeMapGeneration()
+  }
+  
+  const executeMapGeneration = async () => {
     setGenerating(true)
     setError('')
     
@@ -977,7 +991,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             userId: user.id,
             theme: selectedTheme.id,
             location: location,
-            size: selection.size || size,
+            size: selection?.size || size,
             format: exportFormat
           })
         }).catch(() => {}) // Don't fail if logging fails
@@ -3247,6 +3261,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
           </div>
         </div>
       )}
+
+      {/* Upsell Popup for PNG users */}
+      <UpsellPopup
+        isOpen={showUpsellPopup}
+        onClose={() => setShowUpsellPopup(false)}
+        onContinueFree={() => {
+          hasSeenUpsell.current = true
+          setShowUpsellPopup(false)
+          executeMapGeneration()
+        }}
+        discount={discount}
+      />
 
       {/* Success Modal */}
       {generated && (
