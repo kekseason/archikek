@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
+import SocialProof from '@/components/social-proof'
 
 interface HomeClientProps {
   discount: { percent: number; name: string; code: string } | null
@@ -301,11 +302,8 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left - Content */}
             <div className="max-w-xl">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-full mb-8">
-                <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                <span className="text-amber-500 text-sm font-medium">Now Live — Start Creating</span>
-              </div>
+              {/* Social Proof Badge */}
+              <SocialProof variant="hero" className="mb-8" />
 
               {/* Headline */}
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
@@ -340,16 +338,16 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
               {/* Stats */}
               <div className="flex gap-8 md:gap-12 pt-8 border-t border-white/10">
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold text-amber-500">24</div>
-                  <div className="text-white/40 text-sm mt-1">2D Themes</div>
+                  <div className="text-3xl md:text-4xl font-bold text-amber-500">34</div>
+                  <div className="text-white/40 text-sm mt-1">Themes</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold text-amber-500">10</div>
-                  <div className="text-white/40 text-sm mt-1">3D Themes</div>
+                  <div className="text-3xl md:text-4xl font-bold text-amber-500">2D+3D</div>
+                  <div className="text-white/40 text-sm mt-1">Export</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold">SVG</div>
-                  <div className="text-white/40 text-sm mt-1">Illustrator Ready</div>
+                  <div className="text-3xl md:text-4xl font-bold">∞</div>
+                  <div className="text-white/40 text-sm mt-1">Locations</div>
                 </div>
               </div>
             </div>
