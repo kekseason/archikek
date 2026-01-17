@@ -131,7 +131,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
               Start free, upgrade when ready
             </h1>
             <p className="text-gray-400 text-lg">
-              SVG and PNG exports are always free. Upgrade to Pro for DXF, 3D models, and unlimited access.
+              PNG exports are always free. Upgrade for SVG, DXF, 3D models, and unlimited access.
             </p>
           </div>
 
@@ -436,7 +436,7 @@ export default function PricingClient({ discount, country }: PricingClientProps)
               {[
                 {
                   q: 'Is the free plan really free forever?',
-                  a: 'Yes! SVG and PNG exports are completely free with no limits. Create as many maps as you want.'
+                  a: 'Yes! PNG exports are completely free with no limits. Create as many maps as you want. SVG and DXF require a subscription.'
                 },
                 {
                   q: 'What\'s included in the DXF export?',

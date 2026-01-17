@@ -7,10 +7,10 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata: Metadata = {
   title: {
-    default: 'ArchiKEK - Site Plan Generator | Free SVG & DXF Maps for Architects',
+    default: 'ArchiKEK - Site Plan Generator | Free PNG & Pro SVG/DXF Maps for Architects',
     template: '%s | ArchiKEK'
   },
-  description: 'Generate site plans, figure ground maps, and 3D city models instantly. Free SVG export, DXF for AutoCAD, 3DM for Rhino, DAE for SketchUp. 34 themes, real terrain data. Best free Cadmapper alternative.',
+  description: 'Generate site plans, figure ground maps, and 3D city models instantly. Free PNG export, SVG/DXF for Pro users, 3DM for Rhino, DAE for SketchUp. 34 themes, real terrain data. Best free Cadmapper alternative.',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32' },
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'ArchiKEK - Site Plan Generator | Free Maps for Architects',
-    description: 'Generate site plans, figure ground maps, and 3D city models in seconds. Free SVG export. DXF for AutoCAD. 3D for Blender & 3D printing.',
+    description: 'Generate site plans, figure ground maps, and 3D city models in seconds. Free PNG export. SVG/DXF for Pro. 3D for Blender & 3D printing.',
     type: 'website',
     url: 'https://archikek.com',
     siteName: 'ArchiKEK',
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'ArchiKEK - Site Plan Generator | Free Maps for Architects',
-    description: 'Generate site plans and 3D city models in seconds. Free SVG export.',
+    description: 'Generate site plans and 3D city models in seconds. Free PNG export.',
     creator: '@archikek',
     images: ['/og-image.png'],
   },

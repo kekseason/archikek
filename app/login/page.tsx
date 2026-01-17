@@ -163,7 +163,7 @@ export default function LoginPage() {
 
         {/* Free credit notice */}
         <p className="text-center text-gray-500 text-sm mt-6">
-          ✓ SVG & PNG exports are free forever!
+          ✓ PNG exports are free forever!
         </p>
       </div>
     </div>

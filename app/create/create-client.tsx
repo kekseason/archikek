@@ -3148,7 +3148,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   </svg>
-                  SVG/PNG Free
+                  PNG Free
                 </span>
                 <span className="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -3261,7 +3261,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
             {/* Free option reminder */}
             <p className="text-center text-gray-500 text-xs mt-4">
-              SVG and PNG exports are always free
+              PNG exports are always free
             </p>
           </div>
         </div>

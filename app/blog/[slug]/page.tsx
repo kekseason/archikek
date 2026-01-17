@@ -2184,7 +2184,7 @@ Advanced features include topographic contours with real elevation data, 3D mode
 
 ## How to Generate a Site Plan with ArchiKEK
 
-First, navigate to your site by searching for your project location. Then select your area size from 250m to 3000m. Choose from 34 professional themes. Finally, export your plan in SVG (free), DXF (Pro), or 3D (Pro) format.
+First, navigate to your site by searching for your project location. Then select your area size from 250m to 3000m. Choose from 34 professional themes. Finally, export your plan in PNG (free), SVG (Pro), DXF (Pro), or 3D (Pro) format.
 
 ## Site Plan Generator Comparison
 
@@ -2192,7 +2192,7 @@ ArchiKEK takes 30 seconds with no learning curve. QGIS takes 2-4 hours with a st
 
 ## Frequently Asked Questions
 
-Is the site plan generator free? Yes! SVG and PNG exports are completely free. DXF and 3D exports require a Pro subscription at $19/month.
+Is the site plan generator free? Yes! PNG exports are completely free. SVG, DXF and 3D exports require a Pro subscription at $19/month.
 
 How accurate is the data? ArchiKEK uses OpenStreetMap data, which is continuously updated by a global community of mappers.
 
@@ -2289,9 +2289,9 @@ ArchiKEK SVGs include Inkscape-compatible organized layers. These include Backgr
 
 Classic themes include Minimal, Figure Ground, and Nolli styles. Modern themes offer Midnight, Neon, and Blueprint aesthetics. Natural themes provide Forest, Ocean, and Desert color palettes. All 34 themes are available for any location.
 
-## Free SVG Downloads
+## Free PNG Downloads
 
-SVG exports are completely free with ArchiKEK. No account required for preview and download.
+PNG exports are completely free with ArchiKEK. SVG and DXF require a Pro subscription.
 
 [Download SVG Map →](/create)
     `
@@ -2505,7 +2505,7 @@ Site analysis uses figure ground to understand context. Urban studies analyze ci
 
 | Feature | ArchiKEK | Cadmapper |
 |---------|----------|-----------|
-| **Free Tier** | ✅ Unlimited SVG/PNG | ❌ Very limited |
+| **Free Tier** | ✅ Unlimited PNG | ❌ Very limited |
 | **Price** | Free / $19 Pro | $29-99+ |
 | **2D Formats** | SVG, DXF, PNG | DXF, PDF |
 | **3D Formats** | GLB, STL, 3DM, DAE | OBJ, STL |
@@ -2536,7 +2536,7 @@ Cadmapper has been the go-to tool for architects needing quick CAD maps. It pull
 
 ### 1. Actually Free
 
-Cadmapper's free tier is essentially a demo - you get a tiny area that's not useful for real projects. ArchiKEK gives you **unlimited SVG and PNG exports for free**, forever.
+Cadmapper's free tier is essentially a demo - you get a tiny area that's not useful for real projects. ArchiKEK gives you **unlimited PNG exports for free**, forever. SVG and DXF are available with Pro.
 
 ### 2. Native 3D Formats
 
@@ -2576,7 +2576,7 @@ Cadmapper charges extra for elevation data. ArchiKEK includes contour lines in e
 - Per-download pricing adds up fast
 
 ### ArchiKEK Pricing
-- **Free Forever**: Unlimited SVG/PNG, all themes, up to 3km areas
+- **Free Forever**: Unlimited PNG, all themes, up to 3km areas
 - **Pro ($19/month)**: DXF, 3D exports, commercial license
 
 **Bottom line**: One month of ArchiKEK Pro costs less than a single Cadmapper download, and you get unlimited exports.
@@ -2633,7 +2633,7 @@ Cadmapper charges extra for elevation data. ArchiKEK includes contour lines in e
 2. Search location
 3. Select area and theme
 4. Preview instantly
-5. Download (free SVG or Pro 3DM/DAE)
+5. Download (free PNG or Pro SVG/3DM/DAE)
 6. Open in Rhino/SketchUp - ready to render
 7. **Total time: 2-5 minutes**
 
@@ -2645,7 +2645,7 @@ Cadmapper charges extra for elevation data. ArchiKEK includes contour lines in e
 - You're used to the workflow
 
 ### Use ArchiKEK If:
-- You want free exports
+- You want free PNG exports
 - You use Rhino, SketchUp, or Blender
 - You need styled maps for presentations
 - You want 3D models with materials
@@ -2656,7 +2656,7 @@ Cadmapper charges extra for elevation data. ArchiKEK includes contour lines in e
 
 Cadmapper was groundbreaking when it launched, but it hasn't evolved. ArchiKEK offers:
 
-- ✅ Free unlimited SVG exports
+- ✅ Free unlimited PNG exports
 - ✅ Native Rhino 3DM format
 - ✅ Native SketchUp DAE format
 - ✅ 34 professional themes
@@ -2907,7 +2907,7 @@ Every architecture project starts with understanding the site. Good site analysi
 - 30-second workflow
 - 34 professional themes
 - SVG export with organized layers
-- Free unlimited exports
+- Free unlimited PNG exports
 - No GIS knowledge needed
 
 **Cons:**
