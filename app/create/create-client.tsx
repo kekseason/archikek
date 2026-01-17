@@ -978,6 +978,11 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   }
   
   const executeMapGeneration = async () => {
+    if (!selection) {
+      setError('Please select an area on the map')
+      return
+    }
+    
     setGenerating(true)
     setError('')
     
@@ -991,7 +996,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             userId: user.id,
             theme: selectedTheme.id,
             location: location,
-            size: selection?.size || size,
+            size: selection.size || size,
             format: exportFormat
           })
         }).catch(() => {}) // Don't fail if logging fails
