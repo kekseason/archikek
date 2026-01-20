@@ -408,7 +408,7 @@ type SelectionData = {
 }
 
 export default function CreateClient({ discount, country }: CreateClientProps) {
-  const { user, profile, loading: authLoading, signOut, refreshProfile, signInWithGoogle } = useAuth()
+  const { user, profile, loading: authLoading, signOut, refreshProfile, refreshSession, signInWithGoogle } = useAuth()
   const router = useRouter()
   
   // Calculate discounted Pro price
@@ -502,6 +502,32 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   useEffect(() => {
     exportModeRef.current = exportMode
   }, [exportMode])
+
+  // Session check on mount and periodically
+  useEffect(() => {
+    const checkSession = async () => {
+      if (typeof window === 'undefined') return
+      
+      const { supabase } = await import('@/lib/supabase')
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      console.log('[CREATE] Session check:', session?.user?.email || 'no session')
+      
+      // If we have user state but no session, refresh
+      if (user && !session) {
+        console.log('[CREATE] User state exists but no session, refreshing...')
+        await refreshSession()
+      }
+    }
+    
+    // Check on mount
+    checkSession()
+    
+    // Check every 30 seconds
+    const interval = setInterval(checkSession, 30000)
+    
+    return () => clearInterval(interval)
+  }, [user, refreshSession])
 
   // Compute subscription status
   const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
@@ -951,6 +977,20 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
       setShowLoginModal(true)
       return
     }
+    
+    // Double-check session is still valid
+    const { data: { session } } = await (await import('@/lib/supabase')).supabase.auth.getSession()
+    if (!session) {
+      console.log('[CREATE] Session lost, attempting refresh...')
+      await refreshSession()
+      // Check again after refresh
+      const { data: { session: newSession } } = await (await import('@/lib/supabase')).supabase.auth.getSession()
+      if (!newSession) {
+        console.log('[CREATE] Still no session after refresh, showing login modal')
+        setShowLoginModal(true)
+        return
+      }
+    }
 
     // Check format permissions
     // PNG = Free for everyone
@@ -1146,6 +1186,25 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     if (!selection || !selection.center) {
       setError('Please select a location first')
       return
+    }
+
+    // Check if user is logged in
+    if (!user) {
+      setShowLoginModal(true)
+      return
+    }
+    
+    // Double-check session is still valid
+    const { data: { session } } = await (await import('@/lib/supabase')).supabase.auth.getSession()
+    if (!session) {
+      console.log('[CREATE] Session lost in 3D, attempting refresh...')
+      await refreshSession()
+      const { data: { session: newSession } } = await (await import('@/lib/supabase')).supabase.auth.getSession()
+      if (!newSession) {
+        console.log('[CREATE] Still no session after refresh, showing login modal')
+        setShowLoginModal(true)
+        return
+      }
     }
 
     // Pro check - 3D export requires Pro subscription only
@@ -3079,6 +3138,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {/* Google Button */}
             <button
               onClick={async () => {
+                // Save return URL so we come back here after login
+                localStorage.setItem('archikek_return_url', '/create')
                 // Save current map state before redirecting to Google
                 const stateToSave = {
                   selection,
@@ -3114,6 +3175,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {/* Email option */}
             <button
               onClick={() => {
+                // Save return URL so we come back here after login
+                localStorage.setItem('archikek_return_url', '/create')
                 // Save current map state before redirecting
                 const stateToSave = {
                   selection,
@@ -3165,6 +3228,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               Already have an account?{' '}
               <button 
                 onClick={() => {
+                  // Save return URL so we come back here after login
+                  localStorage.setItem('archikek_return_url', '/create')
                   // Save current map state before redirecting
                   const stateToSave = {
                     selection,
