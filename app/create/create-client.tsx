@@ -408,7 +408,7 @@ type SelectionData = {
 }
 
 export default function CreateClient({ discount, country }: CreateClientProps) {
-  const { user, profile, loading: authLoading, signOut, refreshProfile, refreshSession, signInWithGoogle } = useAuth()
+  const { user, profile, loading: authLoading, signOut, refreshProfile, signInWithGoogle } = useAuth()
   const router = useRouter()
   
   // Calculate discounted Pro price
@@ -508,32 +508,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   useEffect(() => {
     exportModeRef.current = exportMode
   }, [exportMode])
-
-  // Session check on mount and periodically
-  useEffect(() => {
-    const checkSession = async () => {
-      if (typeof window === 'undefined') return
-      
-      const { supabase } = await import('@/lib/supabase')
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      console.log('[CREATE] Session check:', session?.user?.email || 'no session')
-      
-      // If we have user state but no session, refresh
-      if (user && !session) {
-        console.log('[CREATE] User state exists but no session, refreshing...')
-        await refreshSession()
-      }
-    }
-    
-    // Check on mount
-    checkSession()
-    
-    // Check every 30 seconds
-    const interval = setInterval(checkSession, 30000)
-    
-    return () => clearInterval(interval)
-  }, [user, refreshSession])
 
   // Compute subscription status
   const isPro = profile?.is_pro && (!profile?.pro_expires_at || new Date(profile.pro_expires_at) > new Date())
@@ -980,15 +954,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     // Double-check session is still valid
     const { data: { session } } = await (await import('@/lib/supabase')).supabase.auth.getSession()
     if (!session) {
-      console.log('[CREATE] Session lost, attempting refresh...')
-      await refreshSession()
-      // Check again after refresh
-      const { data: { session: newSession } } = await (await import('@/lib/supabase')).supabase.auth.getSession()
-      if (!newSession) {
-        console.log('[CREATE] Still no session after refresh, showing login modal')
-        setShowLoginModal(true)
-        return
-      }
+      setShowLoginModal(true)
+      return
     }
 
     // Check format permissions
@@ -1204,14 +1171,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
     // Double-check session is still valid
     const { data: { session } } = await (await import('@/lib/supabase')).supabase.auth.getSession()
     if (!session) {
-      console.log('[CREATE] Session lost in 3D, attempting refresh...')
-      await refreshSession()
-      const { data: { session: newSession } } = await (await import('@/lib/supabase')).supabase.auth.getSession()
-      if (!newSession) {
-        console.log('[CREATE] Still no session after refresh, showing login modal')
-        setShowLoginModal(true)
-        return
-      }
+      setShowLoginModal(true)
+      return
     }
 
     // Pro check - 3D export requires Pro subscription only
@@ -3304,12 +3265,20 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
             {/* Google Button */}
             <button
-              onClick={async () => {
-                const success = await signInWithGoogle()
-                if (success) {
-                  // Refresh page to load profile properly
-                  window.location.reload()
+              onClick={() => {
+                // Save current map state before redirect
+                const stateToSave = {
+                  selection,
+                  size,
+                  theme: selectedTheme.id,
+                  locationName,
+                  showTransit,
+                  showContours,
+                  showFrame,
+                  exportFormat
                 }
+                localStorage.setItem('archikek_pending_map', JSON.stringify(stateToSave))
+                signInWithGoogle()
               }}
               className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white text-black rounded-xl font-medium hover:bg-gray-100 transition-colors"
             >

@@ -8,13 +8,11 @@ type AuthContextType = {
   user: User | null
   profile: Profile | null
   loading: boolean
-  signInWithGoogle: () => Promise<boolean>
-  signInWithMicrosoft: () => Promise<void>
+  signInWithGoogle: () => void
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
   signUpWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
-  signOut: () => Promise<void>
+  signOut: () => void
   refreshProfile: () => Promise<void>
-  refreshSession: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -25,164 +23,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   const fetchProfile = useCallback(async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-      
-      if (data && !error) {
-        setProfile(data)
-      }
-    } catch (e) {
-      console.error('[AUTH] Profile fetch error:', e)
-    }
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    
+    if (data) setProfile(data)
   }, [])
 
   const refreshProfile = useCallback(async () => {
-    if (user) {
-      await fetchProfile(user.id)
-    }
+    if (user) await fetchProfile(user.id)
   }, [user, fetchProfile])
 
-  const refreshSession = useCallback(async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        setUser(session.user)
-        await fetchProfile(session.user.id)
-      }
-    } catch (e) {
-      console.error('[AUTH] Session refresh error:', e)
-    }
-  }, [fetchProfile])
-
   useEffect(() => {
-    const safetyTimeout = setTimeout(() => {
-      setLoading(false)
-    }, 3000)
-
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user)
         fetchProfile(session.user.id)
       }
       setLoading(false)
-      clearTimeout(safetyTimeout)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('[AUTH] Event:', event)
-        
-        if (session?.user) {
-          setUser(session.user)
-          await fetchProfile(session.user.id)
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null)
-          setProfile(null)
-        }
-        
-        setLoading(false)
+    // Listen for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser(session.user)
+        await fetchProfile(session.user.id)
+      } else {
+        setUser(null)
+        setProfile(null)
       }
-    )
+      setLoading(false)
+    })
 
-    return () => {
-      clearTimeout(safetyTimeout)
-      subscription.unsubscribe()
-    }
+    return () => subscription.unsubscribe()
   }, [fetchProfile])
 
-  // Popup-based Google OAuth - stays on same page
-  const signInWithGoogle = async (): Promise<boolean> => {
-    return new Promise(async (resolve) => {
-      try {
-        // Get OAuth URL without redirecting
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
-            skipBrowserRedirect: true
-          }
-        })
-
-        if (error || !data.url) {
-          console.error('[AUTH] OAuth URL error:', error)
-          resolve(false)
-          return
-        }
-
-        // Open popup
-        const width = 500
-        const height = 600
-        const left = window.screenX + (window.outerWidth - width) / 2
-        const top = window.screenY + (window.outerHeight - height) / 2
-        
-        const popup = window.open(
-          data.url,
-          'google-auth',
-          `width=${width},height=${height},left=${left},top=${top}`
-        )
-
-        if (!popup) {
-          console.error('[AUTH] Popup blocked, falling back to redirect')
-          window.location.href = data.url
-          resolve(false)
-          return
-        }
-
-        // Poll for popup close
-        const pollInterval = setInterval(async () => {
-          if (popup.closed) {
-            clearInterval(pollInterval)
-            
-            // Check if we got a session
-            const { data: { session } } = await supabase.auth.getSession()
-            
-            if (session?.user) {
-              console.log('[AUTH] Popup login success:', session.user.email)
-              setUser(session.user)
-              await fetchProfile(session.user.id)
-              resolve(true)
-            } else {
-              console.log('[AUTH] Popup closed without session')
-              resolve(false)
-            }
-          }
-        }, 500)
-
-        // Timeout after 5 minutes
-        setTimeout(() => {
-          clearInterval(pollInterval)
-          if (popup && !popup.closed) popup.close()
-          resolve(false)
-        }, 5 * 60 * 1000)
-
-      } catch (e) {
-        console.error('[AUTH] Popup error:', e)
-        resolve(false)
-      }
-    })
-  }
-
-  const signInWithMicrosoft = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'azure',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        skipBrowserRedirect: true,
-        scopes: 'email profile openid'
-      }
-    })
+  const signInWithGoogle = () => {
+    // Save current page to return after login
+    localStorage.setItem('archikek_return_url', window.location.pathname)
     
-    if (data?.url) {
-      const width = 500
-      const height = 600
-      const left = window.screenX + (window.outerWidth - width) / 2
-      const top = window.screenY + (window.outerHeight - height) / 2
-      window.open(data.url, 'microsoft-auth', `width=${width},height=${height},left=${left},top=${top}`)
-    }
+    supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
   }
 
   const signInWithEmail = async (email: string, password: string) => {
@@ -199,11 +87,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null }
   }
 
-  const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    setProfile(null)
-    window.location.href = '/'
+  const signOut = () => {
+    supabase.auth.signOut().then(() => {
+      setUser(null)
+      setProfile(null)
+      window.location.href = '/'
+    })
   }
 
   return (
@@ -212,12 +101,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profile,
       loading,
       signInWithGoogle,
-      signInWithMicrosoft,
       signInWithEmail,
       signUpWithEmail,
       signOut,
-      refreshProfile,
-      refreshSession
+      refreshProfile
     }}>
       {children}
     </AuthContext.Provider>
@@ -226,8 +113,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider')
   return context
 }
