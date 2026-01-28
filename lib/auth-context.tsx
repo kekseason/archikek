@@ -8,8 +8,8 @@ type AuthContextType = {
   user: User | null
   profile: Profile | null
   loading: boolean
-  signInWithGoogle: () => Promise<void>
-  signInWithMicrosoft: () => Promise<void>
+  signInWithGoogle: (returnTo?: string) => Promise<void>
+  signInWithMicrosoft: (returnTo?: string) => Promise<void>
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
   signUpWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
@@ -65,15 +65,76 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
     }, 3000)
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Check for OAuth callback tokens in URL (when /create is used as callback)
+    const processOAuthCallback = async () => {
+      if (typeof window === 'undefined') return false
+      
+      const hash = window.location.hash
+      const search = window.location.search
+      
+      // Check hash for tokens
+      if (hash && hash.includes('access_token')) {
+        console.log('[AUTH] Found tokens in URL hash')
+        const hashParams = new URLSearchParams(hash.substring(1))
+        const accessToken = hashParams.get('access_token')
+        const refreshToken = hashParams.get('refresh_token')
+        
+        if (accessToken && refreshToken) {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          })
+          
+          if (data.session) {
+            console.log('[AUTH] Session set from hash:', data.session.user.email)
+            // Clean URL
+            window.history.replaceState(null, '', window.location.pathname)
+            return true
+          }
+          if (error) console.error('[AUTH] setSession error:', error)
+        }
+      }
+      
+      // Check for code in URL
+      if (search && search.includes('code=')) {
+        console.log('[AUTH] Found code in URL')
+        const urlParams = new URLSearchParams(search)
+        const code = urlParams.get('code')
+        
+        if (code) {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+          
+          if (data.session) {
+            console.log('[AUTH] Session from code:', data.session.user.email)
+            // Clean URL
+            window.history.replaceState(null, '', window.location.pathname)
+            return true
+          }
+          if (error) console.error('[AUTH] exchangeCode error:', error)
+        }
+      }
+      
+      return false
+    }
+
+    const init = async () => {
+      // First try to process OAuth callback
+      await processOAuthCallback()
+      
+      // Then get session
+      const { data: { session } } = await supabase.auth.getSession()
       console.log('[AUTH] Session:', session?.user?.email || 'none')
+      
       if (session?.user) {
         setUser(session.user)
-        fetchProfile(session.user.id)
+        await fetchProfile(session.user.id)
       }
+      
       setLoading(false)
       clearTimeout(safetyTimeout)
-    })
+    }
+    
+    init()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -97,22 +158,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchProfile])
 
-  const signInWithGoogle = async () => {
-    console.log('[AUTH] Google sign in...')
+  // returnTo parametresi ile doğrudan o sayfaya dön
+  const signInWithGoogle = async (returnTo?: string) => {
+    const redirectUrl = returnTo || window.location.href
+    console.log('[AUTH] Google sign in, redirect to:', redirectUrl)
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: redirectUrl
       }
     })
     if (error) console.error('[AUTH] Google error:', error)
   }
 
-  const signInWithMicrosoft = async () => {
+  const signInWithMicrosoft = async (returnTo?: string) => {
+    const redirectUrl = returnTo || window.location.href
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: redirectUrl,
         scopes: 'email profile openid'
       }
     })
@@ -128,7 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` }
+      options: { emailRedirectTo: window.location.href }
     })
     return { error: error?.message ?? null }
   }
@@ -137,6 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
+    window.location.href = '/'
   }
 
   return (
