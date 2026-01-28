@@ -3,63 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Create a single instance with proper session handling
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    storageKey: 'archikek-auth-token',
-    storage: typeof window !== 'undefined' ? {
-      getItem: (key: string) => {
-        try {
-          const item = window.localStorage.getItem(key)
-          // Also try sessionStorage as fallback
-          if (!item) {
-            return window.sessionStorage.getItem(key)
-          }
-          return item
-        } catch {
-          return null
-        }
-      },
-      setItem: (key: string, value: string) => {
-        try {
-          window.localStorage.setItem(key, value)
-          // Also set in sessionStorage as backup
-          window.sessionStorage.setItem(key, value)
-        } catch {
-          // Ignore storage errors
-        }
-      },
-      removeItem: (key: string) => {
-        try {
-          window.localStorage.removeItem(key)
-          window.sessionStorage.removeItem(key)
-        } catch {
-          // Ignore storage errors
-        }
-      }
-    } : undefined,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce'
-  }
-})
-
-// Helper to get session with retry
-export async function getSessionWithRetry(retries = 3): Promise<any> {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession()
-      if (session) return session
-      if (error) console.error(`[Supabase] Session attempt ${i + 1} error:`, error)
-      // Small delay before retry
-      if (i < retries - 1) await new Promise(r => setTimeout(r, 100 * (i + 1)))
-    } catch (e) {
-      console.error(`[Supabase] Session attempt ${i + 1} exception:`, e)
-    }
-  }
-  return null
-}
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Types
 export type Profile = {
