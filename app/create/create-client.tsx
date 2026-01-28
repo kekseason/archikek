@@ -1437,7 +1437,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   Buy Credits
                 </Link>
                 <button 
-                  onClick={signOut}
+                  onClick={() => signOut()}
                   className="text-gray-400 hover:text-white text-xs md:text-sm transition-colors"
                 >
                   Sign Out
@@ -3307,7 +3307,8 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               onClick={async () => {
                 const success = await signInWithGoogle()
                 if (success) {
-                  setShowLoginModal(false)
+                  // Refresh page to load profile properly
+                  window.location.reload()
                 }
               }}
               className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white text-black rounded-xl font-medium hover:bg-gray-100 transition-colors"
