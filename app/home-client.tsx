@@ -594,6 +594,13 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
         </div>
       </section>
 
+      {/* Ad Section */}
+      <section className="py-12 relative">
+        <div className="max-w-3xl mx-auto px-6">
+          <AdBanner slot="YOUR_AD_SLOT_1" format="horizontal" />
+        </div>
+      </section>
+
       {/* Themes Section */}
       <section id="themes" className="py-24 md:py-32 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
@@ -889,13 +896,6 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
             </Link>
           </div>
           <p className="text-white/30 text-sm mt-6">No credit card required • Free forever</p>
-        </div>
-      </section>
-
-      {/* Ad Section */}
-      <section className="py-8 border-t border-white/5">
-        <div className="max-w-4xl mx-auto px-6">
-          <AdBanner slot="YOUR_AD_SLOT_1" format="horizontal" />
         </div>
       </section>
 

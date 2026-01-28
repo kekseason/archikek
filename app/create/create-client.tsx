@@ -2228,14 +2228,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               </div>
             )}
 
-            {/* Ad for free users */}
-            {!isPro && (
-              <div className="mt-4 pt-4 border-t border-[#222]">
-                <p className="text-[10px] text-gray-600 mb-2 text-center">Advertisement</p>
-                <AdBanner slot="YOUR_AD_SLOT_3" format="rectangle" className="rounded-lg overflow-hidden" />
-              </div>
-            )}
-
             {/* Toast notification */}
             {toast && (
               <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-amber-500 text-black text-sm font-medium rounded-full shadow-lg animate-pulse">
@@ -2747,14 +2739,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                   <p className="text-red-400 text-sm">{error}</p>
                 </div>
               )}
-
-              {/* Ad for free users - mobile */}
-              {!isPro && (
-                <div className="mt-4 pt-4 border-t border-[#222]">
-                  <p className="text-[10px] text-gray-600 mb-2 text-center">Advertisement</p>
-                  <AdBanner slot="YOUR_AD_SLOT_3" format="horizontal" className="rounded-lg overflow-hidden" />
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -2870,6 +2854,18 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
+
+          {/* Side Ads - Desktop only, Free users only */}
+          {!isPro && (
+            <>
+              <div className="hidden xl:block absolute left-4 top-1/2 -translate-y-1/2 w-[160px]" onClick={(e) => e.stopPropagation()}>
+                <AdBanner slot="YOUR_AD_SLOT_3" format="vertical" />
+              </div>
+              <div className="hidden xl:block absolute right-20 top-1/2 -translate-y-1/2 w-[160px]" onClick={(e) => e.stopPropagation()}>
+                <AdBanner slot="YOUR_AD_SLOT_3" format="vertical" />
+              </div>
+            </>
+          )}
           
           {/* Zoom controls */}
           <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/70 px-4 py-2 rounded-full z-10">
