@@ -59,24 +59,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile])
 
   useEffect(() => {
+    console.log('[AUTH] Initializing...')
+    
+    // Safety timeout - ensure loading becomes false
+    const safetyTimeout = setTimeout(() => {
+      console.log('[AUTH] Safety timeout - forcing loading to false')
+      setLoading(false)
+    }, 3000)
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('[AUTH] Initial session:', session?.user?.email || 'none')
       if (session?.user) {
         setUser(session.user)
         fetchProfile(session.user.id)
       }
       setLoading(false)
+      clearTimeout(safetyTimeout)
+    }).catch(e => {
+      console.error('[AUTH] getSession error:', e)
+      setLoading(false)
+      clearTimeout(safetyTimeout)
     })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('[AUTH] Event:', event)
+        console.log('[AUTH] Event:', event, session?.user?.email || 'none')
         
         if (session?.user) {
           setUser(session.user)
           await fetchProfile(session.user.id)
-        } else {
+        } else if (event === 'SIGNED_OUT') {
           setUser(null)
           setProfile(null)
         }
@@ -86,11 +100,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     )
 
     return () => {
+      clearTimeout(safetyTimeout)
       subscription.unsubscribe()
     }
   }, [fetchProfile])
 
   const signInWithGoogle = async () => {
+    console.log('[AUTH] Signing in with Google...')
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -124,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async () => {
+    console.log('[AUTH] Signing out...')
     await supabase.auth.signOut()
     setUser(null)
     setProfile(null)

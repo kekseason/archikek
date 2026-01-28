@@ -608,13 +608,6 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         
         // Clear saved state after restoring
         localStorage.removeItem('archikek_pending_map')
-        
-        // Auto-trigger preview after restore
-        setTimeout(() => {
-          if (state.selection?.center) {
-            setPreviewLoading(true)
-          }
-        }, 500)
       } catch (e) {
         console.error('Failed to restore map state:', e)
         localStorage.removeItem('archikek_pending_map')
