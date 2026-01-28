@@ -1480,7 +1480,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         
         {/* Sidebar - Hidden on mobile */}
         <aside className="hidden md:flex md:flex-col w-80 bg-[#0a0a0a] border-r border-[#1a1a1a] flex-shrink-0 h-[calc(100vh-56px)]">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 pb-20 space-y-4">
             
             {/* Location Search - Compact */}
             <div className="relative">
@@ -1563,26 +1563,26 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 {/* ═══════════════════════════════════════════════════════ */}
                 <div className="p-3 bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl">
                   <p className="text-xs text-gray-500 mb-2">Export Type</p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setExportMode('2d')}
-                      className={`p-3 rounded-xl border-2 transition-all text-left ${
+                      className={`p-4 rounded-xl border-2 transition-all text-left ${
                         exportMode === '2d'
                           ? 'border-amber-500 bg-amber-500/10'
                           : 'border-[#222] bg-[#111] hover:border-[#333]'
                       }`}
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center gap-3 mb-2">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
                         </svg>
-                        <span className={`font-semibold text-sm ${exportMode === '2d' ? 'text-amber-400' : 'text-white'}`}>2D</span>
+                        <span className={`font-semibold text-base ${exportMode === '2d' ? 'text-amber-400' : 'text-white'}`}>2D</span>
                       </div>
-                      <p className="text-[10px] text-gray-500">SVG · PNG · DXF</p>
+                      <p className="text-xs text-gray-500">SVG · PNG · DXF</p>
                     </button>
                     <button
                       onClick={() => setExportMode('3d')}
-                      className={`p-3 rounded-xl border-2 transition-all text-left relative ${
+                      className={`p-4 rounded-xl border-2 transition-all text-left relative ${
                         exportMode === '3d'
                           ? 'border-amber-500 bg-amber-500/10'
                           : !canExport3D
@@ -1593,13 +1593,13 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       {!canExport3D && (
                         <span className="absolute -top-2 -right-2 text-[9px] bg-amber-500 text-black px-1.5 py-0.5 rounded-full font-bold">PRO</span>
                       )}
-                      <div className="flex items-center gap-2 mb-1">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center gap-3 mb-2">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
-                        <span className={`font-semibold text-sm ${exportMode === '3d' ? 'text-amber-400' : 'text-white'}`}>3D</span>
+                        <span className={`font-semibold text-base ${exportMode === '3d' ? 'text-amber-400' : 'text-white'}`}>3D</span>
                       </div>
-                      <p className="text-[10px] text-gray-500">GLB · STL · 3DM</p>
+                      <p className="text-xs text-gray-500">GLB · STL · 3DM</p>
                     </button>
                   </div>
                 </div>
@@ -2425,7 +2425,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
           </div>
           
           {/* Expanded panel content */}
-          <div className="bg-[#0a0a0a] max-h-[70vh] overflow-y-auto pb-8">
+          <div className="bg-[#0a0a0a] max-h-[70vh] overflow-y-auto pb-20">
             <div className="p-4 space-y-4">
               {/* Location Search */}
               <div className="relative">
