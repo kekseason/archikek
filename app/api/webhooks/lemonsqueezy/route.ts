@@ -64,15 +64,26 @@ export async function POST(request: NextRequest) {
       const subscriptionVariantId = process.env.NEXT_PUBLIC_LEMONSQUEEZY_SUBSCRIPTION_VARIANT_ID
       const unlimitedSvgVariantId = process.env.LEMON_SQUEEZY_UNLIMITED_SVG_VARIANT_ID
 
+      // Convert to string for comparison (webhook sends number, env is string)
+      const variantIdStr = String(variantId)
+
       let creditsToAdd = 0
       let isPro = false
       let isUnlimitedSvg = false
 
-      if (variantId === creditsVariantId) {
+      console.log('Variant comparison:', { 
+        variantIdStr, 
+        subscriptionVariantId, 
+        unlimitedSvgVariantId,
+        matchesPro: variantIdStr === subscriptionVariantId,
+        matchesUnlimited: variantIdStr === unlimitedSvgVariantId
+      })
+
+      if (variantIdStr === creditsVariantId) {
         creditsToAdd = 5 // Starter pack = 5 credits
-      } else if (variantId === subscriptionVariantId) {
+      } else if (variantIdStr === subscriptionVariantId) {
         isPro = true // Pro subscription
-      } else if (variantId === unlimitedSvgVariantId) {
+      } else if (variantIdStr === unlimitedSvgVariantId) {
         isUnlimitedSvg = true // Unlimited SVG+DXF subscription
       }
 
@@ -154,6 +165,7 @@ export async function POST(request: NextRequest) {
     if (eventName === 'subscription_payment_success') {
       const email = data?.user_email
       const variantId = event.data?.relationships?.variant?.data?.id
+      const variantIdStr = String(variantId)
       const subscriptionVariantId = process.env.NEXT_PUBLIC_LEMONSQUEEZY_SUBSCRIPTION_VARIANT_ID
       const unlimitedSvgVariantId = process.env.LEMON_SQUEEZY_UNLIMITED_SVG_VARIANT_ID
       
@@ -167,7 +179,7 @@ export async function POST(request: NextRequest) {
         const expiresAt = new Date()
         expiresAt.setMonth(expiresAt.getMonth() + 1)
 
-        if (variantId === subscriptionVariantId) {
+        if (variantIdStr === subscriptionVariantId) {
           // Extend pro status by 1 month
           await supabaseAdmin
             .from('profiles')
@@ -179,7 +191,7 @@ export async function POST(request: NextRequest) {
             .eq('id', profile.id)
 
           console.log(`Extended pro status for user ${profile.id}`)
-        } else if (variantId === unlimitedSvgVariantId) {
+        } else if (variantIdStr === unlimitedSvgVariantId) {
           // Extend unlimited SVG status by 1 month
           await supabaseAdmin
             .from('profiles')
