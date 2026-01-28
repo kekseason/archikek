@@ -8,66 +8,31 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      console.log('[CALLBACK] URL:', window.location.href)
+      console.log('[CALLBACK] Starting...')
+      console.log('[CALLBACK] Full URL:', window.location.href)
+      console.log('[CALLBACK] Hash:', window.location.hash)
+      console.log('[CALLBACK] Search:', window.location.search)
       
-      try {
-        // Check URL for tokens or code
-        const hashParams = new URLSearchParams(window.location.hash.substring(1))
-        const urlParams = new URLSearchParams(window.location.search)
-        
-        const accessToken = hashParams.get('access_token')
-        const refreshToken = hashParams.get('refresh_token')
-        const code = urlParams.get('code')
-        
-        let session = null
-
-        // Method 1: Set session from hash tokens
-        if (accessToken && refreshToken) {
-          console.log('[CALLBACK] Setting session from tokens...')
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          })
-          if (data.session) {
-            session = data.session
-            console.log('[CALLBACK] Session set:', session.user.email)
-          } else if (error) {
-            console.error('[CALLBACK] setSession error:', error)
-          }
-        }
-        
-        // Method 2: Exchange code for session
-        if (!session && code) {
-          console.log('[CALLBACK] Exchanging code...')
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-          if (data.session) {
-            session = data.session
-            console.log('[CALLBACK] Code exchanged:', session.user.email)
-          } else if (error) {
-            console.error('[CALLBACK] Exchange error:', error)
-          }
-        }
-        
-        // Method 3: Check existing session
-        if (!session) {
-          console.log('[CALLBACK] Checking existing session...')
-          const { data } = await supabase.auth.getSession()
-          session = data.session
-        }
-
-        if (session) {
-          console.log('[CALLBACK] Success! Redirecting to /create')
-          setStatus('Success! Redirecting...')
-          window.location.href = '/create'
-        } else {
-          console.log('[CALLBACK] No session found')
-          setStatus('Login failed. Redirecting...')
-          setTimeout(() => { window.location.href = '/' }, 2000)
-        }
-      } catch (e) {
-        console.error('[CALLBACK] Exception:', e)
-        setStatus('Error occurred')
-        setTimeout(() => { window.location.href = '/' }, 2000)
+      // Wait a moment for Supabase to auto-process
+      await new Promise(r => setTimeout(r, 1000))
+      
+      // Check session
+      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      console.log('[CALLBACK] Session:', session?.user?.email || 'none')
+      console.log('[CALLBACK] Error:', error?.message || 'none')
+      
+      if (session) {
+        setStatus('Success! Redirecting to editor...')
+        // Hard redirect to /create
+        setTimeout(() => {
+          window.location.replace('/create')
+        }, 500)
+      } else {
+        setStatus('Login failed. Please try again.')
+        setTimeout(() => {
+          window.location.replace('/')
+        }, 2000)
       }
     }
 

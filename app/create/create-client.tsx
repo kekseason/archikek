@@ -3318,7 +3318,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 }
                 localStorage.setItem('archikek_pending_map', JSON.stringify(stateToSave))
                 // Redirect to /create after Google login
-                await signInWithGoogle(`${window.location.origin}/create`)
+                await signInWithGoogle()
               }}
               className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white text-black rounded-xl font-medium hover:bg-gray-100 transition-colors"
             >
