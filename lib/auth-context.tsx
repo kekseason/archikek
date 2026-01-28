@@ -61,31 +61,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log('[AUTH] Initializing...')
     
-    // Safety timeout - ensure loading becomes false
     const safetyTimeout = setTimeout(() => {
-      console.log('[AUTH] Safety timeout - forcing loading to false')
       setLoading(false)
     }, 3000)
 
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('[AUTH] Initial session:', session?.user?.email || 'none')
+      console.log('[AUTH] Session:', session?.user?.email || 'none')
       if (session?.user) {
         setUser(session.user)
         fetchProfile(session.user.id)
       }
       setLoading(false)
       clearTimeout(safetyTimeout)
-    }).catch(e => {
-      console.error('[AUTH] getSession error:', e)
-      setLoading(false)
-      clearTimeout(safetyTimeout)
     })
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('[AUTH] Event:', event, session?.user?.email || 'none')
+        console.log('[AUTH] Event:', event)
         
         if (session?.user) {
           setUser(session.user)
@@ -106,23 +98,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile])
 
   const signInWithGoogle = async () => {
-    console.log('[AUTH] Signing in with Google...')
-    await supabase.auth.signInWithOAuth({
+    console.log('[AUTH] Google sign in...')
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`
       }
     })
+    if (error) console.error('[AUTH] Google error:', error)
   }
 
   const signInWithMicrosoft = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
         scopes: 'email profile openid'
       }
     })
+    if (error) console.error('[AUTH] Microsoft error:', error)
   }
 
   const signInWithEmail = async (email: string, password: string) => {
@@ -140,11 +134,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async () => {
-    console.log('[AUTH] Signing out...')
     await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
-    window.location.href = '/'
   }
 
   return (
