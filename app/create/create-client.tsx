@@ -415,6 +415,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const baseProPrice = 18.99
   const proPrice = discount ? (baseProPrice * (1 - discount.percent / 100)).toFixed(0) : baseProPrice.toFixed(0)
   
+  // Calculate discounted Unlimited SVG price
+  const baseUnlimitedPrice = 8
+  const unlimitedPrice = discount ? Math.round(baseUnlimitedPrice * (1 - discount.percent / 100)) : baseUnlimitedPrice
+  
   const [location, setLocation] = useState('')
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('point')
   const [selection, setSelection] = useState<SelectionData | null>(null)
@@ -3138,29 +3142,54 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
       {/* Sticky Pro Banner - Only for non-Pro users */}
       {!canExportSVG && !showLoginModal && !showProModal && !showPngComparePopup && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-amber-600 to-amber-500 text-black py-2.5 px-4 shadow-lg">
-          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-lg">✨</span>
-              <p className="text-sm font-medium">
-                <span className="hidden sm:inline">Upgrade to Pro: </span>
-                <span className="font-bold">SVG + DXF + 3D</span>
-                <span className="hidden sm:inline"> exports</span>
-                <span className="mx-2">—</span>
-                <span className="font-bold">${proPrice}/mo</span>
-                {discount && (
-                  <span className="ml-2 text-xs bg-black/20 px-1.5 py-0.5 rounded">
-                    {discount.percent}% OFF
-                  </span>
-                )}
-              </p>
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-[#1a1a1a] to-[#0f0f0f] border-t border-amber-500/30 py-2 px-4 shadow-lg">
+          <div className="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+            {/* Left side - discount badge */}
+            {discount && (
+              <div className="hidden sm:flex items-center gap-2 text-amber-500">
+                <span className="text-lg">🔥</span>
+                <span className="text-xs font-bold bg-amber-500/20 px-2 py-1 rounded">
+                  {discount.percent}% OFF
+                </span>
+              </div>
+            )}
+            
+            {/* Center - Two options */}
+            <div className="flex items-center gap-2 sm:gap-4 flex-1 justify-center">
+              {/* Unlimited SVG Option */}
+              <button
+                onClick={() => setShowProModal(true)}
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#222] border border-amber-500/50 rounded-lg hover:border-amber-500 transition-all group"
+              >
+                <div className="text-left">
+                  <p className="text-xs text-gray-400 group-hover:text-gray-300">SVG + DXF</p>
+                  <p className="text-sm font-bold text-white">
+                    ${unlimitedPrice}<span className="text-xs font-normal text-gray-500">/mo</span>
+                  </p>
+                </div>
+              </button>
+              
+              <span className="text-gray-600 text-xs">or</span>
+              
+              {/* Pro Option */}
+              <button
+                onClick={() => setShowProModal(true)}
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-amber-500 rounded-lg hover:bg-amber-400 transition-all"
+              >
+                <div className="text-left">
+                  <p className="text-xs text-black/70">SVG + DXF + 3D</p>
+                  <p className="text-sm font-bold text-black">
+                    ${proPrice}<span className="text-xs font-normal text-black/70">/mo</span>
+                    <span className="ml-1 text-[10px] bg-black/20 px-1 rounded">PRO</span>
+                  </p>
+                </div>
+              </button>
             </div>
-            <button
-              onClick={() => setShowProModal(true)}
-              className="px-4 py-1.5 bg-black text-amber-500 rounded-full text-sm font-bold hover:bg-black/80 transition-colors whitespace-nowrap"
-            >
-              Upgrade
-            </button>
+            
+            {/* Right side - close hint on mobile */}
+            <div className="text-gray-600 text-xs hidden lg:block">
+              Unlock vector exports
+            </div>
           </div>
         </div>
       )}
