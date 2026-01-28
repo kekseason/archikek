@@ -8,7 +8,7 @@ type AuthContextType = {
   user: User | null
   profile: Profile | null
   loading: boolean
-  signInWithGoogle: () => Promise<void>
+  signInWithGoogle: () => Promise<boolean>
   signInWithMicrosoft: () => Promise<void>
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
   signUpWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
@@ -59,14 +59,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile])
 
   useEffect(() => {
-    console.log('[AUTH] Initializing...')
-    
     const safetyTimeout = setTimeout(() => {
       setLoading(false)
     }, 3000)
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('[AUTH] Session:', session?.user?.email || 'none')
       if (session?.user) {
         setUser(session.user)
         fetchProfile(session.user.id)
@@ -97,26 +94,95 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchProfile])
 
-  const signInWithGoogle = async () => {
-    console.log('[AUTH] Google sign in...')
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+  // Popup-based Google OAuth - stays on same page
+  const signInWithGoogle = async (): Promise<boolean> => {
+    return new Promise(async (resolve) => {
+      try {
+        // Get OAuth URL without redirecting
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+            skipBrowserRedirect: true
+          }
+        })
+
+        if (error || !data.url) {
+          console.error('[AUTH] OAuth URL error:', error)
+          resolve(false)
+          return
+        }
+
+        // Open popup
+        const width = 500
+        const height = 600
+        const left = window.screenX + (window.outerWidth - width) / 2
+        const top = window.screenY + (window.outerHeight - height) / 2
+        
+        const popup = window.open(
+          data.url,
+          'google-auth',
+          `width=${width},height=${height},left=${left},top=${top}`
+        )
+
+        if (!popup) {
+          console.error('[AUTH] Popup blocked, falling back to redirect')
+          window.location.href = data.url
+          resolve(false)
+          return
+        }
+
+        // Poll for popup close
+        const pollInterval = setInterval(async () => {
+          if (popup.closed) {
+            clearInterval(pollInterval)
+            
+            // Check if we got a session
+            const { data: { session } } = await supabase.auth.getSession()
+            
+            if (session?.user) {
+              console.log('[AUTH] Popup login success:', session.user.email)
+              setUser(session.user)
+              await fetchProfile(session.user.id)
+              resolve(true)
+            } else {
+              console.log('[AUTH] Popup closed without session')
+              resolve(false)
+            }
+          }
+        }, 500)
+
+        // Timeout after 5 minutes
+        setTimeout(() => {
+          clearInterval(pollInterval)
+          if (popup && !popup.closed) popup.close()
+          resolve(false)
+        }, 5 * 60 * 1000)
+
+      } catch (e) {
+        console.error('[AUTH] Popup error:', e)
+        resolve(false)
       }
     })
-    if (error) console.error('[AUTH] Google error:', error)
   }
 
   const signInWithMicrosoft = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        skipBrowserRedirect: true,
         scopes: 'email profile openid'
       }
     })
-    if (error) console.error('[AUTH] Microsoft error:', error)
+    
+    if (data?.url) {
+      const width = 500
+      const height = 600
+      const left = window.screenX + (window.outerWidth - width) / 2
+      const top = window.screenY + (window.outerHeight - height) / 2
+      window.open(data.url, 'microsoft-auth', `width=${width},height=${height},left=${left},top=${top}`)
+    }
   }
 
   const signInWithEmail = async (email: string, password: string) => {

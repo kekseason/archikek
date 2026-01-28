@@ -4,34 +4,35 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export default function AuthCallbackPage() {
-  const [status, setStatus] = useState('Signing you in...')
+  const [status, setStatus] = useState('Completing sign in...')
 
   useEffect(() => {
     const handleCallback = async () => {
-      console.log('[CALLBACK] Starting...')
-      console.log('[CALLBACK] Full URL:', window.location.href)
-      console.log('[CALLBACK] Hash:', window.location.hash)
-      console.log('[CALLBACK] Search:', window.location.search)
+      // Wait for Supabase to process the tokens from URL
+      await new Promise(r => setTimeout(r, 500))
       
-      // Wait a moment for Supabase to auto-process
-      await new Promise(r => setTimeout(r, 1000))
-      
-      // Check session
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
-      console.log('[CALLBACK] Session:', session?.user?.email || 'none')
-      console.log('[CALLBACK] Error:', error?.message || 'none')
+      const { data: { session } } = await supabase.auth.getSession()
       
       if (session) {
-        setStatus('Success! Redirecting to editor...')
-        // Hard redirect to /create
-        setTimeout(() => {
-          window.location.replace('/create')
-        }, 500)
+        setStatus('Success! You can close this window.')
+        
+        // If opened as popup, close it
+        if (window.opener) {
+          setTimeout(() => window.close(), 1000)
+        } else {
+          // If not popup, redirect to create
+          setTimeout(() => {
+            window.location.href = '/create'
+          }, 1000)
+        }
       } else {
         setStatus('Login failed. Please try again.')
         setTimeout(() => {
-          window.location.replace('/')
+          if (window.opener) {
+            window.close()
+          } else {
+            window.location.href = '/'
+          }
         }, 2000)
       }
     }

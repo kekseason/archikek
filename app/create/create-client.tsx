@@ -3305,20 +3305,10 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             {/* Google Button */}
             <button
               onClick={async () => {
-                // Save current map state before redirecting to Google
-                const stateToSave = {
-                  selection,
-                  size,
-                  theme: selectedTheme.id,
-                  locationName,
-                  showTransit,
-                  showContours,
-                  showFrame,
-                  exportFormat
+                const success = await signInWithGoogle()
+                if (success) {
+                  setShowLoginModal(false)
                 }
-                localStorage.setItem('archikek_pending_map', JSON.stringify(stateToSave))
-                // Redirect to /create after Google login
-                await signInWithGoogle()
               }}
               className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white text-black rounded-xl font-medium hover:bg-gray-100 transition-colors"
             >
