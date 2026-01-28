@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import AdBanner from '@/components/AdBanner'
 
 // Blog post data
 const blogPosts = [
@@ -355,6 +356,13 @@ export default function BlogPage() {
           >
             Start Creating — Free
           </Link>
+        </div>
+      </section>
+
+      {/* Ad Section */}
+      <section className="py-8 border-t border-[#1a1a1a]">
+        <div className="max-w-4xl mx-auto px-6">
+          <AdBanner slot="YOUR_AD_SLOT_2" format="horizontal" />
         </div>
       </section>
 

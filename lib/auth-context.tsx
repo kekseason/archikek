@@ -23,13 +23,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   const fetchProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    
-    if (data) setProfile(data)
+    console.log('[AUTH] Fetching profile for:', userId)
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      if (error) {
+        console.error('[AUTH] Profile fetch error:', error)
+        return
+      }
+      
+      if (data) {
+        console.log('[AUTH] Profile loaded:', data.is_pro ? 'PRO' : 'FREE')
+        setProfile(data)
+      }
+    } catch (e) {
+      console.error('[AUTH] Profile fetch exception:', e)
+    }
   }, [])
 
   const refreshProfile = useCallback(async () => {
@@ -37,8 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, fetchProfile])
 
   useEffect(() => {
+    console.log('[AUTH] Initializing...')
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('[AUTH] Initial session:', session?.user?.email || 'none')
       if (session?.user) {
         setUser(session.user)
         fetchProfile(session.user.id)
@@ -48,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[AUTH] Auth event:', event, session?.user?.email || 'none')
       if (session?.user) {
         setUser(session.user)
         await fetchProfile(session.user.id)
@@ -62,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile])
 
   const signInWithGoogle = () => {
-    // Save current page to return after login
+    console.log('[AUTH] Starting Google sign in...')
     localStorage.setItem('archikek_return_url', window.location.pathname)
     
     supabase.auth.signInWithOAuth({
@@ -87,12 +104,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null }
   }
 
-  const signOut = () => {
-    supabase.auth.signOut().then(() => {
+  const signOut = async () => {
+    console.log('[AUTH] Signing out...')
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('[AUTH] Sign out error:', error)
+      }
       setUser(null)
       setProfile(null)
+      console.log('[AUTH] Signed out, redirecting...')
       window.location.href = '/'
-    })
+    } catch (e) {
+      console.error('[AUTH] Sign out exception:', e)
+      // Force redirect anyway
+      window.location.href = '/'
+    }
   }
 
   return (

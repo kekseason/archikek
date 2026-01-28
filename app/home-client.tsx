@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import SocialProof from '@/components/social-proof'
+import AdBanner from '@/components/AdBanner'
 
 interface HomeClientProps {
   discount: { percent: number; name: string; code: string } | null
@@ -888,6 +889,13 @@ export default function HomeClient({ discount, country }: HomeClientProps) {
             </Link>
           </div>
           <p className="text-white/30 text-sm mt-6">No credit card required • Free forever</p>
+        </div>
+      </section>
+
+      {/* Ad Section */}
+      <section className="py-8 border-t border-white/5">
+        <div className="max-w-4xl mx-auto px-6">
+          <AdBanner slot="YOUR_AD_SLOT_1" format="horizontal" />
         </div>
       </section>
 

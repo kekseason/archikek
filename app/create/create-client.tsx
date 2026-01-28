@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth-context'
 import { trackViewContent } from '@/lib/tiktok'
 import dynamic from 'next/dynamic'
 import UpsellPopup from '@/components/upsell-popup'
+import AdBanner from '@/components/AdBanner'
 
 // Dynamic import for Three.js (client-side only)
 const ThreeViewer = dynamic(() => import('@/components/three-viewer'), {
@@ -2227,6 +2228,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               </div>
             )}
 
+            {/* Ad for free users */}
+            {!isPro && (
+              <div className="mt-4 pt-4 border-t border-[#222]">
+                <p className="text-[10px] text-gray-600 mb-2 text-center">Advertisement</p>
+                <AdBanner slot="YOUR_AD_SLOT_3" format="rectangle" className="rounded-lg overflow-hidden" />
+              </div>
+            )}
+
             {/* Toast notification */}
             {toast && (
               <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-amber-500 text-black text-sm font-medium rounded-full shadow-lg animate-pulse">
@@ -2736,6 +2745,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               {error && (
                 <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
                   <p className="text-red-400 text-sm">{error}</p>
+                </div>
+              )}
+
+              {/* Ad for free users - mobile */}
+              {!isPro && (
+                <div className="mt-4 pt-4 border-t border-[#222]">
+                  <p className="text-[10px] text-gray-600 mb-2 text-center">Advertisement</p>
+                  <AdBanner slot="YOUR_AD_SLOT_3" format="horizontal" className="rounded-lg overflow-hidden" />
                 </div>
               )}
             </div>

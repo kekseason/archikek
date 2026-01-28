@@ -204,6 +204,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
         <meta name="theme-color" content="#f59e0b" />
         <meta name="p:domain_verify" content="bc7f55ef554f9c7a4bf953c81cc5dec9"/>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9952714396522622" crossOrigin="anonymous" />
       </head>
       <body className="antialiased">
         {/* JSON-LD Structured Data */}
