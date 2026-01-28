@@ -41,7 +41,11 @@ export const metadata: Metadata = {
     'STL city model', 'GLB 3D model', 'Collada DAE architecture',
     // Use case keywords
     'architecture student tools', 'urban planning map', 'competition site plan',
-    'portfolio site analysis', 'nolli map generator', 'context map architecture'
+    'portfolio site analysis', 'nolli map generator', 'context map architecture',
+    // Chinese keywords - 中文关键词
+    '建筑场地分析', '城市地图生成器', '场地平面图', '底图分析图',
+    '建筑图底分析', 'CAD地图下载', '3D城市模型', '建筑学生工具',
+    '城市规划地图', 'SVG地图', '矢量地图下载', '免费建筑工具'
   ],
   authors: [{ name: 'ArchiKEK', url: 'https://archikek.com' }],
   creator: 'ArchiKEK',

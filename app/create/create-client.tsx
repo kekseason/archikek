@@ -648,7 +648,7 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
         console.error('Auto-preview error:', err)
       }
       setPreviewLoading(false)
-    }, 500)
+    }, 200)
 
     return () => clearTimeout(timeoutId)
   }, [selectedTheme.id]) // ONLY theme change triggers auto-preview
@@ -2921,19 +2921,41 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="max-w-lg mx-auto flex flex-col items-center gap-2 md:gap-3">
+            <div className="max-w-lg mx-auto flex flex-col items-center gap-3 md:gap-4">
               <p className="text-white/60 text-xs md:text-sm">
                 {selectedTheme.name} • {selection?.size || size}m • {typeof window !== 'undefined' && 'ontouchstart' in window ? 'Pinch to zoom' : 'Scroll to zoom'}
               </p>
               
-              <button 
-                onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
-                disabled={generating}
-                className="w-full max-w-xs flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
-              >
-                {generating ? <LoaderIcon /> : <DownloadIcon />}
-                {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
-              </button>
+              {/* Main CTA - Context aware */}
+              {exportFormat === 'png' ? (
+                <button 
+                  onClick={() => generateMap()} 
+                  disabled={generating}
+                  className="w-full max-w-sm flex items-center justify-center gap-2 px-8 py-4 bg-green-500 text-white rounded-xl font-bold text-lg hover:bg-green-400 transition-all shadow-lg shadow-green-500/30 animate-pulse"
+                >
+                  {generating ? <LoaderIcon /> : <DownloadIcon />}
+                  {generating ? 'Generating...' : '⬇ Download FREE PNG'}
+                </button>
+              ) : (
+                <button 
+                  onClick={() => exportMode === '3d' ? generate3DModel() : generateMap()} 
+                  disabled={generating}
+                  className="w-full max-w-sm flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 text-black rounded-xl font-bold text-lg hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/30"
+                >
+                  {generating ? <LoaderIcon /> : <DownloadIcon />}
+                  {generating ? 'Generating...' : exportMode === '3d' ? `Generate ${format3D.toUpperCase()}` : `Generate ${exportFormat.toUpperCase()}`}
+                </button>
+              )}
+
+              {/* Format switcher for non-logged users */}
+              {!user && exportFormat !== 'png' && (
+                <button
+                  onClick={() => setExportFormat('png')}
+                  className="text-white/70 hover:text-white text-sm underline underline-offset-2"
+                >
+                  Or download PNG for free →
+                </button>
+              )}
               
               {/* Pricing Info - Context Aware */}
               <div className="flex items-center gap-2 text-xs flex-wrap justify-center">
