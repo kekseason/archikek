@@ -468,7 +468,9 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showProModal, setShowProModal] = useState(false)
   const [showUpsellPopup, setShowUpsellPopup] = useState(false)
+  const [showPngComparePopup, setShowPngComparePopup] = useState(false)
   const hasSeenUpsell = useRef(false)
+  const hasSeenPngCompare = useRef(false)
   const [error, setError] = useState('')
   const [toast, setToast] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
@@ -1155,6 +1157,14 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
             a.click()
             document.body.removeChild(a)
             window.URL.revokeObjectURL(url)
+            
+            // Show PNG vs SVG comparison popup (only once per session, only for non-Pro users)
+            if (!hasSeenPngCompare.current && !canExportSVG) {
+              setTimeout(() => {
+                setShowPngComparePopup(true)
+                hasSeenPngCompare.current = true
+              }, 1500)
+            }
           }
         }, 'image/png', 1.0)
       } else {
@@ -1568,12 +1578,17 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                     </button>
                     <button
                       onClick={() => setExportMode('3d')}
-                      className={`p-3 rounded-xl border-2 transition-all text-left ${
+                      className={`p-3 rounded-xl border-2 transition-all text-left relative ${
                         exportMode === '3d'
                           ? 'border-amber-500 bg-amber-500/10'
-                          : 'border-[#222] bg-[#111] hover:border-[#333]'
+                          : !canExport3D
+                            ? 'border-amber-500/30 bg-[#111] hover:border-amber-500/50'
+                            : 'border-[#222] bg-[#111] hover:border-[#333]'
                       }`}
                     >
+                      {!canExport3D && (
+                        <span className="absolute -top-2 -right-2 text-[9px] bg-amber-500 text-black px-1.5 py-0.5 rounded-full font-bold">PRO</span>
+                      )}
                       <div className="flex items-center gap-2 mb-1">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -1635,19 +1650,24 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                       <p className="text-xs text-gray-500 mb-2">Format</p>
                       <div className="flex gap-2">
                         {[
-                          { id: 'svg', label: 'SVG', desc: 'Illustrator' },
-                          { id: 'png', label: 'PNG', desc: 'Image' },
-                          { id: 'dxf', label: 'DXF', desc: 'AutoCAD' },
+                          { id: 'png', label: 'PNG', desc: 'Image', pro: false },
+                          { id: 'svg', label: 'SVG', desc: 'Illustrator', pro: true },
+                          { id: 'dxf', label: 'DXF', desc: 'AutoCAD', pro: true },
                         ].map(fmt => (
                           <button
                             key={fmt.id}
                             onClick={() => setExportFormat(fmt.id as 'svg' | 'dxf' | 'png')}
-                            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center ${
+                            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all flex flex-col items-center relative ${
                               exportFormat === fmt.id
                                 ? 'bg-amber-500 text-black'
-                                : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
+                                : fmt.pro && !canExportSVG
+                                  ? 'bg-[#1a1a1a] text-gray-500 border border-amber-500/30'
+                                  : 'bg-[#1a1a1a] text-gray-400 hover:text-white'
                             }`}
                           >
+                            {fmt.pro && !canExportSVG && (
+                              <span className="absolute -top-1.5 -right-1.5 text-[8px] bg-amber-500 text-black px-1 rounded font-bold">PRO</span>
+                            )}
                             <span className="font-bold">{fmt.label}</span>
                             <span className={`text-[10px] ${exportFormat === fmt.id ? 'text-black/60' : 'text-gray-600'}`}>
                               {fmt.desc}
@@ -2618,28 +2638,44 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
                 </button>
                 <button
                   onClick={() => setExportMode('3d')}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                    exportMode === '3d' ? 'bg-amber-500 text-black' : 'bg-[#1a1a1a] text-gray-400'
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all relative ${
+                    exportMode === '3d' 
+                      ? 'bg-amber-500 text-black' 
+                      : !canExport3D
+                        ? 'bg-[#1a1a1a] text-gray-500 border border-amber-500/30'
+                        : 'bg-[#1a1a1a] text-gray-400'
                   }`}
                 >
                   3D Model
+                  {!canExport3D && (
+                    <span className="absolute -top-1 -right-1 text-[8px] bg-amber-500 text-black px-1 rounded font-bold">PRO</span>
+                  )}
                 </button>
               </div>
 
               {/* Format selector */}
               {exportMode === '2d' ? (
                 <div className="flex gap-2">
-                  {['svg', 'dxf', 'png'].map(fmt => (
+                  {[
+                    { id: 'png', label: 'PNG', pro: false },
+                    { id: 'svg', label: 'SVG', pro: true },
+                    { id: 'dxf', label: 'DXF', pro: true },
+                  ].map(fmt => (
                     <button
-                      key={fmt}
-                      onClick={() => setExportFormat(fmt as 'svg' | 'dxf' | 'png')}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                        exportFormat === fmt 
+                      key={fmt.id}
+                      onClick={() => setExportFormat(fmt.id as 'svg' | 'dxf' | 'png')}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all relative ${
+                        exportFormat === fmt.id 
                           ? 'bg-amber-500 text-black' 
-                          : 'bg-[#1a1a1a] text-gray-400'
+                          : fmt.pro && !canExportSVG
+                            ? 'bg-[#1a1a1a] text-gray-500 border border-amber-500/30'
+                            : 'bg-[#1a1a1a] text-gray-400'
                       }`}
                     >
-                      {fmt.toUpperCase()}
+                      {fmt.label}
+                      {fmt.pro && !canExportSVG && (
+                        <span className="absolute -top-1 -right-1 text-[8px] bg-amber-500 text-black px-1 rounded font-bold">PRO</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -3097,6 +3133,120 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
               <div className="w-4 h-4 bg-amber-500 rotate-45 -mt-2 ml-auto mr-10"></div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Sticky Pro Banner - Only for non-Pro users */}
+      {!canExportSVG && !showLoginModal && !showProModal && !showPngComparePopup && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-amber-600 to-amber-500 text-black py-2.5 px-4 shadow-lg">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">✨</span>
+              <p className="text-sm font-medium">
+                <span className="hidden sm:inline">Upgrade to Pro: </span>
+                <span className="font-bold">SVG + DXF + 3D</span>
+                <span className="hidden sm:inline"> exports</span>
+                <span className="mx-2">—</span>
+                <span className="font-bold">${proPrice}/mo</span>
+                {discount && (
+                  <span className="ml-2 text-xs bg-black/20 px-1.5 py-0.5 rounded">
+                    {discount.percent}% OFF
+                  </span>
+                )}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowProModal(true)}
+              className="px-4 py-1.5 bg-black text-amber-500 rounded-full text-sm font-bold hover:bg-black/80 transition-colors whitespace-nowrap"
+            >
+              Upgrade
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* PNG vs SVG Comparison Popup */}
+      {showPngComparePopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowPngComparePopup(false)} />
+          
+          <div className="relative bg-[#0a0a0a] border border-[#222] rounded-2xl p-6 max-w-lg w-full shadow-2xl">
+            {/* Close button */}
+            <button 
+              onClick={() => setShowPngComparePopup(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-7 h-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold mb-1">PNG Downloaded! 🎉</h3>
+              <p className="text-gray-400 text-sm">Want even better quality?</p>
+            </div>
+
+            {/* Comparison */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {/* PNG */}
+              <div className="bg-[#111] border border-[#222] rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-green-500">✓</span>
+                  <span className="font-medium">PNG</span>
+                  <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">FREE</span>
+                </div>
+                <ul className="text-xs text-gray-400 space-y-1.5">
+                  <li>• Raster image</li>
+                  <li>• Good for web</li>
+                  <li>• Fixed resolution</li>
+                  <li className="text-red-400">• Blurry when scaled</li>
+                </ul>
+              </div>
+
+              {/* SVG */}
+              <div className="bg-[#111] border border-amber-500/50 rounded-xl p-4 relative">
+                <div className="absolute -top-2 -right-2 text-xs bg-amber-500 text-black px-2 py-0.5 rounded-full font-bold">
+                  PRO
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-amber-500">★</span>
+                  <span className="font-medium">SVG</span>
+                </div>
+                <ul className="text-xs text-gray-400 space-y-1.5">
+                  <li className="text-amber-400">• Vector graphics</li>
+                  <li className="text-amber-400">• Infinite scaling</li>
+                  <li className="text-amber-400">• Editable layers</li>
+                  <li className="text-amber-400">• Print-ready quality</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setShowPngComparePopup(false)
+                  setShowProModal(true)
+                }}
+                className="w-full py-3 bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-400 transition-colors"
+              >
+                Upgrade to Pro — ${proPrice}/mo
+                {discount && <span className="ml-2 text-sm opacity-80">({discount.percent}% off)</span>}
+              </button>
+              <button
+                onClick={() => setShowPngComparePopup(false)}
+                className="w-full py-2 text-gray-500 text-sm hover:text-gray-300 transition-colors"
+              >
+                Maybe later
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
