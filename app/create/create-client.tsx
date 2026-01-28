@@ -3142,45 +3142,49 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
       {/* Sticky Pro Banner - Only for non-Pro users */}
       {!canExportSVG && !showLoginModal && !showProModal && !showPngComparePopup && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#111] border-t border-[#222] py-2 px-4">
-          <div className="max-w-4xl mx-auto flex items-center justify-center gap-3 sm:gap-6 text-sm">
-            <span className="text-gray-400 hidden sm:inline">Unlock vector exports</span>
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-amber-500/10 via-[#0a0a0a] to-amber-500/10 border-t border-amber-500/30">
+          <div className="flex items-center justify-between px-4 sm:px-8 py-2.5">
+            {/* Left */}
+            <div className="flex items-center gap-2">
+              <span className="text-amber-500 text-lg">✨</span>
+              <span className="text-amber-200/80 text-sm hidden md:inline">Unlock vector exports</span>
+            </div>
             
-            <div className="flex items-center gap-3 sm:gap-4">
+            {/* Center - Full width options */}
+            <div className="flex items-center gap-4 sm:gap-8 md:gap-16">
               <button
                 onClick={() => setShowProModal(true)}
-                className="text-gray-300 hover:text-white transition-colors"
+                className="group flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
               >
-                <span className="text-amber-500 font-semibold">SVG+DXF</span>
-                <span className="text-gray-500 mx-1">—</span>
-                <span className="font-medium">${unlimitedPrice}/mo</span>
+                <span className="text-gray-300 font-medium text-sm sm:text-base">SVG + DXF</span>
+                <span className="text-white font-bold text-base sm:text-lg">${unlimitedPrice}<span className="text-amber-500/70 text-xs sm:text-sm font-normal">/mo</span></span>
               </button>
               
-              <span className="text-gray-600">·</span>
+              <div className="w-px h-6 bg-amber-500/30"></div>
               
               <button
                 onClick={() => setShowProModal(true)}
-                className="text-gray-300 hover:text-white transition-colors"
+                className="group flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
               >
-                <span className="text-amber-500 font-semibold">Pro</span>
-                <span className="text-gray-600 text-xs mx-1">+3D</span>
-                <span className="text-gray-500 mx-1">—</span>
-                <span className="font-medium">${proPrice}/mo</span>
+                <span className="text-gray-300 font-medium text-sm sm:text-base">Pro <span className="text-amber-400">+3D</span></span>
+                <span className="text-white font-bold text-base sm:text-lg">${proPrice}<span className="text-amber-500/70 text-xs sm:text-sm font-normal">/mo</span></span>
               </button>
             </div>
             
-            {discount && (
-              <span className="text-[10px] bg-amber-500 text-black px-1.5 py-0.5 rounded font-bold">
-                {discount.percent}% OFF
-              </span>
-            )}
-            
-            <button
-              onClick={() => setShowProModal(true)}
-              className="text-amber-500 hover:text-amber-400 font-medium transition-colors"
-            >
-              Upgrade →
-            </button>
+            {/* Right */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              {discount && (
+                <span className="text-xs bg-green-500 text-white px-2 py-1 rounded font-bold animate-pulse">
+                  {discount.percent}% OFF
+                </span>
+              )}
+              <button
+                onClick={() => setShowProModal(true)}
+                className="px-4 sm:px-6 py-1.5 bg-amber-500 text-black rounded-full text-sm font-bold hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"
+              >
+                Upgrade
+              </button>
+            </div>
           </div>
         </div>
       )}
