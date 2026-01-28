@@ -3142,54 +3142,45 @@ export default function CreateClient({ discount, country }: CreateClientProps) {
 
       {/* Sticky Pro Banner - Only for non-Pro users */}
       {!canExportSVG && !showLoginModal && !showProModal && !showPngComparePopup && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-[#1a1a1a] to-[#0f0f0f] border-t border-amber-500/30 py-2 px-4 shadow-lg">
-          <div className="max-w-5xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-            {/* Left side - discount badge */}
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#111] border-t border-[#222] py-2 px-4">
+          <div className="max-w-4xl mx-auto flex items-center justify-center gap-3 sm:gap-6 text-sm">
+            <span className="text-gray-400 hidden sm:inline">Unlock vector exports</span>
+            
+            <div className="flex items-center gap-3 sm:gap-4">
+              <button
+                onClick={() => setShowProModal(true)}
+                className="text-gray-300 hover:text-white transition-colors"
+              >
+                <span className="text-amber-500 font-semibold">SVG+DXF</span>
+                <span className="text-gray-500 mx-1">—</span>
+                <span className="font-medium">${unlimitedPrice}/mo</span>
+              </button>
+              
+              <span className="text-gray-600">·</span>
+              
+              <button
+                onClick={() => setShowProModal(true)}
+                className="text-gray-300 hover:text-white transition-colors"
+              >
+                <span className="text-amber-500 font-semibold">Pro</span>
+                <span className="text-gray-600 text-xs mx-1">+3D</span>
+                <span className="text-gray-500 mx-1">—</span>
+                <span className="font-medium">${proPrice}/mo</span>
+              </button>
+            </div>
+            
             {discount && (
-              <div className="hidden sm:flex items-center gap-2 text-amber-500">
-                <span className="text-lg">🔥</span>
-                <span className="text-xs font-bold bg-amber-500/20 px-2 py-1 rounded">
-                  {discount.percent}% OFF
-                </span>
-              </div>
+              <span className="text-[10px] bg-amber-500 text-black px-1.5 py-0.5 rounded font-bold">
+                {discount.percent}% OFF
+              </span>
             )}
             
-            {/* Center - Two options */}
-            <div className="flex items-center gap-2 sm:gap-4 flex-1 justify-center">
-              {/* Unlimited SVG Option */}
-              <button
-                onClick={() => setShowProModal(true)}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#222] border border-amber-500/50 rounded-lg hover:border-amber-500 transition-all group"
-              >
-                <div className="text-left">
-                  <p className="text-xs text-gray-400 group-hover:text-gray-300">SVG + DXF</p>
-                  <p className="text-sm font-bold text-white">
-                    ${unlimitedPrice}<span className="text-xs font-normal text-gray-500">/mo</span>
-                  </p>
-                </div>
-              </button>
-              
-              <span className="text-gray-600 text-xs">or</span>
-              
-              {/* Pro Option */}
-              <button
-                onClick={() => setShowProModal(true)}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-amber-500 rounded-lg hover:bg-amber-400 transition-all"
-              >
-                <div className="text-left">
-                  <p className="text-xs text-black/70">SVG + DXF + 3D</p>
-                  <p className="text-sm font-bold text-black">
-                    ${proPrice}<span className="text-xs font-normal text-black/70">/mo</span>
-                    <span className="ml-1 text-[10px] bg-black/20 px-1 rounded">PRO</span>
-                  </p>
-                </div>
-              </button>
-            </div>
-            
-            {/* Right side - close hint on mobile */}
-            <div className="text-gray-600 text-xs hidden lg:block">
-              Unlock vector exports
-            </div>
+            <button
+              onClick={() => setShowProModal(true)}
+              className="text-amber-500 hover:text-amber-400 font-medium transition-colors"
+            >
+              Upgrade →
+            </button>
           </div>
         </div>
       )}
